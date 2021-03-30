@@ -26,6 +26,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using ErrorEventArgs = Newtonsoft.Json.Serialization.ErrorEventArgs;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using Polly;
 
 namespace Org.OpenAPITools.Client
@@ -160,9 +161,16 @@ namespace Org.OpenAPITools.Client
     /// Provides a default implementation of an Api client (both synchronous and asynchronous implementatios),
     /// encapsulating general REST accessor use cases.
     /// </summary>
-    public partial class ApiClient : ISynchronousClient, IAsynchronousClient
+    public partial class ApiClient : IDisposable, ISynchronousClient, IAsynchronousClient
     {
         private readonly String _baseUrl;
+
+        private readonly HttpClientHandler _httpClientHandler;
+        private readonly bool _disposeHandler;
+        private readonly HttpClient _httpClient;
+        private readonly bool _disposeClient;
+
+        private readonly bool _disableHandlerFeatures;
 
         /// <summary>
         /// Specifies the settings on a <see cref="JsonSerializer" /> object.
@@ -184,22 +192,75 @@ namespace Org.OpenAPITools.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiClient" />, defaulting to the global configurations' base url.
         /// </summary>
-        public ApiClient()
+        /// <param name="client">An instance of HttpClient</param>
+        /// <param name="handler">An instance of HttpClientHandler that is used by HttpClient</param>
+        /// <param name="disableHandlerFeatures">Disable ApiClient features that require access to the HttpClientHandler</param>
+        public ApiClient(HttpClient client = null, HttpClientHandler handler = null, bool disableHandlerFeatures = false) :
+                 this(Org.OpenAPITools.Client.GlobalConfiguration.Instance.BasePath, client, handler, disableHandlerFeatures)
         {
-            _baseUrl = Org.OpenAPITools.Client.GlobalConfiguration.Instance.BasePath;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiClient" />
         /// </summary>
         /// <param name="basePath">The target service's base path in URL format.</param>
+        /// <param name="client">An instance of HttpClient</param>
+        /// <param name="handler">An instance of HttpClientHandler that is used by HttpClient</param>
+        /// <param name="disableHandlerFeatures">Disable ApiClient features that require access to the HttpClientHandler</param>
         /// <exception cref="ArgumentException"></exception>
-        public ApiClient(String basePath)
+        public ApiClient(String basePath, HttpClient client = null, HttpClientHandler handler = null, bool disableHandlerFeatures = false)
         {
             if (string.IsNullOrEmpty(basePath))
                 throw new ArgumentException("basePath cannot be empty");
 
             _baseUrl = basePath;
+            if((client != null && handler == null) && !disableHandlerFeatures) {
+                throw new ArgumentException("If providing HttpClient, you also need to provide its handler or disable features requiring the handler, see README.md");
+            }
+
+            _disableHandlerFeatures = disableHandlerFeatures;
+            _httpClientHandler = handler ?? new HttpClientHandler();
+            _disposeHandler = handler == null;
+            _httpClient = client ?? new HttpClient(_httpClientHandler, false);
+            _disposeClient = client == null;
+        }
+
+        /// <summary>
+        /// Disposes resources if they were created by us
+        /// </summary>
+        public void Dispose()
+        {
+            if(_disposeClient) {
+                _httpClient.Dispose();
+            }
+            if(_disposeHandler) {
+                _httpClientHandler.Dispose();
+            }
+        }
+
+        /// Prepares multipart/form-data content
+        HttpContent PrepareMultipartFormDataContent(RequestOptions options)
+        {
+            string boundary = "---------" + Guid.NewGuid().ToString().ToUpperInvariant();
+            var multipartContent = new MultipartFormDataContent(boundary);
+            foreach (var formParameter in options.FormParameters)
+            {
+                multipartContent.Add(new StringContent(formParameter.Value), formParameter.Key);
+            }
+
+            if (options.FileParameters != null && options.FileParameters.Count > 0)
+            {
+                foreach (var fileParam in options.FileParameters)
+                {
+                    var fileStream = fileParam.Value as FileStream;
+                    var fileStreamName = fileStream != null ? System.IO.Path.GetFileName(fileStream.Name) : null;
+                    var content = new StreamContent(fileParam.Value);
+                    content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                    multipartContent.Add(content, fileParam.Key,
+                        fileStreamName ?? "no_file_name_provided");
+                }
+            }
+            return multipartContent;
         }
 
         /// <summary>
@@ -236,6 +297,11 @@ namespace Org.OpenAPITools.Client
 
             HttpRequestMessage request = new HttpRequestMessage(method, builder.GetFullUri());
 
+            if (configuration.UserAgent != null)
+            {
+                request.Headers.TryAddWithoutValidation("User-Agent", configuration.UserAgent);
+            }
+
             if (configuration.DefaultHeaders != null)
             {
                 foreach (var headerParam in configuration.DefaultHeaders)
@@ -258,51 +324,43 @@ namespace Org.OpenAPITools.Client
 
             List<Tuple<HttpContent, string, string>> contentList = new List<Tuple<HttpContent, string, string>>();
 
-            if (options.FormParameters != null && options.FormParameters.Count > 0)
+            string contentType = null;
+            if (options.HeaderParameters != null && options.HeaderParameters.ContainsKey("Content-Type"))
             {
-                contentList.Add(new Tuple<HttpContent, string, string>(new FormUrlEncodedContent(options.FormParameters), null, null));
+                var contentTypes = options.HeaderParameters["Content-Type"];
+                contentType = contentTypes.FirstOrDefault();
             }
 
-            if (options.Data != null)
+            if (contentType == "multipart/form-data")
             {
-                var serializer = new CustomJsonCodec(SerializerSettings, configuration);
-                contentList.Add(
-                    new Tuple<HttpContent, string, string>(new StringContent(serializer.Serialize(options.Data), new UTF8Encoding(), "application/json"), null, null));
+                request.Content = PrepareMultipartFormDataContent(options);
             }
-
-            if (options.FileParameters != null && options.FileParameters.Count > 0)
+            else if (contentType == "application/x-www-form-urlencoded")
             {
-                foreach (var fileParam in options.FileParameters)
-                {
-                    var bytes = ClientUtils.ReadAsBytes(fileParam.Value);
-                    var fileStream = fileParam.Value as FileStream;
-                    contentList.Add(new Tuple<HttpContent, string, string>(new ByteArrayContent(bytes), fileParam.Key,
-                        fileStream?.Name ?? "no_file_name_provided"));
-                }
-            }
-
-            if (contentList.Count > 1)
-            {
-                string boundary = "---------" + Guid.NewGuid().ToString().ToUpperInvariant();
-                var multipartContent = new MultipartFormDataContent(boundary);
-                foreach (var content in contentList)
-                {
-                   if(content.Item2 != null)
-                   {
-                     multipartContent.Add(content.Item1, content.Item2, content.Item3);
-                   }
-                   else
-                   {
-                     multipartContent.Add(content.Item1);
-                   }
-                }
-
-                request.Content = multipartContent;
+                request.Content = new FormUrlEncodedContent(options.FormParameters);
             }
             else
             {
-                request.Content = contentList.FirstOrDefault()?.Item1;
+                if (options.Data != null)
+                {
+                    if (options.Data is Stream s)
+                    {
+                        contentType = contentType ?? "application/octet-stream";
+
+                        var streamContent = new StreamContent(s);
+                        streamContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                        request.Content = streamContent;
+                    }
+                    else
+                    {
+                        var serializer = new CustomJsonCodec(SerializerSettings, configuration);
+                        request.Content = new StringContent(serializer.Serialize(options.Data), new UTF8Encoding(),
+                            "application/json");
+                    }
+                }
             }
+
+
 
             // TODO provide an alternative that allows cookies per request instead of per API client
             if (options.Cookies != null && options.Cookies.Count > 0)
@@ -345,15 +403,18 @@ namespace Org.OpenAPITools.Client
                 }
             }
 
-            if (response != null)
+            if(!_disableHandlerFeatures)
             {
-                try {
-                    foreach (Cookie cookie in handler.CookieContainer.GetCookies(uri))
-                    {
-                       transformed.Cookies.Add(cookie);
+                if (response != null)
+                {
+                    try {
+                        foreach (Cookie cookie in handler.CookieContainer.GetCookies(uri))
+                        {
+                           transformed.Cookies.Add(cookie);
+                        }
                     }
+                    catch (PlatformNotSupportedException) {}
                 }
-                catch (PlatformNotSupportedException) {}
             }
 
             return transformed;
@@ -368,8 +429,8 @@ namespace Org.OpenAPITools.Client
             IReadableConfiguration configuration,
             System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
-            var handler = new HttpClientHandler();
-            var client = new HttpClient();
+            var handler = _httpClientHandler;
+            var client = _httpClient;
             var deserializer = new CustomJsonCodec(SerializerSettings, configuration);
 
             var finalToken = cancellationToken;
@@ -379,20 +440,16 @@ namespace Org.OpenAPITools.Client
                 var tokenSource = new CancellationTokenSource(configuration.Timeout);
                 finalToken = CancellationTokenSource.CreateLinkedTokenSource(finalToken, tokenSource.Token).Token;
             }
+            if(!_disableHandlerFeatures) {
+                if (configuration.Proxy != null)
+                {
+                    handler.Proxy = configuration.Proxy;
+                }
 
-            if (configuration.Proxy != null)
-            {
-                handler.Proxy = configuration.Proxy;
-            }
-
-            if (configuration.UserAgent != null)
-            {
-                client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", configuration.UserAgent);
-            }
-
-            if (configuration.ClientCertificates != null)
-            {
-                handler.ClientCertificates.AddRange(configuration.ClientCertificates);
+                if (configuration.ClientCertificates != null)
+                {
+                    handler.ClientCertificates.AddRange(configuration.ClientCertificates);
+                }
             }
 
             var cookieContainer = req.Properties.ContainsKey("CookieContainer") ? req.Properties["CookieContainer"] as List<Cookie> : null;
