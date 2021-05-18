@@ -15,6 +15,8 @@ Method | HTTP request | Description
 [**mammal**](FakeApi.md#mammal) | **POST** /fake/refs/mammal | 
 [**number_with_validations**](FakeApi.md#number_with_validations) | **POST** /fake/refs/number | 
 [**object_model_with_ref_props**](FakeApi.md#object_model_with_ref_props) | **POST** /fake/refs/object_model_with_ref_props | 
+[**post_inline_additional_properties_payload**](FakeApi.md#post_inline_additional_properties_payload) | **POST** /fake/postInlineAdditionalPropertiesPayload | 
+[**post_inline_additional_properties_ref_payload**](FakeApi.md#post_inline_additional_properties_ref_payload) | **POST** /fake/postInlineAdditionalPropertiesRefPayload | 
 [**string**](FakeApi.md#string) | **POST** /fake/refs/string | 
 [**string_enum**](FakeApi.md#string_enum) | **POST** /fake/refs/enum | 
 [**test_body_with_file_schema**](FakeApi.md#test_body_with_file_schema) | **PUT** /fake/body-with-file-schema | 
@@ -761,6 +763,148 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Output model |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **post_inline_additional_properties_payload**
+> InlineObject6 post_inline_additional_properties_payload()
+
+
+
+### Example
+
+```python
+import time
+import petstore_api
+from petstore_api.api import fake_api
+from petstore_api.model.inline_object6 import InlineObject6
+from pprint import pprint
+# Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
+# See configuration.py for a list of all supported configuration parameters.
+configuration = petstore_api.Configuration(
+    host = "http://petstore.swagger.io:80/v2"
+)
+
+
+# Enter a context with an instance of the API client
+with petstore_api.ApiClient() as api_client:
+    # Create an instance of the API class
+    api_instance = fake_api.FakeApi(api_client)
+    inline_object6 = InlineObject6(
+        array_data=[
+            FakePostInlineAdditionalPropertiesPayloadArrayData(
+                labels=[
+                    "labels_example",
+                ],
+            ),
+        ],
+    ) # InlineObject6 |  (optional)
+
+    # example passing only required values which don't have defaults set
+    # and optional values
+    try:
+        api_response = api_instance.post_inline_additional_properties_payload(inline_object6=inline_object6)
+        pprint(api_response)
+    except petstore_api.ApiException as e:
+        print("Exception when calling FakeApi->post_inline_additional_properties_payload: %s\n" % e)
+```
+
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **inline_object6** | [**InlineObject6**](InlineObject6.md)|  | [optional]
+
+### Return type
+
+[**InlineObject6**](InlineObject6.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | InlineAdditionalPropertiesPayload |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **post_inline_additional_properties_ref_payload**
+> InlineAdditionalPropertiesRefPayload post_inline_additional_properties_ref_payload()
+
+
+
+### Example
+
+```python
+import time
+import petstore_api
+from petstore_api.api import fake_api
+from petstore_api.model.inline_additional_properties_ref_payload import InlineAdditionalPropertiesRefPayload
+from pprint import pprint
+# Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
+# See configuration.py for a list of all supported configuration parameters.
+configuration = petstore_api.Configuration(
+    host = "http://petstore.swagger.io:80/v2"
+)
+
+
+# Enter a context with an instance of the API client
+with petstore_api.ApiClient() as api_client:
+    # Create an instance of the API class
+    api_instance = fake_api.FakeApi(api_client)
+    inline_additional_properties_ref_payload = InlineAdditionalPropertiesRefPayload(
+        array_data=[
+            FakePostInlineAdditionalPropertiesPayloadArrayData(
+                labels=[
+                    "labels_example",
+                ],
+            ),
+        ],
+    ) # InlineAdditionalPropertiesRefPayload |  (optional)
+
+    # example passing only required values which don't have defaults set
+    # and optional values
+    try:
+        api_response = api_instance.post_inline_additional_properties_ref_payload(inline_additional_properties_ref_payload=inline_additional_properties_ref_payload)
+        pprint(api_response)
+    except petstore_api.ApiException as e:
+        print("Exception when calling FakeApi->post_inline_additional_properties_ref_payload: %s\n" % e)
+```
+
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **inline_additional_properties_ref_payload** | [**InlineAdditionalPropertiesRefPayload**](InlineAdditionalPropertiesRefPayload.md)|  | [optional]
+
+### Return type
+
+[**InlineAdditionalPropertiesRefPayload**](InlineAdditionalPropertiesRefPayload.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | InlineAdditionalPropertiesRefPayload |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

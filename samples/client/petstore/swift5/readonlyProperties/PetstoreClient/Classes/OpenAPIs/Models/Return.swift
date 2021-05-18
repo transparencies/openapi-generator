@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import AnyCodable
 
 /** Model for testing reserved words */
-public struct Return: Codable {
+public struct Return: Codable, Hashable {
 
     public private(set) var _return: Int?
 
@@ -20,4 +21,10 @@ public struct Return: Codable {
         case _return = "return"
     }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(_return, forKey: ._return)
+    }
 }

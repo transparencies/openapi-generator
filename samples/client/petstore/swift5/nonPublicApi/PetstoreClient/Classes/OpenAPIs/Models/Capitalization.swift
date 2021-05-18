@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import AnyCodable
 
-internal struct Capitalization: Codable {
+internal struct Capitalization: Codable, Hashable {
 
     internal var smallCamel: String?
     internal var capitalCamel: String?
@@ -35,4 +36,15 @@ internal struct Capitalization: Codable {
         case ATT_NAME
     }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(smallCamel, forKey: .smallCamel)
+        try container.encodeIfPresent(capitalCamel, forKey: .capitalCamel)
+        try container.encodeIfPresent(smallSnake, forKey: .smallSnake)
+        try container.encodeIfPresent(capitalSnake, forKey: .capitalSnake)
+        try container.encodeIfPresent(sCAETHFlowPoints, forKey: .sCAETHFlowPoints)
+        try container.encodeIfPresent(ATT_NAME, forKey: .ATT_NAME)
+    }
 }
