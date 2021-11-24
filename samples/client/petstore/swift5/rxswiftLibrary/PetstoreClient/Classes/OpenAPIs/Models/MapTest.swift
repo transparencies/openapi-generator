@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct MapTest: Codable, Hashable {
 
@@ -43,3 +45,4 @@ public struct MapTest: Codable, Hashable {
         try container.encodeIfPresent(indirectMap, forKey: .indirectMap)
     }
 }
+

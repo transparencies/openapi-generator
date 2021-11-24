@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.ArrayOfNumberOnly")
+public typealias ArrayOfNumberOnly = PetstoreClientAPI.ArrayOfNumberOnly
+
+extension PetstoreClientAPI {
 
 public final class ArrayOfNumberOnly: Codable, Hashable {
 
@@ -36,4 +43,6 @@ public final class ArrayOfNumberOnly: Codable, Hashable {
         hasher.combine(arrayNumber?.hashValue)
         
     }
+}
+
 }

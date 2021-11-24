@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct Order: Codable, Hashable {
 
@@ -53,3 +55,4 @@ public struct Order: Codable, Hashable {
         try container.encodeIfPresent(complete, forKey: .complete)
     }
 }
+

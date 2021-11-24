@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct Tag: Codable, Hashable {
 
@@ -31,3 +33,4 @@ internal struct Tag: Codable, Hashable {
         try container.encodeIfPresent(name, forKey: .name)
     }
 }
+

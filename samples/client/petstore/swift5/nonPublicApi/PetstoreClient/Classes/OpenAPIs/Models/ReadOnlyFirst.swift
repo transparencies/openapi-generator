@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct ReadOnlyFirst: Codable, Hashable {
 
@@ -31,3 +33,4 @@ internal struct ReadOnlyFirst: Codable, Hashable {
         try container.encodeIfPresent(baz, forKey: .baz)
     }
 }
+

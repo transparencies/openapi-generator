@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.Tag")
+public typealias Tag = PetstoreClientAPI.Tag
+
+extension PetstoreClientAPI {
 
 public final class Tag: Codable, Hashable {
 
@@ -42,4 +49,6 @@ public final class Tag: Codable, Hashable {
         hasher.combine(name?.hashValue)
         
     }
+}
+
 }

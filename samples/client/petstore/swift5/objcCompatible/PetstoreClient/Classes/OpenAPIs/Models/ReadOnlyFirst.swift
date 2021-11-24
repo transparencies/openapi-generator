@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class ReadOnlyFirst: NSObject, Codable {
 
@@ -31,3 +33,4 @@ import AnyCodable
         try container.encodeIfPresent(baz, forKey: .baz)
     }
 }
+

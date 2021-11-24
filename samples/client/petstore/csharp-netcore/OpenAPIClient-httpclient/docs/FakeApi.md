@@ -18,7 +18,7 @@ Method | HTTP request | Description
 [**TestGroupParameters**](FakeApi.md#testgroupparameters) | **DELETE** /fake | Fake endpoint to test group parameters (optional)
 [**TestInlineAdditionalProperties**](FakeApi.md#testinlineadditionalproperties) | **POST** /fake/inline-additionalProperties | test inline additionalProperties
 [**TestJsonFormData**](FakeApi.md#testjsonformdata) | **GET** /fake/jsonFormData | test json serialization of form data
-[**TestQueryParameterCollectionFormat**](FakeApi.md#testqueryparametercollectionformat) | **PUT** /fake/test-query-paramters | 
+[**TestQueryParameterCollectionFormat**](FakeApi.md#testqueryparametercollectionformat) | **PUT** /fake/test-query-parameters | 
 
 
 <a name="fakehealthget"></a>
@@ -678,7 +678,7 @@ No authorization required
 
 <a name="testendpointparameters"></a>
 # **TestEndpointParameters**
-> void TestEndpointParameters (decimal number, double _double, string patternWithoutDelimiter, byte[] _byte, int? integer = null, int? int32 = null, long? int64 = null, float? _float = null, string _string = null, System.IO.Stream binary = null, DateTime? date = null, DateTime? dateTime = null, string password = null, string callback = null)
+> void TestEndpointParameters (decimal number, double _double, string patternWithoutDelimiter, byte[] _byte, int? integer = null, int? int32 = null, long? int64 = null, float? _float = null, string _string = null, FileParameter binary = null, DateTime? date = null, DateTime? dateTime = null, string password = null, string callback = null)
 
 Fake endpoint for testing various parameters 假端點 偽のエンドポイント 가짜 엔드 포인트 
 
@@ -718,7 +718,7 @@ namespace Example
             var int64 = 789;  // long? | None (optional) 
             var _float = 3.4F;  // float? | None (optional) 
             var _string = _string_example;  // string | None (optional) 
-            var binary = BINARY_DATA_HERE;  // System.IO.Stream | None (optional) 
+            var binary = BINARY_DATA_HERE;  // FileParameter | None (optional) 
             var date = 2013-10-20;  // DateTime? | None (optional) 
             var dateTime = 2013-10-20T19:20:30+01:00;  // DateTime? | None (optional)  (default to "2010-02-01T10:20:10.111110+01:00")
             var password = password_example;  // string | None (optional) 
@@ -753,7 +753,7 @@ Name | Type | Description  | Notes
  **int64** | **long?**| None | [optional] 
  **_float** | **float?**| None | [optional] 
  **_string** | **string**| None | [optional] 
- **binary** | **System.IO.Stream****System.IO.Stream**| None | [optional] 
+ **binary** | **FileParameter****FileParameter**| None | [optional] 
  **date** | **DateTime?**| None | [optional] 
  **dateTime** | **DateTime?**| None | [optional] [default to &quot;2010-02-01T10:20:10.111110+01:00&quot;]
  **password** | **string**| None | [optional] 
@@ -810,9 +810,9 @@ namespace Example
             HttpClient httpClient = new HttpClient();
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             var apiInstance = new FakeApi(httpClient, config, httpClientHandler);
-            var enumHeaderStringArray = enumHeaderStringArray_example;  // List<string> | Header parameter enum test (string array) (optional) 
+            var enumHeaderStringArray = new List<string>(); // List<string> | Header parameter enum test (string array) (optional) 
             var enumHeaderString = enumHeaderString_example;  // string | Header parameter enum test (string) (optional)  (default to -efg)
-            var enumQueryStringArray = enumQueryStringArray_example;  // List<string> | Query parameter enum test (string array) (optional) 
+            var enumQueryStringArray = new List<string>(); // List<string> | Query parameter enum test (string array) (optional) 
             var enumQueryString = enumQueryString_example;  // string | Query parameter enum test (string) (optional)  (default to -efg)
             var enumQueryInteger = 56;  // int? | Query parameter enum test (double) (optional) 
             var enumQueryDouble = 1.2D;  // double? | Query parameter enum test (double) (optional) 
@@ -839,9 +839,9 @@ namespace Example
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **enumHeaderStringArray** | **List&lt;string&gt;**| Header parameter enum test (string array) | [optional] 
+ **enumHeaderStringArray** | [**List&lt;string&gt;**](string.md)| Header parameter enum test (string array) | [optional] 
  **enumHeaderString** | **string**| Header parameter enum test (string) | [optional] [default to -efg]
- **enumQueryStringArray** | **List&lt;string&gt;**| Query parameter enum test (string array) | [optional] 
+ **enumQueryStringArray** | [**List&lt;string&gt;**](string.md)| Query parameter enum test (string array) | [optional] 
  **enumQueryString** | **string**| Query parameter enum test (string) | [optional] [default to -efg]
  **enumQueryInteger** | **int?**| Query parameter enum test (double) | [optional] 
  **enumQueryDouble** | **double?**| Query parameter enum test (double) | [optional] 

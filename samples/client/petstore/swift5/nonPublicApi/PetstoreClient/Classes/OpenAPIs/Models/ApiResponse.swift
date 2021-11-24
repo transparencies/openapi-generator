@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct ApiResponse: Codable, Hashable {
 
@@ -35,3 +37,4 @@ internal struct ApiResponse: Codable, Hashable {
         try container.encodeIfPresent(message, forKey: .message)
     }
 }
+

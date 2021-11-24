@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct TypeHolderDefault: Codable, Hashable {
 
@@ -43,3 +45,4 @@ internal struct TypeHolderDefault: Codable, Hashable {
         try container.encode(arrayItem, forKey: .arrayItem)
     }
 }
+

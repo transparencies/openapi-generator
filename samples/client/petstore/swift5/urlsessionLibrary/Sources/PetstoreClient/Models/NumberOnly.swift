@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.NumberOnly")
+public typealias NumberOnly = PetstoreClientAPI.NumberOnly
+
+extension PetstoreClientAPI {
 
 public final class NumberOnly: Codable, Hashable {
 
@@ -36,4 +43,6 @@ public final class NumberOnly: Codable, Hashable {
         hasher.combine(justNumber?.hashValue)
         
     }
+}
+
 }

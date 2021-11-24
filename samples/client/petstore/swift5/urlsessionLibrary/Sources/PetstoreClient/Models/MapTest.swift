@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.MapTest")
+public typealias MapTest = PetstoreClientAPI.MapTest
+
+extension PetstoreClientAPI {
 
 public final class MapTest: Codable, Hashable {
 
@@ -58,4 +65,6 @@ public final class MapTest: Codable, Hashable {
         hasher.combine(indirectMap?.hashValue)
         
     }
+}
+
 }

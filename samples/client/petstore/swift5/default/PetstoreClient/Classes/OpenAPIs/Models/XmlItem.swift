@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct XmlItem: Codable, Hashable {
 
@@ -139,3 +141,4 @@ public struct XmlItem: Codable, Hashable {
         try container.encodeIfPresent(prefixNsWrappedArray, forKey: .prefixNsWrappedArray)
     }
 }
+

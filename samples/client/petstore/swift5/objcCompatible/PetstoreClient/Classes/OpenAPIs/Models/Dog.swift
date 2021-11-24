@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class Dog: NSObject, Codable {
 
@@ -35,3 +37,4 @@ import AnyCodable
         try container.encodeIfPresent(breed, forKey: .breed)
     }
 }
+

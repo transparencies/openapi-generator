@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class FormatTest: NSObject, Codable {
 
@@ -100,3 +102,4 @@ import AnyCodable
         try container.encode(password, forKey: .password)
     }
 }
+

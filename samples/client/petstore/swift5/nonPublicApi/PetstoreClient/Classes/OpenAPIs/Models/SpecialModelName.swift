@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct SpecialModelName: Codable, Hashable {
 
@@ -27,3 +29,4 @@ internal struct SpecialModelName: Codable, Hashable {
         try container.encodeIfPresent(specialPropertyName, forKey: .specialPropertyName)
     }
 }
+

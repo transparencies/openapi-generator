@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.OuterComposite")
+public typealias OuterComposite = PetstoreClientAPI.OuterComposite
+
+extension PetstoreClientAPI {
 
 public final class OuterComposite: Codable, Hashable {
 
@@ -48,4 +55,6 @@ public final class OuterComposite: Codable, Hashable {
         hasher.combine(myBoolean?.hashValue)
         
     }
+}
+
 }

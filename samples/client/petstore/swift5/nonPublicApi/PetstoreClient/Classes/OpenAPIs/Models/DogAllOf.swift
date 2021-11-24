@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct DogAllOf: Codable, Hashable {
 
@@ -27,3 +29,4 @@ internal struct DogAllOf: Codable, Hashable {
         try container.encodeIfPresent(breed, forKey: .breed)
     }
 }
+

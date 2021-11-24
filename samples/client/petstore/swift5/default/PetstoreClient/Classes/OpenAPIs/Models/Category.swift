@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct Category: Codable, Hashable {
 
@@ -31,3 +33,4 @@ public struct Category: Codable, Hashable {
         try container.encode(name, forKey: .name)
     }
 }
+

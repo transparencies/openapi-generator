@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct EnumTest: Codable, Hashable {
 
@@ -61,3 +63,4 @@ internal struct EnumTest: Codable, Hashable {
         try container.encodeIfPresent(outerEnum, forKey: .outerEnum)
     }
 }
+

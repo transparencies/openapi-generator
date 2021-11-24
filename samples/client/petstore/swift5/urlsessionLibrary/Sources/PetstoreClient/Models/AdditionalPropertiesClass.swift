@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.AdditionalPropertiesClass")
+public typealias AdditionalPropertiesClass = PetstoreClientAPI.AdditionalPropertiesClass
+
+extension PetstoreClientAPI {
 
 public final class AdditionalPropertiesClass: Codable, Hashable {
 
@@ -42,4 +49,6 @@ public final class AdditionalPropertiesClass: Codable, Hashable {
         hasher.combine(mapMapString?.hashValue)
         
     }
+}
+
 }

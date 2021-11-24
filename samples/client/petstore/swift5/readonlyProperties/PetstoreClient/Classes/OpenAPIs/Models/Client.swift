@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct Client: Codable, Hashable {
 
@@ -27,3 +29,4 @@ public struct Client: Codable, Hashable {
         try container.encodeIfPresent(client, forKey: .client)
     }
 }
+

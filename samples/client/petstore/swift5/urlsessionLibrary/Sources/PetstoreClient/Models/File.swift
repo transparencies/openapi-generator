@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.File")
+public typealias File = PetstoreClientAPI.File
+
+extension PetstoreClientAPI {
 
 /** Must be named &#x60;File&#x60; for test. */
 public final class File: Codable, Hashable {
@@ -38,4 +45,6 @@ public final class File: Codable, Hashable {
         hasher.combine(sourceURI?.hashValue)
         
     }
+}
+
 }

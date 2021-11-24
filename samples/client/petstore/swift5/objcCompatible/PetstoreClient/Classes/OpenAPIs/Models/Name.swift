@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 /** Model for testing model name same as property name */
 @objc public class Name: NSObject, Codable {
@@ -50,3 +52,4 @@ import AnyCodable
         try container.encodeIfPresent(_123number, forKey: ._123number)
     }
 }
+

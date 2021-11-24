@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 /** Model for testing model name starting with number */
 public struct Model200Response: Codable, Hashable {
@@ -32,3 +34,4 @@ public struct Model200Response: Codable, Hashable {
         try container.encodeIfPresent(`class`, forKey: .`class`)
     }
 }
+

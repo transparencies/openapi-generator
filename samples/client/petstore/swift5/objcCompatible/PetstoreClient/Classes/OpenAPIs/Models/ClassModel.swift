@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 /** Model for testing model with \&quot;_class\&quot; property */
 @objc public class ClassModel: NSObject, Codable {
@@ -28,3 +30,4 @@ import AnyCodable
         try container.encodeIfPresent(_class, forKey: ._class)
     }
 }
+

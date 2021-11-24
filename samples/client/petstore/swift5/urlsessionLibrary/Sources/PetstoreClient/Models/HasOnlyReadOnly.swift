@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.HasOnlyReadOnly")
+public typealias HasOnlyReadOnly = PetstoreClientAPI.HasOnlyReadOnly
+
+extension PetstoreClientAPI {
 
 public final class HasOnlyReadOnly: Codable, Hashable {
 
@@ -42,4 +49,6 @@ public final class HasOnlyReadOnly: Codable, Hashable {
         hasher.combine(foo?.hashValue)
         
     }
+}
+
 }

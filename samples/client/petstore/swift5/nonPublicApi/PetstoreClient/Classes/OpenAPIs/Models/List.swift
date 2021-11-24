@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct List: Codable, Hashable {
 
@@ -27,3 +29,4 @@ internal struct List: Codable, Hashable {
         try container.encodeIfPresent(_123list, forKey: ._123list)
     }
 }
+

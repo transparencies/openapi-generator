@@ -5,19 +5,21 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 import PromiseKit
 
 extension Bool: JSONEncodable {
-    func encodeToJSON() -> Any { return self as Any }
+    func encodeToJSON() -> Any { return self }
 }
 
 extension Float: JSONEncodable {
-    func encodeToJSON() -> Any { return self as Any }
+    func encodeToJSON() -> Any { return self }
 }
 
 extension Int: JSONEncodable {
-    func encodeToJSON() -> Any { return self as Any }
+    func encodeToJSON() -> Any { return self }
 }
 
 extension Int32: JSONEncodable {
@@ -29,22 +31,22 @@ extension Int64: JSONEncodable {
 }
 
 extension Double: JSONEncodable {
-    func encodeToJSON() -> Any { return self as Any }
+    func encodeToJSON() -> Any { return self }
 }
 
 extension String: JSONEncodable {
-    func encodeToJSON() -> Any { return self as Any }
+    func encodeToJSON() -> Any { return self }
 }
 
 extension RawRepresentable where RawValue: JSONEncodable {
-    func encodeToJSON() -> Any { return self.rawValue as Any }
+    func encodeToJSON() -> Any { return self.rawValue }
 }
 
 private func encodeIfPossible<T>(_ object: T) -> Any {
     if let encodableObject = object as? JSONEncodable {
         return encodableObject.encodeToJSON()
     } else {
-        return object as Any
+        return object
     }
 }
 
@@ -66,7 +68,7 @@ extension Dictionary: JSONEncodable {
         for (key, value) in self {
             dictionary[key] = encodeIfPossible(value)
         }
-        return dictionary as Any
+        return dictionary
     }
 }
 
@@ -78,7 +80,7 @@ extension Data: JSONEncodable {
 
 extension Date: JSONEncodable {
     func encodeToJSON() -> Any {
-        return CodableHelper.dateFormatter.string(from: self) as Any
+        return CodableHelper.dateFormatter.string(from: self)
     }
 }
 
@@ -182,7 +184,7 @@ extension KeyedDecodingContainerProtocol {
 
 extension HTTPURLResponse {
     var isStatusCodeSuccessful: Bool {
-        return Array(200 ..< 300).contains(statusCode)
+        return (200 ..< 300).contains(statusCode)
     }
 }
 
@@ -198,46 +200,5 @@ extension RequestBuilder {
             }
         }
         return deferred.promise
-    }
-}
-
-extension AnyCodable: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        switch value {
-        case let value as Bool:
-            hasher.combine(value)
-        case let value as Int:
-            hasher.combine(value)
-        case let value as Int8:
-            hasher.combine(value)
-        case let value as Int16:
-            hasher.combine(value)
-        case let value as Int32:
-            hasher.combine(value)
-        case let value as Int64:
-            hasher.combine(value)
-        case let value as UInt:
-            hasher.combine(value)
-        case let value as UInt8:
-            hasher.combine(value)
-        case let value as UInt16:
-            hasher.combine(value)
-        case let value as UInt32:
-            hasher.combine(value)
-        case let value as UInt64:
-            hasher.combine(value)
-        case let value as Float:
-            hasher.combine(value)
-        case let value as Double:
-            hasher.combine(value)
-        case let value as String:
-            hasher.combine(value)
-        case let value as [String: AnyCodable]:
-            hasher.combine(value)
-        case let value as [AnyCodable]:
-            hasher.combine(value)
-        default:
-            hasher.combine(0)
-        }
     }
 }

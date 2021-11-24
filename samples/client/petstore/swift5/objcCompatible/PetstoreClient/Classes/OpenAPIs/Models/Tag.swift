@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class Tag: NSObject, Codable {
 
@@ -36,3 +38,4 @@ import AnyCodable
         try container.encodeIfPresent(name, forKey: .name)
     }
 }
+

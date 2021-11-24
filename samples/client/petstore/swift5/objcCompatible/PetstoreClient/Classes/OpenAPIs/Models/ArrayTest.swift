@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class ArrayTest: NSObject, Codable {
 
@@ -35,3 +37,4 @@ import AnyCodable
         try container.encodeIfPresent(arrayArrayOfModel, forKey: .arrayArrayOfModel)
     }
 }
+

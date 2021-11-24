@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct ArrayOfNumberOnly: Codable, Hashable {
 
@@ -27,3 +29,4 @@ public struct ArrayOfNumberOnly: Codable, Hashable {
         try container.encodeIfPresent(arrayNumber, forKey: .arrayNumber)
     }
 }
+

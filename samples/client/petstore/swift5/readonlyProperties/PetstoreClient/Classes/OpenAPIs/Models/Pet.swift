@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct Pet: Codable, Hashable {
 
@@ -53,3 +55,4 @@ public struct Pet: Codable, Hashable {
         try container.encodeIfPresent(status, forKey: .status)
     }
 }
+

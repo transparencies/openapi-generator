@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct EnumArrays: Codable, Hashable {
 
@@ -39,3 +41,4 @@ internal struct EnumArrays: Codable, Hashable {
         try container.encodeIfPresent(arrayEnum, forKey: .arrayEnum)
     }
 }
+

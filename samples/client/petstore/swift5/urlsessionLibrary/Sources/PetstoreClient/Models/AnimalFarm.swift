@@ -6,6 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.AnimalFarm")
+public typealias AnimalFarm = PetstoreClientAPI.AnimalFarm
+
+extension PetstoreClientAPI {
 
 public typealias AnimalFarm = [Animal]
+}

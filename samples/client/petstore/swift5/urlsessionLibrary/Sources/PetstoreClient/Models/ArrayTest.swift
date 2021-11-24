@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.ArrayTest")
+public typealias ArrayTest = PetstoreClientAPI.ArrayTest
+
+extension PetstoreClientAPI {
 
 public final class ArrayTest: Codable, Hashable {
 
@@ -48,4 +55,6 @@ public final class ArrayTest: Codable, Hashable {
         hasher.combine(arrayArrayOfModel?.hashValue)
         
     }
+}
+
 }

@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct TypeHolderExample: Codable, Hashable {
 
@@ -47,3 +49,4 @@ public struct TypeHolderExample: Codable, Hashable {
         try container.encode(arrayItem, forKey: .arrayItem)
     }
 }
+

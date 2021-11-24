@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.SpecialModelName")
+public typealias SpecialModelName = PetstoreClientAPI.SpecialModelName
+
+extension PetstoreClientAPI {
 
 public final class SpecialModelName: Codable, Hashable {
 
@@ -36,4 +43,6 @@ public final class SpecialModelName: Codable, Hashable {
         hasher.combine(specialPropertyName?.hashValue)
         
     }
+}
+
 }

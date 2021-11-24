@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.EnumArrays")
+public typealias EnumArrays = PetstoreClientAPI.EnumArrays
+
+extension PetstoreClientAPI {
 
 public final class EnumArrays: Codable, Hashable {
 
@@ -50,4 +57,6 @@ public final class EnumArrays: Codable, Hashable {
         hasher.combine(arrayEnum?.hashValue)
         
     }
+}
+
 }

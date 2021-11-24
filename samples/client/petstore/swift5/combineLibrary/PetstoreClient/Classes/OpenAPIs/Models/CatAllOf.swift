@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct CatAllOf: Codable, Hashable {
 
@@ -27,3 +29,4 @@ public struct CatAllOf: Codable, Hashable {
         try container.encodeIfPresent(declawed, forKey: .declawed)
     }
 }
+

@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class MapTest: NSObject, Codable {
 
@@ -43,3 +45,4 @@ import AnyCodable
         try container.encodeIfPresent(indirectMap, forKey: .indirectMap)
     }
 }
+

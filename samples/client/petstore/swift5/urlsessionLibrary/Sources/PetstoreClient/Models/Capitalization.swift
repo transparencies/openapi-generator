@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.Capitalization")
+public typealias Capitalization = PetstoreClientAPI.Capitalization
+
+extension PetstoreClientAPI {
 
 public final class Capitalization: Codable, Hashable {
 
@@ -67,4 +74,6 @@ public final class Capitalization: Codable, Hashable {
         hasher.combine(ATT_NAME?.hashValue)
         
     }
+}
+
 }

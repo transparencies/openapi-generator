@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class Order: NSObject, Codable {
 
@@ -73,3 +75,4 @@ import AnyCodable
         try container.encodeIfPresent(complete, forKey: .complete)
     }
 }
+

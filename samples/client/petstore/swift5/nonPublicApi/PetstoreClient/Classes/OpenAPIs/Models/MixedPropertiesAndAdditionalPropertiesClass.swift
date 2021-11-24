@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct MixedPropertiesAndAdditionalPropertiesClass: Codable, Hashable {
 
@@ -35,3 +37,4 @@ internal struct MixedPropertiesAndAdditionalPropertiesClass: Codable, Hashable {
         try container.encodeIfPresent(map, forKey: .map)
     }
 }
+

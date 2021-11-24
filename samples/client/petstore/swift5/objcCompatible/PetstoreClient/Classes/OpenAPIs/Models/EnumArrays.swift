@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class EnumArrays: NSObject, Codable {
 
@@ -39,3 +41,4 @@ import AnyCodable
         try container.encodeIfPresent(arrayEnum, forKey: .arrayEnum)
     }
 }
+

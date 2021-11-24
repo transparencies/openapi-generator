@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.FormatTest")
+public typealias FormatTest = PetstoreClientAPI.FormatTest
+
+extension PetstoreClientAPI {
 
 public final class FormatTest: Codable, Hashable {
 
@@ -108,4 +115,6 @@ public final class FormatTest: Codable, Hashable {
         hasher.combine(password.hashValue)
         
     }
+}
+
 }

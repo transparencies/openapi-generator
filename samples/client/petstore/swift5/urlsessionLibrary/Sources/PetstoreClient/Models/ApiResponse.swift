@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.ApiResponse")
+public typealias ApiResponse = PetstoreClientAPI.ApiResponse
+
+extension PetstoreClientAPI {
 
 public final class ApiResponse: Codable, Hashable {
 
@@ -48,4 +55,6 @@ public final class ApiResponse: Codable, Hashable {
         hasher.combine(message?.hashValue)
         
     }
+}
+
 }

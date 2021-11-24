@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 /** Model for testing model with \&quot;_class\&quot; property */
 public struct ClassModel: Codable, Hashable {
@@ -28,3 +30,4 @@ public struct ClassModel: Codable, Hashable {
         try container.encodeIfPresent(`class`, forKey: .`class`)
     }
 }
+

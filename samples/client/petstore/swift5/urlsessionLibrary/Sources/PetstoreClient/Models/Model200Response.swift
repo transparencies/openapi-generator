@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.Model200Response")
+public typealias Model200Response = PetstoreClientAPI.Model200Response
+
+extension PetstoreClientAPI {
 
 /** Model for testing model name starting with number */
 public final class Model200Response: Codable, Hashable {
@@ -43,4 +50,6 @@ public final class Model200Response: Codable, Hashable {
         hasher.combine(_class?.hashValue)
         
     }
+}
+
 }

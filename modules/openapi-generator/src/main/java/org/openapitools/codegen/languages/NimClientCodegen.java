@@ -117,13 +117,13 @@ public class NimClientCodegen extends DefaultCodegen implements CodegenConfig {
                 )
         );
 
-        defaultIncludes = new HashSet<String>(
+        defaultIncludes = new HashSet<>(
                 Arrays.asList(
                         "array"
                 )
         );
 
-        languageSpecificPrimitives = new HashSet<String>(
+        languageSpecificPrimitives = new HashSet<>(
                 Arrays.asList(
                         "int",
                         "int8",
@@ -195,7 +195,7 @@ public class NimClientCodegen extends DefaultCodegen implements CodegenConfig {
 
     @Override
     public String escapeReservedWord(String name) {
-        LOGGER.warn("A reserved word \"" + name + "\" is used. Consider renaming the field name");
+        LOGGER.warn("A reserved word \"{}\" is used. Consider renaming the field name", name);
         if (this.reservedWordsMappings().containsKey(name)) {
             return this.reservedWordsMappings().get(name);
         }
@@ -311,7 +311,7 @@ public class NimClientCodegen extends DefaultCodegen implements CodegenConfig {
             name = "`" + name + "`";
         }
 
-        // if it's all uppper case, do nothing
+        // if it's all upper case, do nothing
         if (name.matches("^[A-Z0-9_]*$")) {
             return name;
         }

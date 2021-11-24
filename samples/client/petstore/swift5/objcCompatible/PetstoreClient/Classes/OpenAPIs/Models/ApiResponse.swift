@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class ApiResponse: NSObject, Codable {
 
@@ -40,3 +42,4 @@ import AnyCodable
         try container.encodeIfPresent(message, forKey: .message)
     }
 }
+

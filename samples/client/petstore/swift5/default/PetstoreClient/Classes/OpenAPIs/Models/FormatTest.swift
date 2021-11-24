@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct FormatTest: Codable, Hashable {
 
@@ -79,3 +81,4 @@ public struct FormatTest: Codable, Hashable {
         try container.encodeIfPresent(bigDecimal, forKey: .bigDecimal)
     }
 }
+

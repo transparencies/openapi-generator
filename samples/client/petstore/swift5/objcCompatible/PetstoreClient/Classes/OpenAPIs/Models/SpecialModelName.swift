@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class SpecialModelName: NSObject, Codable {
 
@@ -32,3 +34,4 @@ import AnyCodable
         try container.encodeIfPresent(specialPropertyName, forKey: .specialPropertyName)
     }
 }
+

@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.Name")
+public typealias Name = PetstoreClientAPI.Name
+
+extension PetstoreClientAPI {
 
 /** Model for testing model name same as property name */
 public final class Name: Codable, Hashable {
@@ -55,4 +62,6 @@ public final class Name: Codable, Hashable {
         hasher.combine(_123number?.hashValue)
         
     }
+}
+
 }

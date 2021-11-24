@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct FileSchemaTestClass: Codable, Hashable {
 
@@ -31,3 +33,4 @@ internal struct FileSchemaTestClass: Codable, Hashable {
         try container.encodeIfPresent(files, forKey: .files)
     }
 }
+

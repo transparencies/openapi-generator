@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.Animal")
+public typealias Animal = PetstoreClientAPI.Animal
+
+extension PetstoreClientAPI {
 
 public final class Animal: Codable, Hashable {
 
@@ -42,4 +49,6 @@ public final class Animal: Codable, Hashable {
         hasher.combine(color?.hashValue)
         
     }
+}
+
 }

@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.TypeHolderExample")
+public typealias TypeHolderExample = PetstoreClientAPI.TypeHolderExample
+
+extension PetstoreClientAPI {
 
 public final class TypeHolderExample: Codable, Hashable {
 
@@ -60,4 +67,6 @@ public final class TypeHolderExample: Codable, Hashable {
         hasher.combine(arrayItem.hashValue)
         
     }
+}
+
 }

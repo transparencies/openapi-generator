@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 /** Model for testing reserved words */
 public struct Return: Codable, Hashable {
@@ -28,3 +30,4 @@ public struct Return: Codable, Hashable {
         try container.encodeIfPresent(`return`, forKey: .`return`)
     }
 }
+

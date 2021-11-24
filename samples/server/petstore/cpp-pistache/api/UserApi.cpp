@@ -49,11 +49,13 @@ void UserApi::setupRoutes() {
 std::pair<Pistache::Http::Code, std::string> UserApi::handleParsingException(const std::exception& ex) const noexcept
 {
     try {
-        throw ex;
+        throw;
     } catch (nlohmann::detail::exception &e) {
         return std::make_pair(Pistache::Http::Code::Bad_Request, e.what());
     } catch (org::openapitools::server::helpers::ValidationException &e) {
         return std::make_pair(Pistache::Http::Code::Bad_Request, e.what());
+    } catch (std::exception &e) {
+        return std::make_pair(Pistache::Http::Code::Internal_Server_Error, e.what());
     }
 }
 
@@ -209,19 +211,19 @@ void UserApi::login_user_handler(const Pistache::Rest::Request &request, Pistach
 
     // Getting the query params
     auto usernameQuery = request.query().get("username");
-    Pistache::Optional<std::string> username;
-    if(!usernameQuery.isEmpty()){
+    std::optional<std::string> username;
+    if(usernameQuery.has_value()){
         std::string valueQuery_instance;
-        if(fromStringValue(usernameQuery.get(), valueQuery_instance)){
-            username = Pistache::Some(valueQuery_instance);
+        if(fromStringValue(usernameQuery.value(), valueQuery_instance)){
+            username = valueQuery_instance;
         }
     }
     auto passwordQuery = request.query().get("password");
-    Pistache::Optional<std::string> password;
-    if(!passwordQuery.isEmpty()){
+    std::optional<std::string> password;
+    if(passwordQuery.has_value()){
         std::string valueQuery_instance;
-        if(fromStringValue(passwordQuery.get(), valueQuery_instance)){
-            password = Pistache::Some(valueQuery_instance);
+        if(fromStringValue(passwordQuery.value(), valueQuery_instance)){
+            password = valueQuery_instance;
         }
     }
     

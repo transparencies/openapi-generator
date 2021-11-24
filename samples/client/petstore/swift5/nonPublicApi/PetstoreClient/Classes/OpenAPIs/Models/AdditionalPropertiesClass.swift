@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct AdditionalPropertiesClass: Codable, Hashable {
 
@@ -31,3 +33,4 @@ internal struct AdditionalPropertiesClass: Codable, Hashable {
         try container.encodeIfPresent(mapMapString, forKey: .mapMapString)
     }
 }
+

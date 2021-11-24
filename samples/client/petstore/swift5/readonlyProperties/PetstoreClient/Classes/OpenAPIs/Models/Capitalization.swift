@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct Capitalization: Codable, Hashable {
 
@@ -48,3 +50,4 @@ public struct Capitalization: Codable, Hashable {
         try container.encodeIfPresent(ATT_NAME, forKey: .ATT_NAME)
     }
 }
+

@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 internal struct OuterComposite: Codable, Hashable {
 
@@ -35,3 +37,4 @@ internal struct OuterComposite: Codable, Hashable {
         try container.encodeIfPresent(myBoolean, forKey: .myBoolean)
     }
 }
+

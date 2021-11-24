@@ -6,7 +6,14 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
+
+@available(*, deprecated, renamed: "PetstoreClientAPI.EnumTest")
+public typealias EnumTest = PetstoreClientAPI.EnumTest
+
+extension PetstoreClientAPI {
 
 public final class EnumTest: Codable, Hashable {
 
@@ -78,4 +85,6 @@ public final class EnumTest: Codable, Hashable {
         hasher.combine(outerEnum?.hashValue)
         
     }
+}
+
 }

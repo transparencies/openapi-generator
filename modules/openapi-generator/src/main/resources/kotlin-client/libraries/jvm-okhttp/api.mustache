@@ -4,7 +4,14 @@ package {{apiPackage}}
 {{#imports}}import {{import}}
 {{/imports}}
 
+{{^doNotUseRxAndCoroutines}}
+{{#useCoroutines}}
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+{{/useCoroutines}}
+{{/doNotUseRxAndCoroutines}}
 import {{packageName}}.infrastructure.ApiClient
+import {{packageName}}.infrastructure.ApiInfrastructureResponse
 import {{packageName}}.infrastructure.ClientException
 import {{packageName}}.infrastructure.ClientError
 import {{packageName}}.infrastructure.ServerException
@@ -21,7 +28,7 @@ import {{packageName}}.infrastructure.toMultiValue
     companion object {
         @JvmStatic
         val defaultBasePath: String by lazy {
-            System.getProperties().getProperty("{{packageName}}.baseUrl", "{{{basePath}}}")
+            System.getProperties().getProperty(ApiClient.baseUrlKey, "{{{basePath}}}")
         }
     }
 
@@ -40,14 +47,13 @@ import {{packageName}}.infrastructure.toMultiValue
     {{#isDeprecated}}
     @Deprecated(message = "This operation is deprecated.")
     {{/isDeprecated}}
-    {{^doNotUseRxAndCoroutines}}{{#useCoroutines}}suspend {{/useCoroutines}}{{/doNotUseRxAndCoroutines}}fun {{operationId}}({{#allParams}}{{{paramName}}}: {{{dataType}}}{{^required}}?{{/required}}{{^-last}}, {{/-last}}{{/allParams}}) : {{#returnType}}{{{returnType}}}{{#nullableReturnType}}?{{/nullableReturnType}}{{/returnType}}{{^returnType}}Unit{{/returnType}} {
-        val localVariableConfig = {{operationId}}RequestConfig({{#allParams}}{{{paramName}}} = {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}})
+    {{^doNotUseRxAndCoroutines}}{{#useCoroutines}}suspend {{/useCoroutines}}{{/doNotUseRxAndCoroutines}}fun {{operationId}}({{#allParams}}{{{paramName}}}: {{{dataType}}}{{^required}}?{{/required}}{{^-last}}, {{/-last}}{{/allParams}}) : {{#returnType}}{{{returnType}}}{{#nullableReturnType}}?{{/nullableReturnType}}{{/returnType}}{{^returnType}}Unit{{/returnType}}{{^doNotUseRxAndCoroutines}}{{#useCoroutines}} = withContext(Dispatchers.IO){{/useCoroutines}}{{/doNotUseRxAndCoroutines}} {
+        {{#isDeprecated}}
+        @Suppress("DEPRECATION")
+        {{/isDeprecated}}
+        val localVarResponse = {{operationId}}WithHttpInfo({{#allParams}}{{{paramName}}} = {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}})
 
-        val localVarResponse = request<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Any?{{/returnType}}>(
-            localVariableConfig
-        )
-
-        return when (localVarResponse.responseType) {
+        return{{^doNotUseRxAndCoroutines}}{{#useCoroutines}}@withContext{{/useCoroutines}}{{/doNotUseRxAndCoroutines}} when (localVarResponse.responseType) {
             ResponseType.Success -> {{#returnType}}(localVarResponse as Success<*>).data as {{{returnType}}}{{#nullableReturnType}}?{{/nullableReturnType}}{{/returnType}}{{^returnType}}Unit{{/returnType}}
             ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
             ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
@@ -63,6 +69,31 @@ import {{packageName}}.infrastructure.toMultiValue
     }
 
     /**
+    * {{summary}}
+    * {{notes}}
+    {{#allParams}}* @param {{{paramName}}} {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
+    {{/allParams}}* @return ApiInfrastructureResponse<{{#returnType}}{{{returnType}}}?{{/returnType}}{{^returnType}}Unit?{{/returnType}}>
+    * @throws UnsupportedOperationException If the API returns an informational or redirection response
+    * @throws ClientException If the API returns a client error response
+    * @throws ServerException If the API returns a server error response
+    */{{#returnType}}
+    @Suppress("UNCHECKED_CAST"){{/returnType}}
+    @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    {{#isDeprecated}}
+    @Deprecated(message = "This operation is deprecated.")
+    {{/isDeprecated}}
+    {{^doNotUseRxAndCoroutines}}{{#useCoroutines}}suspend {{/useCoroutines}}{{/doNotUseRxAndCoroutines}}fun {{operationId}}WithHttpInfo({{#allParams}}{{{paramName}}}: {{{dataType}}}{{^required}}?{{/required}}{{^-last}}, {{/-last}}{{/allParams}}) : ApiInfrastructureResponse<{{#returnType}}{{{returnType}}}?{{/returnType}}{{^returnType}}Unit?{{/returnType}}>{{^doNotUseRxAndCoroutines}}{{#useCoroutines}} = withContext(Dispatchers.IO){{/useCoroutines}}{{/doNotUseRxAndCoroutines}} {
+        {{#isDeprecated}}
+        @Suppress("DEPRECATION")
+        {{/isDeprecated}}
+        val localVariableConfig = {{operationId}}RequestConfig({{#allParams}}{{{paramName}}} = {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}})
+
+        return{{^doNotUseRxAndCoroutines}}{{#useCoroutines}}@withContext{{/useCoroutines}}{{/doNotUseRxAndCoroutines}} request<{{#hasBodyParam}}{{#bodyParams}}{{{dataType}}}{{/bodyParams}}{{/hasBodyParam}}{{^hasBodyParam}}{{^hasFormParams}}Unit{{/hasFormParams}}{{#hasFormParams}}Map<String, Any?>{{/hasFormParams}}{{/hasBodyParam}}, {{{returnType}}}{{^returnType}}Unit{{/returnType}}>(
+            localVariableConfig
+        )
+    }
+
+    /**
     * To obtain the request config of the operation {{operationId}}
     *
     {{#allParams}}* @param {{{paramName}}} {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
@@ -71,8 +102,8 @@ import {{packageName}}.infrastructure.toMultiValue
     {{#isDeprecated}}
     @Deprecated(message = "This operation is deprecated.")
     {{/isDeprecated}}
-    fun {{operationId}}RequestConfig({{#allParams}}{{{paramName}}}: {{{dataType}}}{{^required}}?{{/required}}{{^-last}}, {{/-last}}{{/allParams}}) : RequestConfig {
-        val localVariableBody: kotlin.Any? = {{#hasBodyParam}}{{#bodyParams}}{{{paramName}}}{{/bodyParams}}{{/hasBodyParam}}{{^hasBodyParam}}{{^hasFormParams}}null{{/hasFormParams}}{{#hasFormParams}}mapOf({{#formParams}}"{{{baseName}}}" to {{{paramName}}}{{^-last}}, {{/-last}}{{/formParams}}){{/hasFormParams}}{{/hasBodyParam}}
+    fun {{operationId}}RequestConfig({{#allParams}}{{{paramName}}}: {{{dataType}}}{{^required}}?{{/required}}{{^-last}}, {{/-last}}{{/allParams}}) : RequestConfig<{{#hasBodyParam}}{{#bodyParams}}{{{dataType}}}{{/bodyParams}}{{/hasBodyParam}}{{^hasBodyParam}}{{^hasFormParams}}Unit{{/hasFormParams}}{{#hasFormParams}}Map<String, Any?>{{/hasFormParams}}{{/hasBodyParam}}> {
+        val localVariableBody = {{#hasBodyParam}}{{#bodyParams}}{{{paramName}}}{{/bodyParams}}{{/hasBodyParam}}{{^hasBodyParam}}{{^hasFormParams}}null{{/hasFormParams}}{{#hasFormParams}}mapOf({{#formParams}}"{{{baseName}}}" to {{{paramName}}}{{^-last}}, {{/-last}}{{/formParams}}){{/hasFormParams}}{{/hasBodyParam}}
         val localVariableQuery: MultiValueMap = {{^hasQueryParams}}mutableMapOf()
 {{/hasQueryParams}}{{#hasQueryParams}}mutableMapOf<kotlin.String, List<kotlin.String>>()
             .apply {
@@ -99,16 +130,14 @@ import {{packageName}}.infrastructure.toMultiValue
         {{#headerParams}}
         {{{paramName}}}{{^required}}?{{/required}}.apply { localVariableHeaders["{{baseName}}"] = {{#isContainer}}this.joinToString(separator = collectionDelimiter("{{collectionFormat}}")){{/isContainer}}{{^isContainer}}this.toString(){{/isContainer}} }
         {{/headerParams}}
-        
-        val localVariableConfig = RequestConfig(
+
+        return RequestConfig(
             method = RequestMethod.{{httpMethod}},
             path = "{{path}}"{{#pathParams}}.replace("{"+"{{baseName}}"+"}", "${{{paramName}}}"){{/pathParams}},
             query = localVariableQuery,
             headers = localVariableHeaders,
             body = localVariableBody
         )
-
-        return localVariableConfig
     }
 
     {{/operation}}

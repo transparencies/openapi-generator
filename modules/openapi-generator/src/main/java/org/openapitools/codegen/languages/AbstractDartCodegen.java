@@ -1,8 +1,5 @@
 package org.openapitools.codegen.languages;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -27,7 +24,10 @@ import static org.openapitools.codegen.utils.StringUtils.*;
 
 public abstract class AbstractDartCodegen extends DefaultCodegen {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDartCodegen.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AbstractDartCodegen.class);
+
+    protected static final List<String> DEFAULT_SUPPORTED_CONTENT_TYPES = Arrays.asList(
+            "application/json", "application/x-www-form-urlencoded", "multipart/form-data");
 
     public static final String PUB_LIBRARY = "pubLibrary";
     public static final String PUB_NAME = "pubName";
@@ -112,13 +112,12 @@ public abstract class AbstractDartCodegen extends DefaultCodegen {
         setReservedWordsLowerCase(reservedWordsList);
 
         // These types return isPrimitive=true in templates
-        languageSpecificPrimitives = Sets.newHashSet(
-                "String",
-                "bool",
-                "int",
-                "num",
-                "double"
-        );
+        languageSpecificPrimitives = new HashSet<>(5);
+        languageSpecificPrimitives.add("String");
+        languageSpecificPrimitives.add("bool");
+        languageSpecificPrimitives.add("int");
+        languageSpecificPrimitives.add("num");
+        languageSpecificPrimitives.add("double");
 
         typeMapping = new HashMap<>();
         typeMapping.put("Array", "List");
@@ -149,18 +148,17 @@ public abstract class AbstractDartCodegen extends DefaultCodegen {
         typeMapping.put("AnyType", "Object");
 
         // Data types of the above values which are automatically imported
-        defaultIncludes = Sets.newHashSet(
-                "String",
-                "bool",
-                "int",
-                "num",
-                "double",
-                "List",
-                "Set",
-                "Map",
-                "DateTime",
-                "Object"
-        );
+        defaultIncludes = new HashSet<>();
+        defaultIncludes.add("String");
+        defaultIncludes.add("bool");
+        defaultIncludes.add("int");
+        defaultIncludes.add("num");
+        defaultIncludes.add("double");
+        defaultIncludes.add("List");
+        defaultIncludes.add("Set");
+        defaultIncludes.add("Map");
+        defaultIncludes.add("DateTime");
+        defaultIncludes.add("Object");
 
         imports.put("String", "dart:core");
         imports.put("bool", "dart:core");
@@ -342,8 +340,8 @@ public abstract class AbstractDartCodegen extends DefaultCodegen {
 
         // replace all characters that have a mapping but ignore underscores
         // append an underscore to each replacement so that it can be camelized
-        if (name.chars().anyMatch(character -> specialCharReplacements.containsKey("" + ((char) character)))) {
-            name = escape(name, specialCharReplacements, Lists.newArrayList("_"), "_");
+        if (name.chars().anyMatch(character -> specialCharReplacements.containsKey(String.valueOf((char) character)))) {
+            name = escape(name, specialCharReplacements, Collections.singletonList("_"), "_");
         }
         // remove the rest
         name = sanitizeName(name);
@@ -557,6 +555,68 @@ public abstract class AbstractDartCodegen extends DefaultCodegen {
     }
 
     @Override
+    public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
+        super.postProcessOperationsWithModels(objs, allModels);
+        Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
+        if (operations != null) {
+            List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
+            for (CodegenOperation op : ops) {
+                if (op.hasConsumes) {
+                    if (!op.formParams.isEmpty() || op.isMultipart) {
+                        // DefaultCodegen only sets this if the first consumes mediaType
+                        // is application/x-www-form-urlencoded or multipart.
+                        // Can just use the original
+                        op.prioritizedContentTypes = op.consumes;
+                    } else {
+                        // Prioritize content types by moving application/json to the front
+                        // similar to JavaCodegen
+                        op.prioritizedContentTypes = prioritizeContentTypes(op.consumes);
+                        String mediaType = op.prioritizedContentTypes.get(0).get("mediaType");
+                        if (!DEFAULT_SUPPORTED_CONTENT_TYPES.contains(mediaType)) {
+                            LOGGER.warn("The media-type '{}' for operation '{}' is not support in the Dart generators by default.", mediaType, op.path);
+                        }
+                    }
+                }
+            }
+        }
+        return objs;
+    }
+
+    private List<Map<String, String>> prioritizeContentTypes(List<Map<String, String>> consumes) {
+        if (consumes.size() <= 1) {
+            // no need to change any order
+            return consumes;
+        }
+
+        List<Map<String, String>> prioritizedContentTypes = new ArrayList<>(consumes.size());
+
+        List<Map<String, String>> jsonVendorMimeTypes = new ArrayList<>(consumes.size());
+        List<Map<String, String>> jsonMimeTypes = new ArrayList<>(consumes.size());
+
+        for (Map<String, String> consume : consumes) {
+            String mediaType = consume.get("mediaType");
+            if (isJsonVendorMimeType(mediaType)) {
+                jsonVendorMimeTypes.add(consume);
+            } else if (isJsonMimeType(mediaType)) {
+                jsonMimeTypes.add(consume);
+            } else {
+                prioritizedContentTypes.add(consume);
+            }
+        }
+
+        prioritizedContentTypes.addAll(0, jsonMimeTypes);
+        prioritizedContentTypes.addAll(0, jsonVendorMimeTypes);
+        return prioritizedContentTypes;
+    }
+
+    private static boolean isMultipartType(String mediaType) {
+        if (mediaType != null) {
+            return "multipart/form-data".equals(mediaType);
+        }
+        return false;
+    }
+
+    @Override
     protected void updateEnumVarsWithExtensions(List<Map<String, Object>> enumVars, Map<String, Object> vendorExtensions, String dataType) {
         if (vendorExtensions != null && useEnumExtension && vendorExtensions.containsKey("x-enum-values")) {
             // Use the x-enum-values extension for this enum
@@ -692,7 +752,7 @@ public abstract class AbstractDartCodegen extends DefaultCodegen {
         // process all files with dart extension
         if ("dart".equals(FilenameUtils.getExtension(file.toString()))) {
             // currently supported is "dartfmt -w" and "dart format"
-            String command = dartPostProcessFile + " " + file.toString();
+            String command = dartPostProcessFile + " " + file;
             try {
                 Process p = Runtime.getRuntime().exec(command);
                 int exitValue = p.waitFor();

@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class List: NSObject, Codable {
 
@@ -27,3 +29,4 @@ import AnyCodable
         try container.encodeIfPresent(_123list, forKey: ._123list)
     }
 }
+

@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class User: NSObject, Codable {
 
@@ -66,3 +68,4 @@ import AnyCodable
         try container.encodeIfPresent(userStatus, forKey: .userStatus)
     }
 }
+

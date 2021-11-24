@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 @objc public class TypeHolderExample: NSObject, Codable {
 
@@ -43,3 +45,4 @@ import AnyCodable
         try container.encode(arrayItem, forKey: .arrayItem)
     }
 }
+

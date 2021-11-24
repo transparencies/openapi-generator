@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 /** Must be named &#x60;File&#x60; for test. */
 internal struct File: Codable, Hashable {
@@ -29,3 +31,4 @@ internal struct File: Codable, Hashable {
         try container.encodeIfPresent(sourceURI, forKey: .sourceURI)
     }
 }
+

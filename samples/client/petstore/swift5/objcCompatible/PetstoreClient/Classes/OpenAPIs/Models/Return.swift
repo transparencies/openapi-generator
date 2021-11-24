@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 /** Model for testing reserved words */
 @objc public class Return: NSObject, Codable {
@@ -33,3 +35,4 @@ import AnyCodable
         try container.encodeIfPresent(_return, forKey: ._return)
     }
 }
+

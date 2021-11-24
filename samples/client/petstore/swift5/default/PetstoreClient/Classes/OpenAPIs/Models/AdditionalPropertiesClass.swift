@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AnyCodable)
 import AnyCodable
+#endif
 
 public struct AdditionalPropertiesClass: Codable, Hashable {
 
@@ -67,3 +69,4 @@ public struct AdditionalPropertiesClass: Codable, Hashable {
         try container.encodeIfPresent(anytype3, forKey: .anytype3)
     }
 }
+
