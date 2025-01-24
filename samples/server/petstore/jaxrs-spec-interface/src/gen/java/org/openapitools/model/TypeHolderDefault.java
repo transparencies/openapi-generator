@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.io.Serializable;
 import javax.validation.constraints.*;
@@ -19,13 +20,31 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 @JsonTypeName("TypeHolderDefault")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen")public class TypeHolderDefault  implements Serializable {
-  
-  private @Valid String stringItem = "what";
-  private @Valid BigDecimal numberItem;
-  private @Valid Integer integerItem;
-  private @Valid Boolean boolItem = true;
-  private @Valid List<Integer> arrayItem = new ArrayList<Integer>();
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class TypeHolderDefault  implements Serializable {
+  private String stringItem = "what";
+  private BigDecimal numberItem;
+  private Integer integerItem;
+  private Boolean boolItem = true;
+  private @Valid List<Integer> arrayItem = new ArrayList<>();
+
+  public TypeHolderDefault() {
+  }
+
+  @JsonCreator
+  public TypeHolderDefault(
+    @JsonProperty(required = true, value = "string_item") String stringItem,
+    @JsonProperty(required = true, value = "number_item") BigDecimal numberItem,
+    @JsonProperty(required = true, value = "integer_item") Integer integerItem,
+    @JsonProperty(required = true, value = "bool_item") Boolean boolItem,
+    @JsonProperty(required = true, value = "array_item") List<Integer> arrayItem
+  ) {
+    this.stringItem = stringItem;
+    this.numberItem = numberItem;
+    this.integerItem = integerItem;
+    this.boolItem = boolItem;
+    this.arrayItem = arrayItem;
+  }
 
   /**
    **/
@@ -35,21 +54,18 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(required = true, value = "")
-  @JsonProperty("string_item")
-  @NotNull
-  public String getStringItem() {
+  @JsonProperty(required = true, value = "string_item")
+  @NotNull public String getStringItem() {
     return stringItem;
   }
 
-  @JsonProperty("string_item")
+  @JsonProperty(required = true, value = "string_item")
   public void setStringItem(String stringItem) {
     this.stringItem = stringItem;
   }
 
-/**
+  /**
    **/
   public TypeHolderDefault numberItem(BigDecimal numberItem) {
     this.numberItem = numberItem;
@@ -57,21 +73,18 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(required = true, value = "")
-  @JsonProperty("number_item")
-  @NotNull
-  public BigDecimal getNumberItem() {
+  @JsonProperty(required = true, value = "number_item")
+  @NotNull @Valid public BigDecimal getNumberItem() {
     return numberItem;
   }
 
-  @JsonProperty("number_item")
+  @JsonProperty(required = true, value = "number_item")
   public void setNumberItem(BigDecimal numberItem) {
     this.numberItem = numberItem;
   }
 
-/**
+  /**
    **/
   public TypeHolderDefault integerItem(Integer integerItem) {
     this.integerItem = integerItem;
@@ -79,21 +92,18 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(required = true, value = "")
-  @JsonProperty("integer_item")
-  @NotNull
-  public Integer getIntegerItem() {
+  @JsonProperty(required = true, value = "integer_item")
+  @NotNull public Integer getIntegerItem() {
     return integerItem;
   }
 
-  @JsonProperty("integer_item")
+  @JsonProperty(required = true, value = "integer_item")
   public void setIntegerItem(Integer integerItem) {
     this.integerItem = integerItem;
   }
 
-/**
+  /**
    **/
   public TypeHolderDefault boolItem(Boolean boolItem) {
     this.boolItem = boolItem;
@@ -101,21 +111,18 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(required = true, value = "")
-  @JsonProperty("bool_item")
-  @NotNull
-  public Boolean getBoolItem() {
+  @JsonProperty(required = true, value = "bool_item")
+  @NotNull public Boolean getBoolItem() {
     return boolItem;
   }
 
-  @JsonProperty("bool_item")
+  @JsonProperty(required = true, value = "bool_item")
   public void setBoolItem(Boolean boolItem) {
     this.boolItem = boolItem;
   }
 
-/**
+  /**
    **/
   public TypeHolderDefault arrayItem(List<Integer> arrayItem) {
     this.arrayItem = arrayItem;
@@ -123,20 +130,33 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(required = true, value = "")
-  @JsonProperty("array_item")
-  @NotNull
-  public List<Integer> getArrayItem() {
+  @JsonProperty(required = true, value = "array_item")
+  @NotNull public List<Integer> getArrayItem() {
     return arrayItem;
   }
 
-  @JsonProperty("array_item")
+  @JsonProperty(required = true, value = "array_item")
   public void setArrayItem(List<Integer> arrayItem) {
     this.arrayItem = arrayItem;
   }
 
+  public TypeHolderDefault addArrayItemItem(Integer arrayItemItem) {
+    if (this.arrayItem == null) {
+      this.arrayItem = new ArrayList<>();
+    }
+
+    this.arrayItem.add(arrayItemItem);
+    return this;
+  }
+
+  public TypeHolderDefault removeArrayItemItem(Integer arrayItemItem) {
+    if (arrayItemItem != null && this.arrayItem != null) {
+      this.arrayItem.remove(arrayItemItem);
+    }
+
+    return this;
+  }
 
   @Override
   public boolean equals(Object o) {

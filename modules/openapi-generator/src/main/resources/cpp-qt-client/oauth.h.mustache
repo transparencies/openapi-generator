@@ -21,8 +21,7 @@
 #include <QUrl>
 #include <QUrlQuery>
 #include <QDateTime>
-
-
+#include <time.h>
 
 {{#cppNamespaceDeclarations}}
 namespace {{this}} {
@@ -32,19 +31,19 @@ class oauthToken
 {
 public:
     oauthToken(QString token, int expiresIn, QString scope, QString tokenType) : m_token(token), m_scope(scope), m_type(tokenType){
-        m_validUntil = QDateTime::fromSecsSinceEpoch(QDateTime::currentSecsSinceEpoch() + expiresIn);
+        m_validUntil = time(nullptr) + expiresIn;
     }
     oauthToken(){
-        m_validUntil = QDateTime::fromSecsSinceEpoch(QDateTime::currentSecsSinceEpoch() -1);
+        m_validUntil = time(nullptr) - 1;
     }
     QString getToken(){return m_token;};
     QString getScope(){return m_scope;};
     QString getType(){return m_type;};
-    bool isValid(){return QDateTime::currentDateTime() < m_validUntil;};
+    bool isValid(){return time(nullptr) < m_validUntil;};
 
 private:
     QString m_token;
-    QDateTime m_validUntil;
+    time_t m_validUntil;
     QString m_scope;
     QString m_type;
 };
@@ -59,10 +58,10 @@ public:
 private:
     QByteArray m_reply;
 
-signals:
+Q_SIGNALS:
     void dataReceived(QMap<QString, QString>);
 
-public slots:
+public Q_SLOTS:
     void onConnected();
     void read();
     void start();
@@ -89,11 +88,11 @@ protected:
     QString m_scope, m_accessType, m_state, m_redirectUri, m_clientId, m_clientSecret;
     bool m_linked;
 
-public slots:
+public Q_SLOTS:
     virtual void authenticationNeededCallback()=0;
     void onFinish(QNetworkReply *rep);
 
-signals:
+Q_SIGNALS:
     void authenticationNeeded();
     void tokenReceived();
 };
@@ -111,7 +110,7 @@ public:
 private:
     ReplyServer m_server;
 
-public slots:
+public Q_SLOTS:
     void authenticationNeededCallback() override;
     void onVerificationReceived(const QMap<QString, QString> response);
 
@@ -130,7 +129,7 @@ public:
 private:
     ReplyServer m_server;
 
-public slots:
+public Q_SLOTS:
     void authenticationNeededCallback() override;
     void ImplicitTokenReceived(const QMap<QString, QString> response);
 };
@@ -145,7 +144,7 @@ public:
     void unlink() override;
     void setVariables(QString tokenUrl, QString scope, QString clientId, QString clientSecret);
 
-public slots:
+public Q_SLOTS:
     void authenticationNeededCallback() override;
 
 };
@@ -163,7 +162,7 @@ public:
 private:
     QString m_username, m_password;
 
-public slots:
+public Q_SLOTS:
     void authenticationNeededCallback() override;
 
 };

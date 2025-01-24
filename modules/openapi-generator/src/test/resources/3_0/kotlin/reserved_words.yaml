@@ -8,6 +8,10 @@ paths:
       summary: Ping
       description: Pingy Ping
       parameters:
+        - name: annotation
+          in: header
+          schema:
+            type: string
         - name: as
           in: header
           schema:
@@ -108,6 +112,10 @@ paths:
           in: header
           schema:
             type: string
+        - name: value
+          in: header
+          schema:
+            type: string
         - name: var
           in: header
           schema:
@@ -142,6 +150,8 @@ components:
       description: OK, Good
       type: object
       properties:
+        annotation:
+          type: string
         as:
           type: string
         break:
@@ -192,6 +202,8 @@ components:
           type: string
         val:
           type: string
+        value:
+          type: string
         var:
           type: string
         when:
@@ -208,9 +220,11 @@ components:
           $ref: '#/components/schemas/Linked'
 
     Linked:
-      description: Refernce links
+      description: Reference links
       type: object
       properties:
+        annotation:
+          $ref: '#/components/schemas/annotation'
         as:
           $ref: '#/components/schemas/as'
         break:
@@ -261,6 +275,8 @@ components:
           $ref: '#/components/schemas/typeof'
         val:
           $ref: '#/components/schemas/val'
+        value:
+          $ref: '#/components/schemas/value'
         var:
           $ref: '#/components/schemas/var'
         when:
@@ -273,6 +289,14 @@ components:
           $ref: '#/components/schemas/external'
         internal:
           $ref: '#/components/schemas/internal'
+    annotation:
+      title: Testing reserved word 'annotation'
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+
     as:
       title: Testing reserved word 'as'
       type: object
@@ -467,6 +491,14 @@ components:
 
     val:
       title: Testing reserved word 'val'
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+
+    value:
+      title: Testing reserved word 'value'
       type: object
       properties:
         id:

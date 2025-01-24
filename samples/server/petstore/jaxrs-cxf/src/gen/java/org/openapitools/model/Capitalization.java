@@ -4,7 +4,9 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 public class Capitalization  {
   
@@ -136,6 +138,27 @@ public class Capitalization  {
     return this;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Capitalization capitalization = (Capitalization) o;
+    return Objects.equals(this.smallCamel, capitalization.smallCamel) &&
+        Objects.equals(this.capitalCamel, capitalization.capitalCamel) &&
+        Objects.equals(this.smallSnake, capitalization.smallSnake) &&
+        Objects.equals(this.capitalSnake, capitalization.capitalSnake) &&
+        Objects.equals(this.scAETHFlowPoints, capitalization.scAETHFlowPoints) &&
+        Objects.equals(this.ATT_NAME, capitalization.ATT_NAME);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(smallCamel, capitalCamel, smallSnake, capitalSnake, scAETHFlowPoints, ATT_NAME);
+  }
 
   @Override
   public String toString() {

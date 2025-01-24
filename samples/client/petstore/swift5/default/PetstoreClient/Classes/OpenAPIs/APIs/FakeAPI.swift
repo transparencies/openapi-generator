@@ -46,14 +46,14 @@ open class FakeAPI {
         let localVariableUrlComponents = URLComponents(string: localVariableURLString)
 
         let localVariableNillableHeaders: [String: Any?] = [
-            :
+            "Content-Type": "application/xml",
         ]
 
         let localVariableHeaderParameters = APIHelper.rejectNilHeaders(localVariableNillableHeaders)
 
         let localVariableRequestBuilder: RequestBuilder<Void>.Type = PetstoreClientAPI.requestBuilderFactory.getNonDecodableBuilder()
 
-        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -95,7 +95,7 @@ open class FakeAPI {
 
         let localVariableRequestBuilder: RequestBuilder<Bool>.Type = PetstoreClientAPI.requestBuilderFactory.getBuilder()
 
-        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -137,7 +137,7 @@ open class FakeAPI {
 
         let localVariableRequestBuilder: RequestBuilder<OuterComposite>.Type = PetstoreClientAPI.requestBuilderFactory.getBuilder()
 
-        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -179,7 +179,7 @@ open class FakeAPI {
 
         let localVariableRequestBuilder: RequestBuilder<Double>.Type = PetstoreClientAPI.requestBuilderFactory.getBuilder()
 
-        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -221,7 +221,7 @@ open class FakeAPI {
 
         let localVariableRequestBuilder: RequestBuilder<String>.Type = PetstoreClientAPI.requestBuilderFactory.getBuilder()
 
-        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -256,14 +256,14 @@ open class FakeAPI {
         let localVariableUrlComponents = URLComponents(string: localVariableURLString)
 
         let localVariableNillableHeaders: [String: Any?] = [
-            :
+            "Content-Type": "application/json",
         ]
 
         let localVariableHeaderParameters = APIHelper.rejectNilHeaders(localVariableNillableHeaders)
 
         let localVariableRequestBuilder: RequestBuilder<Void>.Type = PetstoreClientAPI.requestBuilderFactory.getNonDecodableBuilder()
 
-        return localVariableRequestBuilder.init(method: "PUT", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "PUT", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -298,18 +298,18 @@ open class FakeAPI {
 
         var localVariableUrlComponents = URLComponents(string: localVariableURLString)
         localVariableUrlComponents?.queryItems = APIHelper.mapValuesToQueryItems([
-            "query": query.encodeToJSON(),
+            "query": (wrappedValue: query.encodeToJSON(), isExplode: false),
         ])
 
         let localVariableNillableHeaders: [String: Any?] = [
-            :
+            "Content-Type": "application/json",
         ]
 
         let localVariableHeaderParameters = APIHelper.rejectNilHeaders(localVariableNillableHeaders)
 
         let localVariableRequestBuilder: RequestBuilder<Void>.Type = PetstoreClientAPI.requestBuilderFactory.getNonDecodableBuilder()
 
-        return localVariableRequestBuilder.init(method: "PUT", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "PUT", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -346,14 +346,14 @@ open class FakeAPI {
         let localVariableUrlComponents = URLComponents(string: localVariableURLString)
 
         let localVariableNillableHeaders: [String: Any?] = [
-            :
+            "Content-Type": "application/json",
         ]
 
         let localVariableHeaderParameters = APIHelper.rejectNilHeaders(localVariableNillableHeaders)
 
         let localVariableRequestBuilder: RequestBuilder<Client>.Type = PetstoreClientAPI.requestBuilderFactory.getBuilder()
 
-        return localVariableRequestBuilder.init(method: "PATCH", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "PATCH", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -444,7 +444,7 @@ open class FakeAPI {
 
         let localVariableRequestBuilder: RequestBuilder<Void>.Type = PetstoreClientAPI.requestBuilderFactory.getNonDecodableBuilder()
 
-        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: true)
     }
 
     /**
@@ -567,10 +567,10 @@ open class FakeAPI {
 
         var localVariableUrlComponents = URLComponents(string: localVariableURLString)
         localVariableUrlComponents?.queryItems = APIHelper.mapValuesToQueryItems([
-            "enum_query_string_array": enumQueryStringArray?.encodeToJSON(),
-            "enum_query_string": enumQueryString?.encodeToJSON(),
-            "enum_query_integer": enumQueryInteger?.encodeToJSON(),
-            "enum_query_double": enumQueryDouble?.encodeToJSON(),
+            "enum_query_string_array": (wrappedValue: enumQueryStringArray?.encodeToJSON(), isExplode: false),
+            "enum_query_string": (wrappedValue: enumQueryString?.encodeToJSON(), isExplode: false),
+            "enum_query_integer": (wrappedValue: enumQueryInteger?.encodeToJSON(), isExplode: false),
+            "enum_query_double": (wrappedValue: enumQueryDouble?.encodeToJSON(), isExplode: false),
         ])
 
         let localVariableNillableHeaders: [String: Any?] = [
@@ -583,7 +583,7 @@ open class FakeAPI {
 
         let localVariableRequestBuilder: RequestBuilder<Void>.Type = PetstoreClientAPI.requestBuilderFactory.getNonDecodableBuilder()
 
-        return localVariableRequestBuilder.init(method: "GET", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "GET", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -629,10 +629,10 @@ open class FakeAPI {
 
         var localVariableUrlComponents = URLComponents(string: localVariableURLString)
         localVariableUrlComponents?.queryItems = APIHelper.mapValuesToQueryItems([
-            "required_string_group": requiredStringGroup.encodeToJSON(),
-            "required_int64_group": requiredInt64Group.encodeToJSON(),
-            "string_group": stringGroup?.encodeToJSON(),
-            "int64_group": int64Group?.encodeToJSON(),
+            "required_string_group": (wrappedValue: requiredStringGroup.encodeToJSON(), isExplode: false),
+            "required_int64_group": (wrappedValue: requiredInt64Group.encodeToJSON(), isExplode: false),
+            "string_group": (wrappedValue: stringGroup?.encodeToJSON(), isExplode: false),
+            "int64_group": (wrappedValue: int64Group?.encodeToJSON(), isExplode: false),
         ])
 
         let localVariableNillableHeaders: [String: Any?] = [
@@ -644,7 +644,7 @@ open class FakeAPI {
 
         let localVariableRequestBuilder: RequestBuilder<Void>.Type = PetstoreClientAPI.requestBuilderFactory.getNonDecodableBuilder()
 
-        return localVariableRequestBuilder.init(method: "DELETE", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "DELETE", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -680,14 +680,14 @@ open class FakeAPI {
         let localVariableUrlComponents = URLComponents(string: localVariableURLString)
 
         let localVariableNillableHeaders: [String: Any?] = [
-            :
+            "Content-Type": "application/json",
         ]
 
         let localVariableHeaderParameters = APIHelper.rejectNilHeaders(localVariableNillableHeaders)
 
         let localVariableRequestBuilder: RequestBuilder<Void>.Type = PetstoreClientAPI.requestBuilderFactory.getNonDecodableBuilder()
 
-        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -738,7 +738,7 @@ open class FakeAPI {
 
         let localVariableRequestBuilder: RequestBuilder<Void>.Type = PetstoreClientAPI.requestBuilderFactory.getNonDecodableBuilder()
 
-        return localVariableRequestBuilder.init(method: "GET", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "GET", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 
     /**
@@ -780,11 +780,11 @@ open class FakeAPI {
 
         var localVariableUrlComponents = URLComponents(string: localVariableURLString)
         localVariableUrlComponents?.queryItems = APIHelper.mapValuesToQueryItems([
-            "pipe": pipe.encodeToJSON(),
-            "ioutil": ioutil.encodeToJSON(),
-            "http": http.encodeToJSON(),
-            "url": url.encodeToJSON(),
-            "context": context.encodeToJSON(),
+            "pipe": (wrappedValue: pipe.encodeToJSON(), isExplode: false),
+            "ioutil": (wrappedValue: ioutil.encodeToJSON(), isExplode: false),
+            "http": (wrappedValue: http.encodeToJSON(), isExplode: false),
+            "url": (wrappedValue: url.encodeToJSON(), isExplode: false),
+            "context": (wrappedValue: context.encodeToJSON(), isExplode: true),
         ])
 
         let localVariableNillableHeaders: [String: Any?] = [
@@ -795,6 +795,6 @@ open class FakeAPI {
 
         let localVariableRequestBuilder: RequestBuilder<Void>.Type = PetstoreClientAPI.requestBuilderFactory.getNonDecodableBuilder()
 
-        return localVariableRequestBuilder.init(method: "PUT", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        return localVariableRequestBuilder.init(method: "PUT", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: false)
     }
 }

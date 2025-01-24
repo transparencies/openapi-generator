@@ -2,7 +2,7 @@
 
 /**
  * PetController
- * PHP version 7.1.3
+ * PHP version 8.1.1
  *
  * @category Class
  * @package  OpenAPI\Server\Controller
@@ -88,7 +88,7 @@ class PetController extends Controller
 
         // Deserialize the input values that needs it
         try {
-            $inputFormat = $request->getMimeType($request->getContentType());
+            $inputFormat = $request->getMimeType($request->getContentTypeFormat());
             $pet = $this->deserialize($pet, 'OpenAPI\Server\Model\Pet', $inputFormat);
         } catch (SerializerRuntimeException $exception) {
             return $this->createBadRequestResponse($exception->getMessage());
@@ -114,20 +114,14 @@ class PetController extends Controller
             // Make the call to the business logic
             $responseCode = 200;
             $responseHeaders = [];
+
             $result = $handler->addPet($pet, $responseCode, $responseHeaders);
 
-            // Find default response message
-            $message = '';
-
-            // Find a more specific message, if available
-            switch ($responseCode) {
-                case 200:
-                    $message = 'successful operation';
-                    break;
-                case 405:
-                    $message = 'Invalid input';
-                    break;
-            }
+            $message = match($responseCode) {
+                200 => 'successful operation',
+                405 => 'Invalid input',
+                default => '',
+            };
 
             return new Response(
                 $result !== null ?$this->serialize($result, $responseFormat):'',
@@ -140,7 +134,7 @@ class PetController extends Controller
                     ]
                 )
             );
-        } catch (Exception $fallthrough) {
+        } catch (\Throwable $fallthrough) {
             return $this->createErrorResponse(new HttpException(500, 'An unsuspected error occurred.', $fallthrough));
         }
     }
@@ -198,17 +192,13 @@ class PetController extends Controller
             // Make the call to the business logic
             $responseCode = 204;
             $responseHeaders = [];
-            $result = $handler->deletePet($petId, $apiKey, $responseCode, $responseHeaders);
 
-            // Find default response message
-            $message = '';
+            $handler->deletePet($petId, $apiKey, $responseCode, $responseHeaders);
 
-            // Find a more specific message, if available
-            switch ($responseCode) {
-                case 400:
-                    $message = 'Invalid pet value';
-                    break;
-            }
+            $message = match($responseCode) {
+                400 => 'Invalid pet value',
+                default => '',
+            };
 
             return new Response(
                 '',
@@ -220,7 +210,7 @@ class PetController extends Controller
                     ]
                 )
             );
-        } catch (Exception $fallthrough) {
+        } catch (\Throwable $fallthrough) {
             return $this->createErrorResponse(new HttpException(500, 'An unsuspected error occurred.', $fallthrough));
         }
     }
@@ -265,7 +255,7 @@ class PetController extends Controller
         $asserts = [];
         $asserts[] = new Assert\NotNull();
         $asserts[] = new Assert\All([
-            new Assert\Choice([ "available", "pending", "sold" ])
+            new Assert\Choice([ 'available', 'pending', 'sold' ])
         ]);
         $asserts[] = new Assert\All([
             new Assert\Type("string"),
@@ -286,20 +276,14 @@ class PetController extends Controller
             // Make the call to the business logic
             $responseCode = 200;
             $responseHeaders = [];
+
             $result = $handler->findPetsByStatus($status, $responseCode, $responseHeaders);
 
-            // Find default response message
-            $message = '';
-
-            // Find a more specific message, if available
-            switch ($responseCode) {
-                case 200:
-                    $message = 'successful operation';
-                    break;
-                case 400:
-                    $message = 'Invalid status value';
-                    break;
-            }
+            $message = match($responseCode) {
+                200 => 'successful operation',
+                400 => 'Invalid status value',
+                default => '',
+            };
 
             return new Response(
                 $result !== null ?$this->serialize($result, $responseFormat):'',
@@ -312,7 +296,7 @@ class PetController extends Controller
                     ]
                 )
             );
-        } catch (Exception $fallthrough) {
+        } catch (\Throwable $fallthrough) {
             return $this->createErrorResponse(new HttpException(500, 'An unsuspected error occurred.', $fallthrough));
         }
     }
@@ -376,20 +360,14 @@ class PetController extends Controller
             // Make the call to the business logic
             $responseCode = 200;
             $responseHeaders = [];
+
             $result = $handler->findPetsByTags($tags, $responseCode, $responseHeaders);
 
-            // Find default response message
-            $message = '';
-
-            // Find a more specific message, if available
-            switch ($responseCode) {
-                case 200:
-                    $message = 'successful operation';
-                    break;
-                case 400:
-                    $message = 'Invalid tag value';
-                    break;
-            }
+            $message = match($responseCode) {
+                200 => 'successful operation',
+                400 => 'Invalid tag value',
+                default => '',
+            };
 
             return new Response(
                 $result !== null ?$this->serialize($result, $responseFormat):'',
@@ -402,7 +380,7 @@ class PetController extends Controller
                     ]
                 )
             );
-        } catch (Exception $fallthrough) {
+        } catch (\Throwable $fallthrough) {
             return $this->createErrorResponse(new HttpException(500, 'An unsuspected error occurred.', $fallthrough));
         }
     }
@@ -461,23 +439,15 @@ class PetController extends Controller
             // Make the call to the business logic
             $responseCode = 200;
             $responseHeaders = [];
+
             $result = $handler->getPetById($petId, $responseCode, $responseHeaders);
 
-            // Find default response message
-            $message = '';
-
-            // Find a more specific message, if available
-            switch ($responseCode) {
-                case 200:
-                    $message = 'successful operation';
-                    break;
-                case 400:
-                    $message = 'Invalid ID supplied';
-                    break;
-                case 404:
-                    $message = 'Pet not found';
-                    break;
-            }
+            $message = match($responseCode) {
+                200 => 'successful operation',
+                400 => 'Invalid ID supplied',
+                404 => 'Pet not found',
+                default => '',
+            };
 
             return new Response(
                 $result !== null ?$this->serialize($result, $responseFormat):'',
@@ -490,7 +460,7 @@ class PetController extends Controller
                     ]
                 )
             );
-        } catch (Exception $fallthrough) {
+        } catch (\Throwable $fallthrough) {
             return $this->createErrorResponse(new HttpException(500, 'An unsuspected error occurred.', $fallthrough));
         }
     }
@@ -533,7 +503,7 @@ class PetController extends Controller
 
         // Deserialize the input values that needs it
         try {
-            $inputFormat = $request->getMimeType($request->getContentType());
+            $inputFormat = $request->getMimeType($request->getContentTypeFormat());
             $pet = $this->deserialize($pet, 'OpenAPI\Server\Model\Pet', $inputFormat);
         } catch (SerializerRuntimeException $exception) {
             return $this->createBadRequestResponse($exception->getMessage());
@@ -559,26 +529,16 @@ class PetController extends Controller
             // Make the call to the business logic
             $responseCode = 200;
             $responseHeaders = [];
+
             $result = $handler->updatePet($pet, $responseCode, $responseHeaders);
 
-            // Find default response message
-            $message = '';
-
-            // Find a more specific message, if available
-            switch ($responseCode) {
-                case 200:
-                    $message = 'successful operation';
-                    break;
-                case 400:
-                    $message = 'Invalid ID supplied';
-                    break;
-                case 404:
-                    $message = 'Pet not found';
-                    break;
-                case 405:
-                    $message = 'Validation exception';
-                    break;
-            }
+            $message = match($responseCode) {
+                200 => 'successful operation',
+                400 => 'Invalid ID supplied',
+                404 => 'Pet not found',
+                405 => 'Validation exception',
+                default => '',
+            };
 
             return new Response(
                 $result !== null ?$this->serialize($result, $responseFormat):'',
@@ -591,7 +551,7 @@ class PetController extends Controller
                     ]
                 )
             );
-        } catch (Exception $fallthrough) {
+        } catch (\Throwable $fallthrough) {
             return $this->createErrorResponse(new HttpException(500, 'An unsuspected error occurred.', $fallthrough));
         }
     }
@@ -657,17 +617,13 @@ class PetController extends Controller
             // Make the call to the business logic
             $responseCode = 204;
             $responseHeaders = [];
-            $result = $handler->updatePetWithForm($petId, $name, $status, $responseCode, $responseHeaders);
 
-            // Find default response message
-            $message = '';
+            $handler->updatePetWithForm($petId, $name, $status, $responseCode, $responseHeaders);
 
-            // Find a more specific message, if available
-            switch ($responseCode) {
-                case 405:
-                    $message = 'Invalid input';
-                    break;
-            }
+            $message = match($responseCode) {
+                405 => 'Invalid input',
+                default => '',
+            };
 
             return new Response(
                 '',
@@ -679,7 +635,7 @@ class PetController extends Controller
                     ]
                 )
             );
-        } catch (Exception $fallthrough) {
+        } catch (\Throwable $fallthrough) {
             return $this->createErrorResponse(new HttpException(500, 'An unsuspected error occurred.', $fallthrough));
         }
     }
@@ -753,17 +709,13 @@ class PetController extends Controller
             // Make the call to the business logic
             $responseCode = 200;
             $responseHeaders = [];
+
             $result = $handler->uploadFile($petId, $additionalMetadata, $file, $responseCode, $responseHeaders);
 
-            // Find default response message
-            $message = '';
-
-            // Find a more specific message, if available
-            switch ($responseCode) {
-                case 200:
-                    $message = 'successful operation';
-                    break;
-            }
+            $message = match($responseCode) {
+                200 => 'successful operation',
+                default => '',
+            };
 
             return new Response(
                 $result !== null ?$this->serialize($result, $responseFormat):'',
@@ -776,7 +728,7 @@ class PetController extends Controller
                     ]
                 )
             );
-        } catch (Exception $fallthrough) {
+        } catch (\Throwable $fallthrough) {
             return $this->createErrorResponse(new HttpException(500, 'An unsuspected error occurred.', $fallthrough));
         }
     }

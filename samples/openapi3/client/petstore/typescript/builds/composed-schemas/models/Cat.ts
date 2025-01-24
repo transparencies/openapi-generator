@@ -10,7 +10,6 @@
  * Do not edit the class manually.
  */
 
-import { CatAllOf } from './CatAllOf';
 import { HttpFile } from '../http/http';
 
 export class Cat {
@@ -18,6 +17,8 @@ export class Cat {
     'age'?: number;
 
     static readonly discriminator: string | undefined = undefined;
+
+    static readonly mapping: {[index: string]: string} | undefined = undefined;
 
     static readonly attributeTypeMap: Array<{name: string, baseName: string, type: string, format: string}> = [
         {
@@ -40,4 +41,3 @@ export class Cat {
     public constructor() {
     }
 }
-

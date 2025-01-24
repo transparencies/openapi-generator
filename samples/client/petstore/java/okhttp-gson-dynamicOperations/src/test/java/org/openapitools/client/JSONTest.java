@@ -9,6 +9,9 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -16,21 +19,18 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import okio.ByteString;
-import org.junit.*;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JSONTest {
     private ApiClient apiClient = null;
     private JSON json = null;
     private Order order = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         apiClient = new ApiClient();
         json = apiClient.getJSON();
@@ -97,7 +97,7 @@ public class JSONTest {
             // OK
         }
         try {
-            // unexpected miliseconds
+            // unexpected milliseconds
             json.deserialize("\"2015-11-07T03:49:09.000Z\"", Date.class);
             fail("json parsing should fail");
         } catch (RuntimeException e) {
@@ -130,7 +130,7 @@ public class JSONTest {
     public void testDefaultDate() throws Exception {
         final DateTimeFormatter datetimeFormat = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
         final String dateStr = "2015-11-07T14:11:05.267Z";
-        order.setShipDate(datetimeFormat.parse(dateStr, OffsetDateTime.FROM));
+        order.setShipDate(datetimeFormat.parse(dateStr, OffsetDateTime::from));
 
         String str = json.serialize(order);
         Type type = new TypeToken<Order>() { }.getType();
@@ -142,7 +142,7 @@ public class JSONTest {
     public void testCustomDate() throws Exception {
         final DateTimeFormatter datetimeFormat = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.of("Etc/GMT+2"));
         final String dateStr = "2015-11-07T14:11:05-02:00";
-        order.setShipDate(datetimeFormat.parse(dateStr, OffsetDateTime.FROM));
+        order.setShipDate(datetimeFormat.parse(dateStr, OffsetDateTime::from));
 
         String str = json.serialize(order);
         Type type = new TypeToken<Order>() { }.getType();

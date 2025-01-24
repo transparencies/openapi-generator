@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.io.Serializable;
 import javax.validation.constraints.*;
@@ -19,14 +20,34 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 @JsonTypeName("TypeHolderExample")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen")public class TypeHolderExample  implements Serializable {
-  
-  private @Valid String stringItem;
-  private @Valid BigDecimal numberItem;
-  private @Valid Float floatItem;
-  private @Valid Integer integerItem;
-  private @Valid Boolean boolItem;
-  private @Valid List<Integer> arrayItem = new ArrayList<Integer>();
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class TypeHolderExample  implements Serializable {
+  private String stringItem;
+  private BigDecimal numberItem;
+  private Float floatItem;
+  private Integer integerItem;
+  private Boolean boolItem;
+  private @Valid List<Integer> arrayItem = new ArrayList<>();
+
+  public TypeHolderExample() {
+  }
+
+  @JsonCreator
+  public TypeHolderExample(
+    @JsonProperty(required = true, value = "string_item") String stringItem,
+    @JsonProperty(required = true, value = "number_item") BigDecimal numberItem,
+    @JsonProperty(required = true, value = "float_item") Float floatItem,
+    @JsonProperty(required = true, value = "integer_item") Integer integerItem,
+    @JsonProperty(required = true, value = "bool_item") Boolean boolItem,
+    @JsonProperty(required = true, value = "array_item") List<Integer> arrayItem
+  ) {
+    this.stringItem = stringItem;
+    this.numberItem = numberItem;
+    this.floatItem = floatItem;
+    this.integerItem = integerItem;
+    this.boolItem = boolItem;
+    this.arrayItem = arrayItem;
+  }
 
   /**
    **/
@@ -36,21 +57,18 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(example = "what", required = true, value = "")
-  @JsonProperty("string_item")
-  @NotNull
-  public String getStringItem() {
+  @JsonProperty(required = true, value = "string_item")
+  @NotNull public String getStringItem() {
     return stringItem;
   }
 
-  @JsonProperty("string_item")
+  @JsonProperty(required = true, value = "string_item")
   public void setStringItem(String stringItem) {
     this.stringItem = stringItem;
   }
 
-/**
+  /**
    **/
   public TypeHolderExample numberItem(BigDecimal numberItem) {
     this.numberItem = numberItem;
@@ -58,21 +76,18 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(example = "1.234", required = true, value = "")
-  @JsonProperty("number_item")
-  @NotNull
-  public BigDecimal getNumberItem() {
+  @JsonProperty(required = true, value = "number_item")
+  @NotNull @Valid public BigDecimal getNumberItem() {
     return numberItem;
   }
 
-  @JsonProperty("number_item")
+  @JsonProperty(required = true, value = "number_item")
   public void setNumberItem(BigDecimal numberItem) {
     this.numberItem = numberItem;
   }
 
-/**
+  /**
    **/
   public TypeHolderExample floatItem(Float floatItem) {
     this.floatItem = floatItem;
@@ -80,21 +95,18 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(example = "1.234", required = true, value = "")
-  @JsonProperty("float_item")
-  @NotNull
-  public Float getFloatItem() {
+  @JsonProperty(required = true, value = "float_item")
+  @NotNull public Float getFloatItem() {
     return floatItem;
   }
 
-  @JsonProperty("float_item")
+  @JsonProperty(required = true, value = "float_item")
   public void setFloatItem(Float floatItem) {
     this.floatItem = floatItem;
   }
 
-/**
+  /**
    **/
   public TypeHolderExample integerItem(Integer integerItem) {
     this.integerItem = integerItem;
@@ -102,21 +114,18 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(example = "-2", required = true, value = "")
-  @JsonProperty("integer_item")
-  @NotNull
-  public Integer getIntegerItem() {
+  @JsonProperty(required = true, value = "integer_item")
+  @NotNull public Integer getIntegerItem() {
     return integerItem;
   }
 
-  @JsonProperty("integer_item")
+  @JsonProperty(required = true, value = "integer_item")
   public void setIntegerItem(Integer integerItem) {
     this.integerItem = integerItem;
   }
 
-/**
+  /**
    **/
   public TypeHolderExample boolItem(Boolean boolItem) {
     this.boolItem = boolItem;
@@ -124,21 +133,18 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(example = "true", required = true, value = "")
-  @JsonProperty("bool_item")
-  @NotNull
-  public Boolean getBoolItem() {
+  @JsonProperty(required = true, value = "bool_item")
+  @NotNull public Boolean getBoolItem() {
     return boolItem;
   }
 
-  @JsonProperty("bool_item")
+  @JsonProperty(required = true, value = "bool_item")
   public void setBoolItem(Boolean boolItem) {
     this.boolItem = boolItem;
   }
 
-/**
+  /**
    **/
   public TypeHolderExample arrayItem(List<Integer> arrayItem) {
     this.arrayItem = arrayItem;
@@ -146,20 +152,33 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(example = "[0, 1, 2, 3]", required = true, value = "")
-  @JsonProperty("array_item")
-  @NotNull
-  public List<Integer> getArrayItem() {
+  @JsonProperty(required = true, value = "array_item")
+  @NotNull public List<Integer> getArrayItem() {
     return arrayItem;
   }
 
-  @JsonProperty("array_item")
+  @JsonProperty(required = true, value = "array_item")
   public void setArrayItem(List<Integer> arrayItem) {
     this.arrayItem = arrayItem;
   }
 
+  public TypeHolderExample addArrayItemItem(Integer arrayItemItem) {
+    if (this.arrayItem == null) {
+      this.arrayItem = new ArrayList<>();
+    }
+
+    this.arrayItem.add(arrayItemItem);
+    return this;
+  }
+
+  public TypeHolderExample removeArrayItemItem(Integer arrayItemItem) {
+    if (arrayItemItem != null && this.arrayItem != null) {
+      this.arrayItem.remove(arrayItemItem);
+    }
+
+    return this;
+  }
 
   @Override
   public boolean equals(Object o) {

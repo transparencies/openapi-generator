@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import javax.validation.constraints.*;
@@ -35,7 +36,7 @@ import javax.validation.Valid;
   TypeHolderDefault.JSON_PROPERTY_BOOL_ITEM,
   TypeHolderDefault.JSON_PROPERTY_ARRAY_ITEM
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJerseyServerCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJerseyServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
 public class TypeHolderDefault   {
   public static final String JSON_PROPERTY_STRING_ITEM = "string_item";
   @JsonProperty(JSON_PROPERTY_STRING_ITEM)
@@ -55,7 +56,7 @@ public class TypeHolderDefault   {
 
   public static final String JSON_PROPERTY_ARRAY_ITEM = "array_item";
   @JsonProperty(JSON_PROPERTY_ARRAY_ITEM)
-  private List<Integer> arrayItem = new ArrayList<Integer>();
+  private List<Integer> arrayItem = new ArrayList<>();
 
   public TypeHolderDefault stringItem(String stringItem) {
     this.stringItem = stringItem;
@@ -143,6 +144,9 @@ public class TypeHolderDefault   {
   }
 
   public TypeHolderDefault addArrayItemItem(Integer arrayItemItem) {
+    if (this.arrayItem == null) {
+      this.arrayItem = new ArrayList<>();
+    }
     this.arrayItem.add(arrayItemItem);
     return this;
   }
@@ -183,7 +187,6 @@ public class TypeHolderDefault   {
   public int hashCode() {
     return Objects.hash(stringItem, numberItem, integerItem, boolItem, arrayItem);
   }
-
 
   @Override
   public String toString() {

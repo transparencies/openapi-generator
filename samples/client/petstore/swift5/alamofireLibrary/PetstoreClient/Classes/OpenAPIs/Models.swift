@@ -5,14 +5,13 @@
 //
 
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import Alamofire
 
 protocol JSONEncodable {
     func encodeToJSON() -> Any
-}
-
-extension JSONEncodable {
-    func encodeToJSON() -> Any { self }
 }
 
 /// An enum where the last case value can be used as a default catch-all.
@@ -33,6 +32,36 @@ extension CaseIterableDefaultsLast {
                 Self.Type.self,
                 .init(codingPath: decoder.codingPath, debugDescription: "CaseIterableDefaultsLast")
             )
+        }
+    }
+}
+
+/// A flexible type that can be encoded (`.encodeNull` or `.encodeValue`)
+/// or not encoded (`.encodeNothing`). Intended for request payloads.
+public enum NullEncodable<Wrapped: Hashable>: Hashable {
+    case encodeNothing
+    case encodeNull
+    case encodeValue(Wrapped)
+}
+
+extension NullEncodable: Codable where Wrapped: Codable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let value = try? container.decode(Wrapped.self) {
+            self = .encodeValue(value)
+        } else if container.decodeNil() {
+            self = .encodeNull
+        } else {
+            self = .encodeNothing
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .encodeNothing: return
+        case .encodeNull: try container.encodeNil()
+        case .encodeValue(let wrapped): try container.encode(wrapped)
         }
     }
 }
@@ -61,33 +90,40 @@ open class Response<T> {
     public let statusCode: Int
     public let header: [String: String]
     public let body: T
+    public let bodyData: Data?
 
-    public init(statusCode: Int, header: [String: String], body: T) {
+    public init(statusCode: Int, header: [String: String], body: T, bodyData: Data?) {
         self.statusCode = statusCode
         self.header = header
         self.body = body
+        self.bodyData = bodyData
     }
 
-    public convenience init(response: HTTPURLResponse, body: T) {
+    public convenience init(response: HTTPURLResponse, body: T, bodyData: Data?) {
         let rawHeader = response.allHeaderFields
-        var header = [String: String]()
+        var responseHeader = [String: String]()
         for (key, value) in rawHeader {
             if let key = key.base as? String, let value = value as? String {
-                header[key] = value
+                responseHeader[key] = value
             }
         }
-        self.init(statusCode: response.statusCode, header: header, body: body)
+        self.init(statusCode: response.statusCode, header: responseHeader, body: body, bodyData: bodyData)
     }
 }
 
 public final class RequestTask {
+    private let lock = NSRecursiveLock()
     private var request: Request?
 
     internal func set(request: Request) {
+        lock.lock()
+        defer { lock.unlock() }
         self.request = request
     }
 
     public func cancel() {
+        lock.lock()
+        defer { lock.unlock() }
         request?.cancel()
         request = nil
     }

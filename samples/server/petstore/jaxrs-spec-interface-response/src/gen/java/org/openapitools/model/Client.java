@@ -11,12 +11,17 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen")public class Client  implements Serializable {
-  
-  private @Valid String client;
+@JsonTypeName("Client")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class Client  implements Serializable {
+  private String client;
+
+  public Client() {
+  }
 
   /**
    **/
@@ -26,14 +31,13 @@ import com.fasterxml.jackson.annotation.JsonValue;
   }
 
   
-
-  
   @ApiModelProperty(value = "")
   @JsonProperty("client")
   public String getClient() {
     return client;
   }
 
+  @JsonProperty("client")
   public void setClient(String client) {
     this.client = client;
   }

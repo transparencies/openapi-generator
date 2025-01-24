@@ -79,14 +79,14 @@ public class FakeClassnameTags123Api {
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
      * @http.response.details
-     <table summary="Response Details" border="1">
+     <table border="1">
+       <caption>Response Details</caption>
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> successful operation </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call testClassnameCall(Client body, final ApiCallback _callback) throws ApiException {
         String basePath = null;
-
         // Operation Servers
         String[] localBasePaths = new String[] {  };
 
@@ -122,7 +122,7 @@ public class FakeClassnameTags123Api {
             "application/json"
         };
         final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
-        if (localVarHeaderParams != null) {
+        if (localVarContentType != null) {
             localVarHeaderParams.put("Content-Type", localVarContentType);
         }
 
@@ -132,15 +132,12 @@ public class FakeClassnameTags123Api {
 
     @SuppressWarnings("rawtypes")
     private okhttp3.Call testClassnameValidateBeforeCall(Client body, final ApiCallback _callback) throws ApiException {
-        
         // verify the required parameter 'body' is set
         if (body == null) {
             throw new ApiException("Missing the required parameter 'body' when calling testClassname(Async)");
         }
-        
 
-        okhttp3.Call localVarCall = testClassnameCall(body, _callback);
-        return localVarCall;
+        return testClassnameCall(body, _callback);
 
     }
 
@@ -151,7 +148,8 @@ public class FakeClassnameTags123Api {
      * @return Client
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
-     <table summary="Response Details" border="1">
+     <table border="1">
+       <caption>Response Details</caption>
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> successful operation </td><td>  -  </td></tr>
      </table>
@@ -168,7 +166,8 @@ public class FakeClassnameTags123Api {
      * @return ApiResponse&lt;Client&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
-     <table summary="Response Details" border="1">
+     <table border="1">
+       <caption>Response Details</caption>
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> successful operation </td><td>  -  </td></tr>
      </table>
@@ -187,7 +186,8 @@ public class FakeClassnameTags123Api {
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
      * @http.response.details
-     <table summary="Response Details" border="1">
+     <table border="1">
+       <caption>Response Details</caption>
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> successful operation </td><td>  -  </td></tr>
      </table>

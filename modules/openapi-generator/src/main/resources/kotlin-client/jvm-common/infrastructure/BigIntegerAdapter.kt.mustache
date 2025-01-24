@@ -2,7 +2,6 @@ package {{packageName}}.infrastructure
 
 {{#kotlinx_serialization}}
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -15,8 +14,8 @@ import com.squareup.moshi.ToJson
 {{/moshi}}
 import java.math.BigInteger
 
-{{#kotlinx_serialization}}@Serializer(forClass = BigInteger::class)
-object BigIntegerAdapter : KSerializer<BigInteger> {
+{{#kotlinx_serialization}}
+{{#nonPublicApi}}internal {{/nonPublicApi}}{{^nonPublicApi}}{{#explicitApi}}public {{/explicitApi}}{{/nonPublicApi}}object BigIntegerAdapter : KSerializer<BigInteger> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("BigInteger", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): BigInteger {
         return BigInteger(decoder.decodeString())
@@ -25,14 +24,18 @@ object BigIntegerAdapter : KSerializer<BigInteger> {
     override fun serialize(encoder: Encoder, value: BigInteger) {
         encoder.encodeString(value.toString())
     }
-}{{/kotlinx_serialization}}{{#moshi}}{{#nonPublicApi}}internal {{/nonPublicApi}}class BigIntegerAdapter {
+}
+{{/kotlinx_serialization}}
+{{#moshi}}
+{{#nonPublicApi}}internal {{/nonPublicApi}}{{^nonPublicApi}}{{#explicitApi}}public {{/explicitApi}}{{/nonPublicApi}}class BigIntegerAdapter {
     @ToJson
-    fun toJson(value: BigInteger): String {
+    {{^nonPublicApi}}{{#explicitApi}}public {{/explicitApi}}{{/nonPublicApi}}fun toJson(value: BigInteger): String {
         return value.toString()
     }
 
     @FromJson
-    fun fromJson(value: String): BigInteger {
+    {{^nonPublicApi}}{{#explicitApi}}public {{/explicitApi}}{{/nonPublicApi}}fun fromJson(value: String): BigInteger {
         return BigInteger(value)
     }
-}{{/moshi}}
+}
+{{/moshi}}

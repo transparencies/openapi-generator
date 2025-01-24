@@ -66,11 +66,16 @@ export class {{classname}} {
     public configuration = new {{configurationClassName}}();
     public encoder: HttpParameterCodec;
 
-    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: {{configurationClassName}}) {
+    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string|string[], @Optional() configuration: {{configurationClassName}}) {
         if (configuration) {
             this.configuration = configuration;
         }
         if (typeof this.configuration.basePath !== 'string') {
+            const firstBasePath = Array.isArray(basePath) ? basePath[0] : undefined;
+            if (firstBasePath != undefined) {
+                basePath = firstBasePath;
+            }
+
             if (typeof basePath !== 'string') {
                 basePath = this.basePath;
             }
@@ -95,6 +100,7 @@ export class {{classname}} {
     }
 {{/hasSomeFormParams}}
 
+    // @ts-ignore
     private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
         {{#isQueryParamObjectFormatJson}}
         httpParams = this.addToHttpParamsRecursive(httpParams, value, key);
@@ -116,15 +122,18 @@ export class {{classname}} {
 
         if (typeof value === "object") {
             {{#isQueryParamObjectFormatJson}}
-            httpParams = httpParams.append(key, JSON.stringify(value));
+            if (key != null) {
+                httpParams = httpParams.append(key, JSON.stringify(value));
+            } else {
+                throw Error("key may not be null if value is a QueryParamObject");
+            }
             {{/isQueryParamObjectFormatJson}}
             {{^isQueryParamObjectFormatJson}}
             if (Array.isArray(value)) {
                 (value as any[]).forEach( elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
             } else if (value instanceof Date) {
                 if (key != null) {
-                    httpParams = httpParams.append(key,
-                        (value as Date).toISOString(){{^isDateTime}}.substr(0, 10)){{/isDateTime}};
+                    httpParams = httpParams.append(key, (value as Date).toISOString(){{^isDateTime}}.substring(0, 10){{/isDateTime}});
                 } else {
                    throw Error("key may not be null if value is Date");
                 }
@@ -165,13 +174,13 @@ export class {{classname}} {
      * @deprecated
      {{/isDeprecated}}
      */
-    public {{nickname}}({{^useSingleRequestParameter}}{{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}{{/useSingleRequestParameter}}{{#useSingleRequestParameter}}{{#allParams.0}}requestParameters: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}RequestParams, {{/allParams.0}}{{/useSingleRequestParameter}}observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: {{#produces}}'{{mediaType}}'{{^-last}} | {{/-last}}{{/produces}}{{^produces}}undefined{{/produces}},{{#httpContextInOptions}} context?: HttpContext{{/httpContextInOptions}}}): Observable<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>;
-    public {{nickname}}({{^useSingleRequestParameter}}{{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}{{/useSingleRequestParameter}}{{#useSingleRequestParameter}}{{#allParams.0}}requestParameters: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}RequestParams, {{/allParams.0}}{{/useSingleRequestParameter}}observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: {{#produces}}'{{mediaType}}'{{^-last}} | {{/-last}}{{/produces}}{{^produces}}undefined{{/produces}},{{#httpContextInOptions}} context?: HttpContext{{/httpContextInOptions}}}): Observable<HttpResponse<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>>;
-    public {{nickname}}({{^useSingleRequestParameter}}{{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}{{/useSingleRequestParameter}}{{#useSingleRequestParameter}}{{#allParams.0}}requestParameters: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}RequestParams, {{/allParams.0}}{{/useSingleRequestParameter}}observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: {{#produces}}'{{mediaType}}'{{^-last}} | {{/-last}}{{/produces}}{{^produces}}undefined{{/produces}},{{#httpContextInOptions}} context?: HttpContext{{/httpContextInOptions}}}): Observable<HttpEvent<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>>;
-    public {{nickname}}({{^useSingleRequestParameter}}{{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}{{/useSingleRequestParameter}}{{#useSingleRequestParameter}}{{#allParams.0}}requestParameters: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}RequestParams, {{/allParams.0}}{{/useSingleRequestParameter}}observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: {{#produces}}'{{mediaType}}'{{^-last}} | {{/-last}}{{/produces}}{{^produces}}undefined{{/produces}},{{#httpContextInOptions}} context?: HttpContext{{/httpContextInOptions}}}): Observable<any> {
+    public {{nickname}}({{^useSingleRequestParameter}}{{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}{{/useSingleRequestParameter}}{{#useSingleRequestParameter}}{{#allParams.0}}requestParameters{{^hasRequiredParams}}?{{/hasRequiredParams}}: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}RequestParams, {{/allParams.0}}{{/useSingleRequestParameter}}observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: {{#produces}}'{{{mediaType}}}'{{^-last}} | {{/-last}}{{/produces}}{{^produces}}undefined{{/produces}},{{#httpContextInOptions}} context?: HttpContext{{/httpContextInOptions}}{{#httpTransferCacheInOptions}}, transferCache?: boolean{{/httpTransferCacheInOptions}}}): Observable<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>;
+    public {{nickname}}({{^useSingleRequestParameter}}{{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}{{/useSingleRequestParameter}}{{#useSingleRequestParameter}}{{#allParams.0}}requestParameters{{^hasRequiredParams}}?{{/hasRequiredParams}}: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}RequestParams, {{/allParams.0}}{{/useSingleRequestParameter}}observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: {{#produces}}'{{{mediaType}}}'{{^-last}} | {{/-last}}{{/produces}}{{^produces}}undefined{{/produces}},{{#httpContextInOptions}} context?: HttpContext{{/httpContextInOptions}}{{#httpTransferCacheInOptions}}, transferCache?: boolean{{/httpTransferCacheInOptions}}}): Observable<HttpResponse<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>>;
+    public {{nickname}}({{^useSingleRequestParameter}}{{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}{{/useSingleRequestParameter}}{{#useSingleRequestParameter}}{{#allParams.0}}requestParameters{{^hasRequiredParams}}?{{/hasRequiredParams}}: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}RequestParams, {{/allParams.0}}{{/useSingleRequestParameter}}observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: {{#produces}}'{{{mediaType}}}'{{^-last}} | {{/-last}}{{/produces}}{{^produces}}undefined{{/produces}},{{#httpContextInOptions}} context?: HttpContext{{/httpContextInOptions}}{{#httpTransferCacheInOptions}}, transferCache?: boolean{{/httpTransferCacheInOptions}}}): Observable<HttpEvent<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>>;
+    public {{nickname}}({{^useSingleRequestParameter}}{{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}{{/useSingleRequestParameter}}{{#useSingleRequestParameter}}{{#allParams.0}}requestParameters{{^hasRequiredParams}}?{{/hasRequiredParams}}: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}RequestParams, {{/allParams.0}}{{/useSingleRequestParameter}}observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: {{#produces}}'{{{mediaType}}}'{{^-last}} | {{/-last}}{{/produces}}{{^produces}}undefined{{/produces}},{{#httpContextInOptions}} context?: HttpContext{{/httpContextInOptions}}{{#httpTransferCacheInOptions}}, transferCache?: boolean{{/httpTransferCacheInOptions}}}): Observable<any> {
 {{#allParams}}
 {{#useSingleRequestParameter}}
-        const {{paramName}} = requestParameters.{{paramName}};
+        const {{paramName}} = requestParameters{{^hasRequiredVars}}?{{/hasRequiredVars}}.{{paramName}};
 {{/useSingleRequestParameter}}
 {{#required}}
         if ({{paramName}} === null || {{paramName}} === undefined) {
@@ -198,7 +207,7 @@ export class {{classname}} {
         {{/isCollectionFormatMulti}}
         {{^isCollectionFormatMulti}}
             localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-                {{paramName}}.join(COLLECTION_FORMATS['{{collectionFormat}}']), '{{baseName}}');
+                [...{{paramName}}].join(COLLECTION_FORMATS['{{collectionFormat}}']), '{{baseName}}');
         {{/isCollectionFormatMulti}}
         {{/isQueryParamObjectFormatJson}}
         }
@@ -216,7 +225,7 @@ export class {{classname}} {
 {{#headerParams}}
         {{#isArray}}
         if ({{paramName}}) {
-            localVarHeaders = localVarHeaders.set('{{baseName}}', {{paramName}}.join(COLLECTION_FORMATS['{{collectionFormat}}']));
+            localVarHeaders = localVarHeaders.set('{{baseName}}', [...{{paramName}}].join(COLLECTION_FORMATS['{{collectionFormat}}']));
         }
         {{/isArray}}
         {{^isArray}}
@@ -275,6 +284,13 @@ export class {{classname}} {
             localVarHttpContext = new HttpContext();
         }
 {{/httpContextInOptions}}
+{{#httpTransferCacheInOptions}}
+
+        let localVarTransferCache: boolean | undefined = options && options.transferCache;
+        if (localVarTransferCache === undefined) {
+            localVarTransferCache = true;
+        }
+{{/httpTransferCacheInOptions}}
 
 {{#bodyParam}}
 {{- duplicated below, don't forget to change}}
@@ -326,16 +342,16 @@ export class {{classname}} {
         if ({{paramName}}) {
         {{#isCollectionFormatMulti}}
             {{paramName}}.forEach((element) => {
-                localVarFormParams = localVarFormParams.append('{{baseName}}', <any>element) as any || localVarFormParams;
+                localVarFormParams = localVarFormParams.append('{{baseName}}{{#useSquareBracketsInArrayNames}}[]{{/useSquareBracketsInArrayNames}}', <any>element) as any || localVarFormParams;
             })
         {{/isCollectionFormatMulti}}
         {{^isCollectionFormatMulti}}
             if (localVarUseForm) {
                 {{paramName}}.forEach((element) => {
-                    localVarFormParams = localVarFormParams.append('{{baseName}}', <any>element) as any || localVarFormParams;
+                    localVarFormParams = localVarFormParams.append('{{baseName}}{{#useSquareBracketsInArrayNames}}[]{{/useSquareBracketsInArrayNames}}', <any>element) as any || localVarFormParams;
             })
             } else {
-                localVarFormParams = localVarFormParams.append('{{baseName}}', {{paramName}}.join(COLLECTION_FORMATS['{{collectionFormat}}'])) as any || localVarFormParams;
+                localVarFormParams = localVarFormParams.append('{{baseName}}{{#useSquareBracketsInArrayNames}}[]{{/useSquareBracketsInArrayNames}}', [...{{paramName}}].join(COLLECTION_FORMATS['{{collectionFormat}}'])) as any || localVarFormParams;
             }
         {{/isCollectionFormatMulti}}
         }
@@ -349,24 +365,32 @@ export class {{classname}} {
 
 {{/hasFormParams}}
     {{^isResponseFile}}
-        let responseType_: 'text' | 'json' = 'json';
-        if(localVarHttpHeaderAcceptSelected && localVarHttpHeaderAcceptSelected.startsWith('text')) {
-            responseType_ = 'text';
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
         }
 
     {{/isResponseFile}}
-    {{#deleteAcceptsBody}}
-        return this.httpClient.{{httpMethod}}{{^isResponseFile}}<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>{{/isResponseFile}}(`${this.configuration.basePath}{{{path}}}`,{{#isBodyAllowed}}
-            {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}{{#hasFormParams}}localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams{{/hasFormParams}}{{^hasFormParams}}null{{/hasFormParams}}{{/bodyParam}},{{/isBodyAllowed}}
-    {{/deleteAcceptsBody}}
-    {{^deleteAcceptsBody}}
-        return this.httpClient.{{httpMethod}}{{^isResponseFile}}<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>{{/isResponseFile}}(`${this.configuration.basePath}{{{path}}}`,{{#isMethodPutOrPatchOrPost}}
-            {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}{{#hasFormParams}}localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams{{/hasFormParams}}{{^hasFormParams}}null{{/hasFormParams}}{{/bodyParam}},{{/isMethodPutOrPatchOrPost}}
-    {{/deleteAcceptsBody}}
+        let localVarPath = `{{{path}}}`;
+        return this.httpClient.request{{^isResponseFile}}<{{#returnType}}{{{returnType}}}{{#isResponseTypeFile}}|undefined{{/isResponseTypeFile}}{{/returnType}}{{^returnType}}any{{/returnType}}>{{/isResponseFile}}('{{httpMethod}}', `${this.configuration.basePath}${localVarPath}`,
             {
     {{#httpContextInOptions}}
                 context: localVarHttpContext,
     {{/httpContextInOptions}}
+    {{#bodyParam}}
+                body: {{paramName}},
+    {{/bodyParam}}
+    {{^bodyParam}}
+    {{#hasFormParams}}
+                body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
+    {{/hasFormParams}}
+    {{/bodyParam}}
     {{#hasQueryParamsOrAuth}}
                 params: localVarQueryParameters,
     {{/hasQueryParamsOrAuth}}
@@ -379,6 +403,9 @@ export class {{classname}} {
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,
                 observe: observe,
+    {{#httpTransferCacheInOptions}}
+                transferCache: localVarTransferCache,
+    {{/httpTransferCacheInOptions}}
                 reportProgress: reportProgress
             }
         );

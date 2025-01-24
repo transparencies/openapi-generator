@@ -27,6 +27,10 @@ import io.swagger.v3.oas.models.servers.ServerVariable;
 import org.openapitools.codegen.api.TemplatingEngineAdapter;
 import org.openapitools.codegen.meta.FeatureSet;
 import org.openapitools.codegen.meta.GeneratorMetadata;
+import org.openapitools.codegen.model.ModelMap;
+import org.openapitools.codegen.model.ModelsMap;
+import org.openapitools.codegen.model.OperationsMap;
+import org.openapitools.codegen.model.WebhooksMap;
 
 import java.io.File;
 import java.util.List;
@@ -51,6 +55,8 @@ public interface CodegenConfig {
     Map<String, String> serverVariableOverrides();
 
     Map<String, Object> vendorExtensions();
+
+    Map<String, String> templateOutputDirs();
 
     String testPackage();
 
@@ -138,6 +144,24 @@ public interface CodegenConfig {
 
     Map<String, String> importMapping();
 
+    Map<String, String> schemaMapping();
+
+    Map<String, String> inlineSchemaNameMapping();
+
+    Map<String, String> inlineSchemaOption();
+
+    Map<String, String> nameMapping();
+
+    Map<String, String> parameterNameMapping();
+
+    Map<String, String> modelNameMapping();
+
+    Map<String, String> enumNameMapping();
+
+    Map<String, String> operationIdNameMapping();
+
+    Map<String, String> openapiNormalizer();
+
     Map<String, String> apiTemplateFiles();
 
     Map<String, String> modelTemplateFiles();
@@ -151,6 +175,8 @@ public interface CodegenConfig {
     Map<String, String> modelDocTemplateFiles();
 
     Set<String> languageSpecificPrimitives();
+
+    Set<String> openapiGeneratorIgnoreList();
 
     Map<String, String> reservedWordsMappings();
 
@@ -178,31 +204,39 @@ public interface CodegenConfig {
 
     String toModelImport(String name);
 
-    Map<String,String> toModelImportMap(String name);
+    Map<String, String> toModelImportMap(String name);
 
     String toApiImport(String name);
 
     void addOperationToGroup(String tag, String resourcePath, Operation operation, CodegenOperation co, Map<String, List<CodegenOperation>> operations);
 
-    Map<String, Object> updateAllModels(Map<String, Object> objs);
+    Map<String, ModelsMap> updateAllModels(Map<String, ModelsMap> objs);
 
     void postProcess();
 
-    Map<String, Object> postProcessAllModels(Map<String, Object> objs);
+    Map<String, ModelsMap> postProcessAllModels(Map<String, ModelsMap> objs);
 
-    Map<String, Object> postProcessModels(Map<String, Object> objs);
+    ModelsMap postProcessModels(ModelsMap objs);
 
-    Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels);
+    OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels);
+
+    WebhooksMap postProcessWebhooksWithModels(WebhooksMap objs, List<ModelMap> allModels);
 
     Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs);
 
     void postProcessModelProperty(CodegenModel model, CodegenProperty property);
 
+    void postProcessResponseWithProperty(CodegenResponse response, CodegenProperty property);
+
     void postProcessParameter(CodegenParameter parameter);
 
     String modelFilename(String templateName, String modelName);
 
+    String modelFilename(String templateName, String modelName, String outputDir);
+
     String apiFilename(String templateName, String tag);
+
+    String apiFilename(String templateName, String tag, String outputDir);
 
     String apiTestFilename(String templateName, String tag);
 
@@ -221,6 +255,10 @@ public interface CodegenConfig {
     boolean isSkipOperationExample();
 
     void setSkipOperationExample(boolean skipOperationExample);
+
+    boolean isSkipSortingOperations();
+
+    void setSkipSortingOperations(boolean skipSortingOperations);
 
     public boolean isHideGenerationTimestamp();
 
@@ -281,6 +319,7 @@ public interface CodegenConfig {
 
     /**
      * Set the OpenAPI instance. This method needs to be called right after the instantiation of the Codegen class.
+     *
      * @param openAPI specification being generated
      */
     void setOpenAPI(OpenAPI openAPI);
@@ -303,5 +342,28 @@ public interface CodegenConfig {
 
     void setRemoveEnumValuePrefix(boolean removeEnumValuePrefix);
 
-    Schema unaliasSchema(Schema schema, Map<String, String> usedImportMappings);
+    Schema unaliasSchema(Schema schema);
+
+    String defaultTemplatingEngine();
+
+    GeneratorLanguage generatorLanguage();
+
+    /*
+    the version of the language that the generator implements
+    For python 3.9.0, generatorLanguageVersion would be "3.9.0"
+    */
+    String generatorLanguageVersion();
+
+    boolean isTypeErasedGenerics();
+
+    List<VendorExtension> getSupportedVendorExtensions();
+
+    boolean getUseInlineModelResolver();
+
+    boolean getAddSuffixToDuplicateOperationNicknames();
+
+    boolean getUseOpenapiNormalizer();
+
+    Set<String> getOpenapiGeneratorIgnoreList();
+
 }

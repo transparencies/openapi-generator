@@ -15,7 +15,7 @@ public typealias Category = PetstoreClientAPI.Category
 
 extension PetstoreClientAPI {
 
-public final class Category: Codable, Hashable {
+public final class Category: Codable, JSONEncodable, Hashable {
 
     public var id: Int64?
     public var name: String? = "default-name"
@@ -52,3 +52,6 @@ public final class Category: Codable, Hashable {
 }
 
 }
+
+@available(iOS 13, tvOS 13, watchOS 6, macOS 10.15, *)
+extension PetstoreClientAPI.Category: Identifiable {}

@@ -17,13 +17,17 @@
 
 package org.openapitools.codegen.languages;
 
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.meta.GeneratorMetadata;
 import org.openapitools.codegen.meta.Stability;
 import org.openapitools.codegen.meta.features.*;
+import org.openapitools.codegen.model.ModelMap;
+import org.openapitools.codegen.model.ModelsMap;
+import org.openapitools.codegen.model.OperationMap;
+import org.openapitools.codegen.model.OperationsMap;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,20 +42,23 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
     private final Logger LOGGER = LoggerFactory.getLogger(LuaClientCodegen.class);
 
     protected String specFolder = "spec";
-    protected String packageName = "openapiclient";
-    protected String packageVersion = "1.0.0-1";
+    @Setter protected String packageName = "openapiclient";
+    @Setter protected String packageVersion = "1.0.0-1";
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
-    protected String luaRocksFilename = "openapiclient-1.0.0-1.rockspec";
+    @Setter protected String luaRocksFilename = "openapiclient-1.0.0-1.rockspec";
 
+    @Override
     public CodegenType getTag() {
         return CodegenType.CLIENT;
     }
 
+    @Override
     public String getName() {
         return "lua";
     }
 
+    @Override
     public String getHelp() {
         return "Generates a Lua client library (beta).";
     }
@@ -229,12 +236,18 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
         return outputFolder + File.separator + packageName + File.separator + "api" + File.separator;
     }
 
+    @Override
     public String modelFileFolder() {
         return outputFolder + File.separator + packageName + File.separator + "model" + File.separator;
     }
 
     @Override
     public String toVarName(String name) {
+        // obtain the name from nameMapping directly if provided
+        if (nameMapping.containsKey(name)) {
+            return nameMapping.get(name);
+        }
+
         // replace - with _ e.g. created-at => created_at
         name = sanitizeName(name.replaceAll("-", "_"));
 
@@ -259,6 +272,11 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
 
     @Override
     public String toParamName(String name) {
+        // obtain the name from parameterNameMapping directly if provided
+        if (parameterNameMapping.containsKey(name)) {
+            return parameterNameMapping.get(name);
+        }
+
         return toVarName(name);
     }
 
@@ -269,6 +287,11 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
 
     @Override
     public String toModelFilename(String name) {
+        // obtain the name from modelNameMapping directly if provided
+        if (modelNameMapping.containsKey(name)) {
+            return modelNameMapping.get(name);
+        }
+
         if (!StringUtils.isEmpty(modelNamePrefix)) {
             name = modelNamePrefix + "_" + name;
         }
@@ -364,11 +387,10 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema inner = ap.getItems();
+            Schema inner = ModelUtils.getSchemaItems(p);
             return getTypeDeclaration(inner);
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = getAdditionalProperties(p);
+            Schema inner = ModelUtils.getAdditionalProperties(p);
             return getTypeDeclaration(inner);
         }
 
@@ -418,11 +440,9 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
     }
 
     @Override
-    public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> objectMap = (Map<String, Object>) objs.get("operations");
-        @SuppressWarnings("unchecked")
-        List<CodegenOperation> operations = (List<CodegenOperation>) objectMap.get("operation");
+    public OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels) {
+        OperationMap objectMap = objs.getOperations();
+        List<CodegenOperation> operations = objectMap.getOperation();
         for (CodegenOperation op : operations) {
 
             String[] items = op.path.split("/", -1);
@@ -449,9 +469,9 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
     }
 
     @Override
-    public Map<String, Object> postProcessModels(Map<String, Object> objs) {
+    public ModelsMap postProcessModels(ModelsMap objs) {
         // remove model imports to avoid error
-        List<Map<String, String>> imports = (List<Map<String, String>>) objs.get("imports");
+        List<Map<String, String>> imports = objs.getImports();
         final String prefix = modelPackage();
         Iterator<Map<String, String>> iterator = imports.iterator();
         while (iterator.hasNext()) {
@@ -461,7 +481,7 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
         }
 
         // recursively add import for mapping one type to multiple imports
-        List<Map<String, String>> recursiveImports = (List<Map<String, String>>) objs.get("imports");
+        List<Map<String, String>> recursiveImports = objs.getImports();
         if (recursiveImports == null)
             return objs;
 
@@ -482,18 +502,6 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
     protected boolean needToImport(String type) {
         return !defaultIncludes.contains(type)
                 && !languageSpecificPrimitives.contains(type);
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    public void setPackageVersion(String packageVersion) {
-        this.packageVersion = packageVersion;
-    }
-
-    public void setLuaRocksFilename(String luaRocksFilename) {
-        this.luaRocksFilename = luaRocksFilename;
     }
 
     @Override
@@ -594,4 +602,7 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
         System.out.println("# Pls support his work directly via https://github.com/sponsors/daurnimator \uD83D\uDE4F #");
         System.out.println("################################################################################");
     }
+
+    @Override
+    public GeneratorLanguage generatorLanguage() { return GeneratorLanguage.LUA; }
 }

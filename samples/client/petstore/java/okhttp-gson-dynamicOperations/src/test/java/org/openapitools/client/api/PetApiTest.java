@@ -37,9 +37,8 @@ import java.io.FileWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * API tests for PetApi
@@ -51,7 +50,7 @@ public class PetApiTest {
     // In the circle.yml file, /etc/host is configured with an entry to resolve petstore.swagger.io to 127.0.0.1
     private static String basePath = "http://petstore.swagger.io:80/v2";
 
-    @Before
+    @BeforeEach
     public void setup() {
         // setup authentication
         ApiKeyAuth apiKeyAuth = (ApiKeyAuth) api.getApiClient().getAuthentication("api_key");
@@ -207,7 +206,8 @@ public class PetApiTest {
         } while (result.isEmpty());
         assertNotNull(exception);
         assertEquals(404, exception.getCode());
-        assertEquals("Not Found", exception.getMessage());
+        String pattern = "^Message: Not Found\\RHTTP response code: 404\\RHTTP response body: .*\\RHTTP response headers: .*$";
+        assertTrue(exception.getMessage().matches(pattern));
         assertEquals("application/json", exception.getResponseHeaders().get("Content-Type").get(0));
         api.deletePet(pet.getId(), null);
     }
@@ -312,14 +312,14 @@ public class PetApiTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testFindPetsByTags() throws Exception {
         Pet pet = createPet();
         pet.setName("monster");
         pet.setStatus(Pet.StatusEnum.AVAILABLE);
 
-        List<Tag> tags = new ArrayList<Tag>();
-        Tag tag1 = new Tag();
+        List<org.openapitools.client.model.Tag> tags = new ArrayList<org.openapitools.client.model.Tag>();
+        org.openapitools.client.model.Tag tag1 = new org.openapitools.client.model.Tag();
         tag1.setName("friendly");
         tags.add(tag1);
         pet.setTags(tags);

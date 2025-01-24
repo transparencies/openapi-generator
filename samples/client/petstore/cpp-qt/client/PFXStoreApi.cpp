@@ -35,6 +35,10 @@ void PFXStoreApi::initializeServerConfigs() {
     QUrl("http://petstore.swagger.io/v2"),
     "No description provided",
     QMap<QString, PFXServerVariable>()));
+    defaultConf.append(PFXServerConfiguration(
+    QUrl("http://localhost:8080/v2"),
+    "No description provided",
+    QMap<QString, PFXServerVariable>()));
     _serverConfigs.insert("deleteOrder", defaultConf);
     _serverIndices.insert("deleteOrder", 0);
     _serverConfigs.insert("getInventory", defaultConf);
@@ -63,7 +67,7 @@ void PFXStoreApi::setServerIndex(const QString &operation, int serverIndex) {
 }
 
 void PFXStoreApi::setApiKey(const QString &apiKeyName, const QString &apiKey) {
-    _apiKeys.insert(apiKeyName,apiKey);
+    _apiKeys.insert(apiKeyName, apiKey);
 }
 
 void PFXStoreApi::setBearerToken(const QString &token) {
@@ -118,15 +122,9 @@ int PFXStoreApi::addServerConfiguration(const QString &operation, const QUrl &ur
     * @param variables A map between a variable name and its value. The value is used for substitution in the server's URL template.
     */
 void PFXStoreApi::setNewServerForAllOperations(const QUrl &url, const QString &description, const QMap<QString, PFXServerVariable> &variables) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
     for (auto keyIt = _serverIndices.keyBegin(); keyIt != _serverIndices.keyEnd(); keyIt++) {
         setServerIndex(*keyIt, addServerConfiguration(*keyIt, url, description, variables));
     }
-#else
-    for (auto &e : _serverIndices.keys()) {
-        setServerIndex(e, addServerConfiguration(e, url, description, variables));
-    }
-#endif
 }
 
 /**
@@ -152,7 +150,7 @@ void PFXStoreApi::enableResponseCompression() {
 }
 
 void PFXStoreApi::abortRequests() {
-    emit abortRequestsSignal();
+    Q_EMIT abortRequestsSignal();
 }
 
 QString PFXStoreApi::getParamStylePrefix(const QString &style) {
@@ -226,7 +224,7 @@ void PFXStoreApi::deleteOrder(const QString &order_id) {
         QString order_idPathParam("{");
         order_idPathParam.append("orderId").append("}");
         QString pathPrefix, pathSuffix, pathDelimiter;
-        QString pathStyle = "";
+        QString pathStyle = "simple";
         if (pathStyle == "")
             pathStyle = "simple";
         pathPrefix = getParamStylePrefix(pathStyle);
@@ -241,21 +239,16 @@ void PFXStoreApi::deleteOrder(const QString &order_id) {
     PFXHttpRequestInput input(fullPath, "DELETE");
 
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     for (auto keyValueIt = _defaultHeaders.keyValueBegin(); keyValueIt != _defaultHeaders.keyValueEnd(); keyValueIt++) {
         input.headers.insert(keyValueIt->first, keyValueIt->second);
     }
-#else
-    for (auto key : _defaultHeaders.keys()) {
-        input.headers.insert(key, _defaultHeaders[key]);
-    }
-#endif
+
 
     connect(worker, &PFXHttpRequestWorker::on_execution_finished, this, &PFXStoreApi::deleteOrderCallback);
     connect(this, &PFXStoreApi::abortRequestsSignal, worker, &QObject::deleteLater);
-    connect(worker, &QObject::destroyed, this, [this]() {
+    connect(worker, &QObject::destroyed, this, [this] {
         if (findChildren<PFXHttpRequestWorker*>().count() == 0) {
-            emit allPendingRequestsCompleted();
+            Q_EMIT allPendingRequestsCompleted();
         }
     });
 
@@ -272,11 +265,37 @@ void PFXStoreApi::deleteOrderCallback(PFXHttpRequestWorker *worker) {
     worker->deleteLater();
 
     if (worker->error_type == QNetworkReply::NoError) {
-        emit deleteOrderSignal();
-        emit deleteOrderSignalFull(worker);
+        Q_EMIT deleteOrderSignal();
+        Q_EMIT deleteOrderSignalFull(worker);
     } else {
-        emit deleteOrderSignalE(error_type, error_str);
-        emit deleteOrderSignalEFull(worker, error_type, error_str);
+
+#if defined(_MSC_VER)
+// For MSVC
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#elif defined(__clang__)
+// For Clang
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(__GNUC__)
+// For GCC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+        Q_EMIT deleteOrderSignalE(error_type, error_str);
+        Q_EMIT deleteOrderSignalEFull(worker, error_type, error_str);
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+        Q_EMIT deleteOrderSignalError(error_type, error_str);
+        Q_EMIT deleteOrderSignalErrorFull(worker, error_type, error_str);
     }
 }
 
@@ -293,21 +312,16 @@ void PFXStoreApi::getInventory() {
     PFXHttpRequestInput input(fullPath, "GET");
 
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     for (auto keyValueIt = _defaultHeaders.keyValueBegin(); keyValueIt != _defaultHeaders.keyValueEnd(); keyValueIt++) {
         input.headers.insert(keyValueIt->first, keyValueIt->second);
     }
-#else
-    for (auto key : _defaultHeaders.keys()) {
-        input.headers.insert(key, _defaultHeaders[key]);
-    }
-#endif
+
 
     connect(worker, &PFXHttpRequestWorker::on_execution_finished, this, &PFXStoreApi::getInventoryCallback);
     connect(this, &PFXStoreApi::abortRequestsSignal, worker, &QObject::deleteLater);
-    connect(worker, &QObject::destroyed, this, [this]() {
+    connect(worker, &QObject::destroyed, this, [this] {
         if (findChildren<PFXHttpRequestWorker*>().count() == 0) {
-            emit allPendingRequestsCompleted();
+            Q_EMIT allPendingRequestsCompleted();
         }
     });
 
@@ -326,7 +340,7 @@ void PFXStoreApi::getInventoryCallback(PFXHttpRequestWorker *worker) {
     QByteArray array(json.toStdString().c_str());
     QJsonDocument doc = QJsonDocument::fromJson(array);
     QJsonObject obj = doc.object();
-    foreach (QString key, obj.keys()) {
+    for (QString key : obj.keys()) {
         qint32 val;
         ::test_namespace::fromJsonValue(val, obj[key]);
         output.insert(key, val);
@@ -334,11 +348,37 @@ void PFXStoreApi::getInventoryCallback(PFXHttpRequestWorker *worker) {
     worker->deleteLater();
 
     if (worker->error_type == QNetworkReply::NoError) {
-        emit getInventorySignal(output);
-        emit getInventorySignalFull(worker, output);
+        Q_EMIT getInventorySignal(output);
+        Q_EMIT getInventorySignalFull(worker, output);
     } else {
-        emit getInventorySignalE(output, error_type, error_str);
-        emit getInventorySignalEFull(worker, error_type, error_str);
+
+#if defined(_MSC_VER)
+// For MSVC
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#elif defined(__clang__)
+// For Clang
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(__GNUC__)
+// For GCC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+        Q_EMIT getInventorySignalE(output, error_type, error_str);
+        Q_EMIT getInventorySignalEFull(worker, error_type, error_str);
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+        Q_EMIT getInventorySignalError(output, error_type, error_str);
+        Q_EMIT getInventorySignalErrorFull(worker, error_type, error_str);
     }
 }
 
@@ -350,7 +390,7 @@ void PFXStoreApi::getOrderById(const qint64 &order_id) {
         QString order_idPathParam("{");
         order_idPathParam.append("orderId").append("}");
         QString pathPrefix, pathSuffix, pathDelimiter;
-        QString pathStyle = "";
+        QString pathStyle = "simple";
         if (pathStyle == "")
             pathStyle = "simple";
         pathPrefix = getParamStylePrefix(pathStyle);
@@ -365,21 +405,16 @@ void PFXStoreApi::getOrderById(const qint64 &order_id) {
     PFXHttpRequestInput input(fullPath, "GET");
 
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     for (auto keyValueIt = _defaultHeaders.keyValueBegin(); keyValueIt != _defaultHeaders.keyValueEnd(); keyValueIt++) {
         input.headers.insert(keyValueIt->first, keyValueIt->second);
     }
-#else
-    for (auto key : _defaultHeaders.keys()) {
-        input.headers.insert(key, _defaultHeaders[key]);
-    }
-#endif
+
 
     connect(worker, &PFXHttpRequestWorker::on_execution_finished, this, &PFXStoreApi::getOrderByIdCallback);
     connect(this, &PFXStoreApi::abortRequestsSignal, worker, &QObject::deleteLater);
-    connect(worker, &QObject::destroyed, this, [this]() {
+    connect(worker, &QObject::destroyed, this, [this] {
         if (findChildren<PFXHttpRequestWorker*>().count() == 0) {
-            emit allPendingRequestsCompleted();
+            Q_EMIT allPendingRequestsCompleted();
         }
     });
 
@@ -397,15 +432,41 @@ void PFXStoreApi::getOrderByIdCallback(PFXHttpRequestWorker *worker) {
     worker->deleteLater();
 
     if (worker->error_type == QNetworkReply::NoError) {
-        emit getOrderByIdSignal(output);
-        emit getOrderByIdSignalFull(worker, output);
+        Q_EMIT getOrderByIdSignal(output);
+        Q_EMIT getOrderByIdSignalFull(worker, output);
     } else {
-        emit getOrderByIdSignalE(output, error_type, error_str);
-        emit getOrderByIdSignalEFull(worker, error_type, error_str);
+
+#if defined(_MSC_VER)
+// For MSVC
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#elif defined(__clang__)
+// For Clang
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(__GNUC__)
+// For GCC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+        Q_EMIT getOrderByIdSignalE(output, error_type, error_str);
+        Q_EMIT getOrderByIdSignalEFull(worker, error_type, error_str);
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+        Q_EMIT getOrderByIdSignalError(output, error_type, error_str);
+        Q_EMIT getOrderByIdSignalErrorFull(worker, error_type, error_str);
     }
 }
 
-void PFXStoreApi::placeOrder(const PFXOrder &body) {
+void PFXStoreApi::placeOrder(const PFXOrder &pfx_order) {
     QString fullPath = QString(_serverConfigs["placeOrder"][_serverIndices.value("placeOrder")].URL()+"/store/order");
     
     PFXHttpRequestWorker *worker = new PFXHttpRequestWorker(this, _manager);
@@ -415,24 +476,20 @@ void PFXStoreApi::placeOrder(const PFXOrder &body) {
 
     {
 
-        QByteArray output = body.asJson().toUtf8();
+        
+        QByteArray output = pfx_order.asJson().toUtf8();
         input.request_body.append(output);
     }
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     for (auto keyValueIt = _defaultHeaders.keyValueBegin(); keyValueIt != _defaultHeaders.keyValueEnd(); keyValueIt++) {
         input.headers.insert(keyValueIt->first, keyValueIt->second);
     }
-#else
-    for (auto key : _defaultHeaders.keys()) {
-        input.headers.insert(key, _defaultHeaders[key]);
-    }
-#endif
+
 
     connect(worker, &PFXHttpRequestWorker::on_execution_finished, this, &PFXStoreApi::placeOrderCallback);
     connect(this, &PFXStoreApi::abortRequestsSignal, worker, &QObject::deleteLater);
-    connect(worker, &QObject::destroyed, this, [this]() {
+    connect(worker, &QObject::destroyed, this, [this] {
         if (findChildren<PFXHttpRequestWorker*>().count() == 0) {
-            emit allPendingRequestsCompleted();
+            Q_EMIT allPendingRequestsCompleted();
         }
     });
 
@@ -450,17 +507,43 @@ void PFXStoreApi::placeOrderCallback(PFXHttpRequestWorker *worker) {
     worker->deleteLater();
 
     if (worker->error_type == QNetworkReply::NoError) {
-        emit placeOrderSignal(output);
-        emit placeOrderSignalFull(worker, output);
+        Q_EMIT placeOrderSignal(output);
+        Q_EMIT placeOrderSignalFull(worker, output);
     } else {
-        emit placeOrderSignalE(output, error_type, error_str);
-        emit placeOrderSignalEFull(worker, error_type, error_str);
+
+#if defined(_MSC_VER)
+// For MSVC
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#elif defined(__clang__)
+// For Clang
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(__GNUC__)
+// For GCC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+        Q_EMIT placeOrderSignalE(output, error_type, error_str);
+        Q_EMIT placeOrderSignalEFull(worker, error_type, error_str);
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+        Q_EMIT placeOrderSignalError(output, error_type, error_str);
+        Q_EMIT placeOrderSignalErrorFull(worker, error_type, error_str);
     }
 }
 
 void PFXStoreApi::tokenAvailable(){
-  
-    oauthToken token; 
+
+    oauthToken token;
     switch (_OauthMethod) {
     case 1: //implicit flow
         token = _implicitFlow.getToken(_latestScope.join(" "));
@@ -469,7 +552,7 @@ void PFXStoreApi::tokenAvailable(){
             _latestWorker->execute(&_latestInput);
         }else{
             _implicitFlow.removeToken(_latestScope.join(" "));
-            qDebug() << "Could not retreive a valid token";
+            qDebug() << "Could not retrieve a valid token";
         }
         break;
     case 2: //authorization flow
@@ -478,8 +561,8 @@ void PFXStoreApi::tokenAvailable(){
             _latestInput.headers.insert("Authorization", "Bearer " + token.getToken());
             _latestWorker->execute(&_latestInput);
         }else{
-            _authFlow.removeToken(_latestScope.join(" "));    
-            qDebug() << "Could not retreive a valid token";
+            _authFlow.removeToken(_latestScope.join(" "));
+            qDebug() << "Could not retrieve a valid token";
         }
         break;
     case 3: //client credentials flow
@@ -488,8 +571,8 @@ void PFXStoreApi::tokenAvailable(){
             _latestInput.headers.insert("Authorization", "Bearer " + token.getToken());
             _latestWorker->execute(&_latestInput);
         }else{
-            _credentialFlow.removeToken(_latestScope.join(" "));    
-            qDebug() << "Could not retreive a valid token";
+            _credentialFlow.removeToken(_latestScope.join(" "));
+            qDebug() << "Could not retrieve a valid token";
         }
         break;
     case 4: //resource owner password flow
@@ -498,8 +581,8 @@ void PFXStoreApi::tokenAvailable(){
             _latestInput.headers.insert("Authorization", "Bearer " + token.getToken());
             _latestWorker->execute(&_latestInput);
         }else{
-            _credentialFlow.removeToken(_latestScope.join(" "));    
-            qDebug() << "Could not retreive a valid token";
+            _credentialFlow.removeToken(_latestScope.join(" "));
+            qDebug() << "Could not retrieve a valid token";
         }
         break;
     default:

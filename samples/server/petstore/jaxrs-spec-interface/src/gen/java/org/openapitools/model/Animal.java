@@ -1,5 +1,6 @@
 package org.openapitools.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
@@ -24,10 +25,20 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 @JsonTypeName("Animal")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen")public class Animal  implements Serializable {
-  
-  private @Valid String className;
-  private @Valid String color = "red";
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class Animal  implements Serializable {
+  private String className;
+  private String color = "red";
+
+  public Animal() {
+  }
+
+  @JsonCreator
+  public Animal(
+    @JsonProperty(required = true, value = "className") String className
+  ) {
+    this.className = className;
+  }
 
   /**
    **/
@@ -37,28 +48,23 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(required = true, value = "")
-  @JsonProperty("className")
-  @NotNull
-  public String getClassName() {
+  @JsonProperty(required = true, value = "className")
+  @NotNull public String getClassName() {
     return className;
   }
 
-  @JsonProperty("className")
+  @JsonProperty(required = true, value = "className")
   public void setClassName(String className) {
     this.className = className;
   }
 
-/**
+  /**
    **/
   public Animal color(String color) {
     this.color = color;
     return this;
   }
-
-  
 
   
   @ApiModelProperty(value = "")

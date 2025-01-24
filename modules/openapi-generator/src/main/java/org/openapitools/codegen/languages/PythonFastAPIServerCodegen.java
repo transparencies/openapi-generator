@@ -22,13 +22,16 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.meta.GeneratorMetadata;
 import org.openapitools.codegen.meta.Stability;
-import org.openapitools.codegen.meta.features.*;
+import org.openapitools.codegen.meta.features.SecurityFeature;
+import org.openapitools.codegen.model.ModelMap;
+import org.openapitools.codegen.model.ModelsMap;
+import org.openapitools.codegen.model.OperationMap;
+import org.openapitools.codegen.model.OperationsMap;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,10 +63,17 @@ public class PythonFastAPIServerCodegen extends AbstractPythonCodegen {
 
     final Logger LOGGER = LoggerFactory.getLogger(PythonFastAPIServerCodegen.class);
 
+    protected String sourceFolder;
+
+    private static final String BASE_CLASS_SUFFIX = "base";
+    private static final String SERVER_PORT = "serverPort";
     private static final String NAME = "python-fastapi";
     private static final int DEFAULT_SERVER_PORT = 8080;
     private static final String DEFAULT_PACKAGE_NAME = "openapi_server";
-    private static final String SRC_DIR = "src";
+    private static final String DEFAULT_SOURCE_FOLDER = "src";
+    private static final String DEFAULT_PACKAGE_VERSION = "1.0.0";
+
+    private String implPackage;
 
     @Override
     public CodegenType getTag() {
@@ -72,27 +82,34 @@ public class PythonFastAPIServerCodegen extends AbstractPythonCodegen {
 
     @Override
     public String getHelp() {
-        return "Generates a Python FastAPI server (beta).";
+        return "Generates a Python FastAPI server (beta). Models are defined with the pydantic library";
     }
 
     public PythonFastAPIServerCodegen() {
         super();
 
-        generatorMetadata = GeneratorMetadata.newBuilder(generatorMetadata)
-                .stability(Stability.BETA)
-                .build();
+        modifyFeatureSet(features -> features.includeSecurityFeatures(
+            SecurityFeature.OAuth2_AuthorizationCode, 
+            SecurityFeature.OAuth2_Password
+        ));
 
-        SimpleModule simpleModule = new SimpleModule();
-        simpleModule.addKeySerializer(String.class, new SnakeCaseKeySerializer());
-        simpleModule.addSerializer(Boolean.class, new PythonBooleanSerializer());
-        MAPPER.registerModule(simpleModule);
+        generatorMetadata = GeneratorMetadata.newBuilder(generatorMetadata).stability(Stability.BETA).build();
+
+        MAPPER.registerModule(
+            new SimpleModule()
+                .addKeySerializer(String.class, new SnakeCaseKeySerializer())
+                .addSerializer(Boolean.class, new PythonBooleanSerializer())
+        );
 
         /*
          * Additional Properties.  These values can be passed to the templates and
          * are available in models, apis, and supporting files
          */
         additionalProperties.put("serverPort", DEFAULT_SERVER_PORT);
+        additionalProperties.put("baseSuffix", BASE_CLASS_SUFFIX);
+        additionalProperties.put(CodegenConstants.SOURCE_FOLDER, DEFAULT_SOURCE_FOLDER);
         additionalProperties.put(CodegenConstants.PACKAGE_NAME, DEFAULT_PACKAGE_NAME);
+        additionalProperties.put(CodegenConstants.FASTAPI_IMPLEMENTATION_PACKAGE, DEFAULT_PACKAGE_NAME.concat(".impl"));
 
         languageSpecificPrimitives.add("List");
         languageSpecificPrimitives.add("Dict");
@@ -102,18 +119,24 @@ public class PythonFastAPIServerCodegen extends AbstractPythonCodegen {
         outputFolder = "generated-code" + File.separator + NAME;
         modelTemplateFiles.put("model.mustache", ".py");
         apiTemplateFiles.put("api.mustache", ".py");
+        apiTemplateFiles.put("base_api.mustache", "_".concat(BASE_CLASS_SUFFIX).concat(".py"));
         embeddedTemplateDir = templateDir = NAME;
         apiPackage = "apis";
         modelPackage = "models";
         testPackage = "tests";
+        implPackage = "impl";
         apiTestTemplateFiles().put("api_test.mustache", ".py");
 
         cliOptions.add(new CliOption(CodegenConstants.PACKAGE_NAME, "python package name (convention: snake_case).")
                 .defaultValue(DEFAULT_PACKAGE_NAME));
         cliOptions.add(new CliOption(CodegenConstants.PACKAGE_VERSION, "python package version.")
-                .defaultValue("1.0.0"));
-        cliOptions.add(new CliOption("serverPort", "TCP port to listen to in app.run").
-                defaultValue(String.valueOf(DEFAULT_SERVER_PORT)));
+                .defaultValue(DEFAULT_PACKAGE_VERSION));
+        cliOptions.add(new CliOption(SERVER_PORT, "TCP port to listen to in app.run")
+                .defaultValue(String.valueOf(DEFAULT_SERVER_PORT)));
+        cliOptions.add(new CliOption(CodegenConstants.SOURCE_FOLDER, "directory for generated python source code")
+                .defaultValue(DEFAULT_SOURCE_FOLDER));
+        cliOptions.add(new CliOption(CodegenConstants.FASTAPI_IMPLEMENTATION_PACKAGE, "python package name for the implementation code (convention: snake_case).")
+                .defaultValue(implPackage));
     }
 
     @Override
@@ -124,26 +147,35 @@ public class PythonFastAPIServerCodegen extends AbstractPythonCodegen {
             setPackageName((String) additionalProperties.get(CodegenConstants.PACKAGE_NAME));
         }
 
+        if (additionalProperties.containsKey(CodegenConstants.SOURCE_FOLDER)) {
+            this.sourceFolder = ((String) additionalProperties.get(CodegenConstants.SOURCE_FOLDER));
+        }
+
+        if (additionalProperties.containsKey(CodegenConstants.FASTAPI_IMPLEMENTATION_PACKAGE)) {
+            this.implPackage = ((String) additionalProperties.get(CodegenConstants.FASTAPI_IMPLEMENTATION_PACKAGE));
+        }
+
         modelPackage = packageName + "." + modelPackage;
         apiPackage = packageName + "." + apiPackage;
 
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("openapi.mustache", "", "openapi.yaml"));
-        supportingFiles.add(new SupportingFile("main.mustache", SRC_DIR + File.separator + packageName.replace('.', File.separatorChar), "main.py"));
+        supportingFiles.add(new SupportingFile("main.mustache", String.join(File.separator, new String[]{sourceFolder, packageName.replace('.', File.separatorChar)}), "main.py"));
         supportingFiles.add(new SupportingFile("docker-compose.mustache", "", "docker-compose.yaml"));
         supportingFiles.add(new SupportingFile("Dockerfile.mustache", "", "Dockerfile"));
         supportingFiles.add(new SupportingFile("requirements.mustache", "", "requirements.txt"));
-        supportingFiles.add(new SupportingFile("security_api.mustache", SRC_DIR + File.separator + packageName.replace('.', File.separatorChar), "security_api.py"));
+        supportingFiles.add(new SupportingFile("security_api.mustache", String.join(File.separator, new String[]{sourceFolder, packageName.replace('.', File.separatorChar)}), "security_api.py"));
         supportingFiles.add(new SupportingFile("extra_models.mustache", StringUtils.substringAfter(modelFileFolder(), outputFolder), "extra_models.py"));
 
         // Add __init__.py to all sub-folders under namespace pkg
-        StringBuilder namespacePackagePath = new StringBuilder(SRC_DIR + File.separator + StringUtils.substringBefore(packageName, "."));
+        StringBuilder namespacePackagePath = new StringBuilder(String.join(File.separator, new String[]{sourceFolder, StringUtils.substringBefore(packageName, ".")}));
         for (String tmp : StringUtils.split(StringUtils.substringAfter(packageName, "."), '.')) {
             namespacePackagePath.append(File.separator).append(tmp);
             supportingFiles.add(new SupportingFile("__init__.mustache", namespacePackagePath.toString(), "__init__.py"));
         }
         supportingFiles.add(new SupportingFile("__init__.mustache", StringUtils.substringAfter(modelFileFolder(), outputFolder), "__init__.py"));
         supportingFiles.add(new SupportingFile("__init__.mustache", StringUtils.substringAfter(apiFileFolder(), outputFolder), "__init__.py"));
+        supportingFiles.add(new SupportingFile("__init__.mustache", StringUtils.substringAfter(apiImplFileFolder(), outputFolder), "__init__.py"));
 
         supportingFiles.add(new SupportingFile("conftest.mustache", testPackage.replace('.', File.separatorChar), "conftest.py"));
 
@@ -176,23 +208,24 @@ public class PythonFastAPIServerCodegen extends AbstractPythonCodegen {
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema inner = ap.getItems();
+            Schema inner = ModelUtils.getSchemaItems(p);
             return getSchemaType(p) + "[" + getTypeDeclaration(inner) + "]";
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = getAdditionalProperties(p);
+            Schema inner = ModelUtils.getAdditionalProperties(p);
             return getSchemaType(p) + "[str, " + getTypeDeclaration(inner) + "]";
         }
         return super.getTypeDeclaration(p);
     }
 
     @Override
-    public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
-        Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
+    public OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels) {
+        super.postProcessOperationsWithModels(objs, allModels);
+
+        OperationMap operations = objs.getOperations();
         // Set will make sure that no duplicated items are used.
         Set<String> securityImports = new HashSet<>();
         if (operations != null) {
-            List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
+            List<CodegenOperation> ops = operations.getOperation();
             for (final CodegenOperation operation : ops) {
                 List<CodegenResponse> responses = operation.responses;
                 if (responses != null) {
@@ -229,19 +262,17 @@ public class PythonFastAPIServerCodegen extends AbstractPythonCodegen {
             }
         }
 
-        objs.put("securityImports", new ArrayList<String>(securityImports));
+        objs.put("securityImports", new ArrayList<>(securityImports));
 
         return objs;
     }
 
     @Override
-    public Map<String, Object> postProcessAllModels(Map<String, Object> objs) {
-        Map<String, Object> result = super.postProcessAllModels(objs);
-        for (Map.Entry<String, Object> entry : result.entrySet()) {
-            Map<String, Object> inner = (Map<String, Object>) entry.getValue();
-            List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
-            for (Map<String, Object> mo : models) {
-                CodegenModel cm = (CodegenModel) mo.get("model");
+    public Map<String, ModelsMap> postProcessAllModels(Map<String, ModelsMap> objs) {
+        Map<String, ModelsMap> result = super.postProcessAllModels(objs);
+        for (Map.Entry<String, ModelsMap> entry : result.entrySet()) {
+            for (ModelMap mo : entry.getValue().getModels()) {
+                CodegenModel cm = mo.getModel();
                 // Add additional filename information for imports
                 mo.put("pyImports", toPyImports(cm, cm.imports));
             }
@@ -269,12 +300,16 @@ public class PythonFastAPIServerCodegen extends AbstractPythonCodegen {
 
     @Override
     public String apiFileFolder() {
-        return outputFolder + File.separator + SRC_DIR + File.separator + apiPackage().replace('.', File.separatorChar);
+        return String.join(File.separator, new String[]{outputFolder, sourceFolder, apiPackage().replace('.', File.separatorChar)});
+    }
+
+    public String apiImplFileFolder() {
+        return String.join(File.separator, new String[]{outputFolder, sourceFolder, implPackage.replace('.', File.separatorChar)});
     }
 
     @Override
     public String modelFileFolder() {
-        return outputFolder + File.separator + SRC_DIR + File.separator + modelPackage().replace('.', File.separatorChar);
+        return String.join(File.separator, new String[]{outputFolder, sourceFolder, modelPackage().replace('.', File.separatorChar)});
     }
 
     @Override
@@ -290,8 +325,13 @@ public class PythonFastAPIServerCodegen extends AbstractPythonCodegen {
     }
 
     @Override
-    public String toRegularExpression(String pattern) {
-        String regex = super.toRegularExpression(pattern);
-        return StringUtils.substring(regex, 1, -1);
+    public String generatorLanguageVersion() { return "3.7"; }
+
+    @Override
+    public String escapeReservedWord(String name) {
+        if (this.reservedWordsMappings().containsKey(name)) {
+            return this.reservedWordsMappings().get(name);
+        }
+        return "var_" + name;
     }
 }

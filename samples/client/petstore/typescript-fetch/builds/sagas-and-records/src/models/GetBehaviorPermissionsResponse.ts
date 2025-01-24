@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
+import type { ResponseMeta } from './ResponseMeta';
 import {
-    ResponseMeta,
     ResponseMetaFromJSON,
     ResponseMetaFromJSONTyped,
     ResponseMetaToJSON,
+    ResponseMetaToJSONTyped,
 } from './ResponseMeta';
 
 /**
@@ -40,32 +41,42 @@ export interface GetBehaviorPermissionsResponse {
     data?: { [key: string]: boolean; };
 }
 
+/**
+ * Check if a given object implements the GetBehaviorPermissionsResponse interface.
+ */
+export function instanceOfGetBehaviorPermissionsResponse(value: object): value is GetBehaviorPermissionsResponse {
+    if (!('meta' in value) || value['meta'] === undefined) return false;
+    return true;
+}
+
 export function GetBehaviorPermissionsResponseFromJSON(json: any): GetBehaviorPermissionsResponse {
     return GetBehaviorPermissionsResponseFromJSONTyped(json, false);
 }
 
 export function GetBehaviorPermissionsResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): GetBehaviorPermissionsResponse {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'meta': ResponseMetaFromJSON(json['meta']),
-        'data': !exists(json, 'data') ? undefined : json['data'],
+        'data': json['data'] == null ? undefined : json['data'],
     };
 }
 
-export function GetBehaviorPermissionsResponseToJSON(value?: GetBehaviorPermissionsResponse | null): any {
-    if (value === undefined) {
-        return undefined;
+export function GetBehaviorPermissionsResponseToJSON(json: any): GetBehaviorPermissionsResponse {
+    return GetBehaviorPermissionsResponseToJSONTyped(json, false);
+}
+
+export function GetBehaviorPermissionsResponseToJSONTyped(value?: GetBehaviorPermissionsResponse | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'meta': ResponseMetaToJSON(value.meta),
-        'data': value.data,
+        'meta': ResponseMetaToJSON(value['meta']),
+        'data': value['data'],
     };
 }
 

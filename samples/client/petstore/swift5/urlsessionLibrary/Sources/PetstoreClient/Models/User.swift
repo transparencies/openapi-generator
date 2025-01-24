@@ -15,7 +15,7 @@ public typealias User = PetstoreClientAPI.User
 
 extension PetstoreClientAPI {
 
-public final class User: Codable, Hashable {
+public final class User: Codable, JSONEncodable, Hashable {
 
     public var id: Int64?
     public var username: String?
@@ -89,3 +89,6 @@ public final class User: Codable, Hashable {
 }
 
 }
+
+@available(iOS 13, tvOS 13, watchOS 6, macOS 10.15, *)
+extension PetstoreClientAPI.User: Identifiable {}

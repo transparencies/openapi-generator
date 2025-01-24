@@ -30,7 +30,7 @@ import javax.validation.Valid;
 @JsonPropertyOrder({
   ClassModel.JSON_PROPERTY_PROPERTY_CLASS
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJerseyServerCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJerseyServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
 public class ClassModel  implements Serializable {
   public static final String JSON_PROPERTY_PROPERTY_CLASS = "_class";
   @JsonProperty(JSON_PROPERTY_PROPERTY_CLASS)
@@ -73,7 +73,6 @@ public class ClassModel  implements Serializable {
   public int hashCode() {
     return Objects.hash(propertyClass);
   }
-
 
   @Override
   public String toString() {

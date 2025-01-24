@@ -25,6 +25,15 @@ CREATE TABLE IF NOT EXISTS `AdditionalPropertiesClass` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Table structure for table `AllOfWithSingleRef` generated from model 'AllOfWithSingleRef'
+--
+
+CREATE TABLE IF NOT EXISTS `AllOfWithSingleRef` (
+  `username` TEXT DEFAULT NULL,
+  `SingleRefType` TEXT DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
 -- Table structure for table `Animal` generated from model 'Animal'
 --
 
@@ -93,20 +102,22 @@ CREATE TABLE IF NOT EXISTS `Cat` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Table structure for table `Cat_allOf` generated from model 'CatUnderscoreallOf'
---
-
-CREATE TABLE IF NOT EXISTS `Cat_allOf` (
-  `declawed` TINYINT(1) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
 -- Table structure for table `Category` generated from model 'Category'
 --
 
 CREATE TABLE IF NOT EXISTS `Category` (
   `id` BIGINT DEFAULT NULL,
   `name` TEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `ChildWithNullable` generated from model 'ChildWithNullable'
+--
+
+CREATE TABLE IF NOT EXISTS `ChildWithNullable` (
+  `type` ENUM('ChildWithNullable') DEFAULT NULL,
+  `nullableProperty` TEXT DEFAULT NULL,
+  `otherProperty` TEXT DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -145,14 +156,6 @@ CREATE TABLE IF NOT EXISTS `Dog` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Table structure for table `Dog_allOf` generated from model 'DogUnderscoreallOf'
---
-
-CREATE TABLE IF NOT EXISTS `Dog_allOf` (
-  `breed` TEXT DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
 -- Table structure for table `EnumArrays` generated from model 'EnumArrays'
 --
 
@@ -174,6 +177,15 @@ CREATE TABLE IF NOT EXISTS `Enum_Test` (
   `outerEnumInteger` TEXT DEFAULT NULL,
   `outerEnumDefaultValue` TEXT DEFAULT NULL,
   `outerEnumIntegerDefaultValue` TEXT DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `fakeBigDecimalMap_200_response` generated from model 'fakeBigDecimalMapUnderscore200Underscoreresponse'
+--
+
+CREATE TABLE IF NOT EXISTS `fakeBigDecimalMap_200_response` (
+  `someId` DECIMAL(20, 9) DEFAULT NULL,
+  `someMap` JSON DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -200,6 +212,14 @@ CREATE TABLE IF NOT EXISTS `FileSchemaTestClass` (
 
 CREATE TABLE IF NOT EXISTS `Foo` (
   `bar` TEXT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `_foo_get_default_response` generated from model 'UnderscorefooUnderscoregetUnderscoredefaultUnderscoreresponse'
+--
+
+CREATE TABLE IF NOT EXISTS `_foo_get_default_response` (
+  `string` TEXT DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -242,14 +262,6 @@ CREATE TABLE IF NOT EXISTS `hasOnlyReadOnly` (
 CREATE TABLE IF NOT EXISTS `HealthCheckResult` (
   `NullableMessage` TEXT DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Just a string to inform instance is up and running. Make it nullable in hope to get it as pointer in generated model.';
-
---
--- Table structure for table `inline_response_default` generated from model 'inlineUnderscoreresponseUnderscoredefault'
---
-
-CREATE TABLE IF NOT EXISTS `inline_response_default` (
-  `string` TEXT DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Table structure for table `List` generated from model 'List'
@@ -362,6 +374,15 @@ CREATE TABLE IF NOT EXISTS `OuterObjectWithEnumProperty` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Table structure for table `ParentWithNullable` generated from model 'ParentWithNullable'
+--
+
+CREATE TABLE IF NOT EXISTS `ParentWithNullable` (
+  `type` ENUM('ChildWithNullable') DEFAULT NULL,
+  `nullableProperty` TEXT DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
 -- Table structure for table `Pet` generated from model 'Pet'
 --
 
@@ -407,6 +428,14 @@ CREATE TABLE IF NOT EXISTS `_special_model.name_` (
 CREATE TABLE IF NOT EXISTS `Tag` (
   `id` BIGINT DEFAULT NULL,
   `name` TEXT DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `testInlineFreeformAdditionalProperties_request` generated from model 'testInlineFreeformAdditionalPropertiesUnderscorerequest'
+--
+
+CREATE TABLE IF NOT EXISTS `testInlineFreeformAdditionalProperties_request` (
+  `someProperty` TEXT DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

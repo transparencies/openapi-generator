@@ -21,10 +21,12 @@ import com.samskivert.mustache.Escapers;
 import com.samskivert.mustache.Mustache.Compiler;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.meta.features.*;
+import org.openapitools.codegen.model.ModelMap;
+import org.openapitools.codegen.model.OperationMap;
+import org.openapitools.codegen.model.OperationsMap;
 import org.openapitools.codegen.utils.Markdown;
 import org.openapitools.codegen.utils.ModelUtils;
 
@@ -113,20 +115,19 @@ public class StaticHtmlGenerator extends DefaultCodegen implements CodegenConfig
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema inner = ap.getItems();
+            Schema inner = ModelUtils.getSchemaItems(p);
             return getSchemaType(p) + "[" + getTypeDeclaration(inner) + "]";
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = getAdditionalProperties(p);
+            Schema inner = ModelUtils.getAdditionalProperties(p);
             return getSchemaType(p) + "[String, " + getTypeDeclaration(inner) + "]";
         }
         return super.getTypeDeclaration(p);
     }
 
     @Override
-    public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
-        Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
-        List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
+    public OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels) {
+        OperationMap operations = objs.getOperations();
+        List<CodegenOperation> operationList = operations.getOperation();
         for (CodegenOperation op : operationList) {
             op.httpMethod = op.httpMethod.toLowerCase(Locale.ROOT);
             for (CodegenResponse response : op.responses) {
@@ -203,6 +204,7 @@ public class StaticHtmlGenerator extends DefaultCodegen implements CodegenConfig
         }
     }
 
+    @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         Info info = openAPI.getInfo();
         info.setDescription(toHtml(info.getDescription()));
@@ -215,6 +217,7 @@ public class StaticHtmlGenerator extends DefaultCodegen implements CodegenConfig
     }
 
     // override to post-process any parameters
+    @Override
     public void postProcessParameter(CodegenParameter parameter) {
         parameter.description = toHtml(parameter.description);
         parameter.unescapedDescription = toHtml(
@@ -222,6 +225,7 @@ public class StaticHtmlGenerator extends DefaultCodegen implements CodegenConfig
     }
 
     // override to post-process any model properties
+    @Override
     public void postProcessModelProperty(CodegenModel model,
                                          CodegenProperty property) {
         property.description = toHtml(property.description);
@@ -229,4 +233,6 @@ public class StaticHtmlGenerator extends DefaultCodegen implements CodegenConfig
                 property.unescapedDescription);
     }
 
+    @Override
+    public GeneratorLanguage generatorLanguage() { return null; }
 }

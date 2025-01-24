@@ -26,7 +26,7 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 
 @io.swagger.annotations.Api(description = "the pet API")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaResteasyEapServerCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaResteasyEapServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
 public interface PetApi  {
 
     @POST
@@ -52,9 +52,12 @@ public interface PetApi  {
             @io.swagger.annotations.AuthorizationScope(scope = "read:pets", description = "read your pets")
         })
     }, tags={ "pet", })
+    @io.swagger.annotations.ApiImplicitParams({
+        @io.swagger.annotations.ApiImplicitParam(name = "api_key", value = "",  dataType = "String", paramType = "header")
+    })
     @io.swagger.annotations.ApiResponses(value = { 
         @io.swagger.annotations.ApiResponse(code = 400, message = "Invalid pet value", response = Void.class) })
-    public Response deletePet( @PathParam("petId") Long petId, @ApiParam(value = "" ) @HeaderParam("api_key") String apiKey,@Context SecurityContext securityContext);
+    public Response deletePet( @PathParam("petId") Long petId,@Context SecurityContext securityContext);
     @GET
     @Path("/findByStatus")
     

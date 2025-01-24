@@ -1,6 +1,6 @@
 package org.openapitools.client.api.rxjava;
 
-import org.threeten.bp.OffsetDateTime;
+import java.time.OffsetDateTime;
 import org.openapitools.client.model.User;
 import org.openapitools.client.ApiClient;
 
@@ -10,7 +10,7 @@ import rx.Single;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
 public class UserApi {
 
     private final org.openapitools.client.api.UserApi delegate;

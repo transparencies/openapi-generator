@@ -20,10 +20,10 @@ void listEntry_free(listEntry_t *listEntry, void *additionalData) {
 }
 
 void listEntry_printAsInt(listEntry_t *listEntry, void *additionalData) {
-    printf("%i\n", *((int *) (listEntry->data)));
+    printf("%i\n", *(int *)listEntry->data);
 }
 
-list_t *list_create() {
+list_t *list_createList() {
     list_t *createdList = malloc(sizeof(list_t));
     if(createdList == NULL) {
         // TODO Malloc Failure
@@ -88,7 +88,7 @@ void list_iterateThroughListBackward(list_t *list,
     }
 }
 
-void list_free(list_t *list) {
+void list_freeList(list_t *list) {
     if(list){
         list_iterateThroughListForward(list, listEntry_free, NULL);
         free(list);
@@ -176,8 +176,8 @@ char* findStrInStrList(list_t *strList, const char *str)
 
     listEntry_t* listEntry = NULL;
     list_ForEach(listEntry, strList) {
-        if (strstr((char*)listEntry->data, str) != NULL) {
-            return (char*)listEntry->data;
+        if (strstr(listEntry->data, str) != NULL) {
+            return listEntry->data;
         }
     }
 
@@ -196,5 +196,5 @@ void clear_and_free_string_list(list_t *list)
         free(list_item);
         list_item = NULL;
     }
-    list_free(list);
+    list_freeList(list);
 }

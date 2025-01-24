@@ -4,24 +4,26 @@ import java.net.URI;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import org.springframework.lang.Nullable;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 
 import java.util.*;
+import javax.annotation.Generated;
 
 /**
  * Model for testing model with \&quot;_class\&quot; property
  */
-@ApiModel(description = "Model for testing model with \"_class\" property")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
-public class ClassModel   {
-  @JsonProperty("_class")
-  private String propertyClass;
+
+@Schema(name = "ClassModel", description = "Model for testing model with \"_class\" property")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class ClassModel {
+
+  private @Nullable String propertyClass;
 
   public ClassModel propertyClass(String propertyClass) {
     this.propertyClass = propertyClass;
@@ -31,10 +33,10 @@ public class ClassModel   {
   /**
    * Get propertyClass
    * @return propertyClass
-  */
-  @ApiModelProperty(value = "")
-
-
+   */
+  
+  @Schema(name = "_class", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("_class")
   public String getPropertyClass() {
     return propertyClass;
   }
@@ -42,7 +44,6 @@ public class ClassModel   {
   public void setPropertyClass(String propertyClass) {
     this.propertyClass = propertyClass;
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -65,7 +66,6 @@ public class ClassModel   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ClassModel {\n");
-    
     sb.append("    propertyClass: ").append(toIndentedString(propertyClass)).append("\n");
     sb.append("}");
     return sb.toString();

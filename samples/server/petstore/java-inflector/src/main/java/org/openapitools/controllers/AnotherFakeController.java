@@ -11,20 +11,20 @@ import java.util.List;
 import org.openapitools.model.*;
 
 import org.openapitools.model.Client;
+import java.util.UUID;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaInflectorServerCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaInflectorServerCodegen", comments = "Generator version: 7.11.0-SNAPSHOT")
 public class AnotherFakeController  {
-  /** 
+  /**
    * Uncomment and implement as you see fit.  These operations will map
    * Directly to operation calls from the routing logic.  Because the inflector
    * Code allows you to implement logic incrementally, they are disabled.
    **/
 
   /*
-    public ResponseContext call123testSpecialTags(RequestContext request , Client body) {
+    public ResponseContext call123testSpecialTags(RequestContext request , UUID uuidTest, Client body) {
         return new ResponseContext().status(Status.INTERNAL_SERVER_ERROR).entity( "Not implemented" );
     }
   */
 
 }
-

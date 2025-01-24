@@ -15,6 +15,7 @@ import (
 	"fmt"
 )
 
+
 // GmFruit struct for GmFruit
 type GmFruit struct {
 	Apple *Apple
@@ -50,11 +51,11 @@ func (dst *GmFruit) UnmarshalJSON(data []byte) error {
 		dst.Banana = nil
 	}
 
-	return fmt.Errorf("Data failed to match schemas in anyOf(GmFruit)")
+	return fmt.Errorf("data failed to match schemas in anyOf(GmFruit)")
 }
 
 // Marshal data from the first non-nil pointers in the struct to JSON
-func (src *GmFruit) MarshalJSON() ([]byte, error) {
+func (src GmFruit) MarshalJSON() ([]byte, error) {
 	if src.Apple != nil {
 		return json.Marshal(&src.Apple)
 	}
@@ -65,6 +66,7 @@ func (src *GmFruit) MarshalJSON() ([]byte, error) {
 
 	return nil, nil // no data in anyOf schemas
 }
+
 
 type NullableGmFruit struct {
 	value *GmFruit

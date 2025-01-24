@@ -23,6 +23,8 @@ Module : OpenAPIPetstore.Core
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-name-shadowing -fno-warn-unused-binds -fno-warn-unused-imports #-}
 
 module OpenAPIPetstore.Core where
@@ -49,6 +51,7 @@ import qualified Data.Maybe as P
 import qualified Data.Proxy as P (Proxy(..))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
+import qualified Data.Text.Lazy.Encoding as TL
 import qualified Data.Time as TI
 import qualified Data.Time.ISO8601 as TI
 import qualified GHC.Base as P (Alternative)
@@ -79,7 +82,7 @@ data OpenAPIPetstoreConfig = OpenAPIPetstoreConfig
   , configLogContext :: LogContext -- ^ Configures the logger
   , configAuthMethods :: [AnyAuthMethod] -- ^ List of configured auth methods
   , configValidateAuthMethods :: Bool -- ^ throw exceptions if auth methods are not configured
-  , configQueryExtraUnreserved :: B.ByteString -- ^ Configures additional querystring characters which must not be URI encoded, e.g. '+' or ':' 
+  , configQueryExtraUnreserved :: B.ByteString -- ^ Configures additional querystring characters which must not be URI encoded, e.g. '+' or ':'
   }
 
 -- | display the config
@@ -338,6 +341,9 @@ toQuery :: WH.ToHttpApiData a => (BC.ByteString, Maybe a) -> [NH.QueryItem]
 toQuery x = [(fmap . fmap) toQueryParam x]
   where toQueryParam = T.encodeUtf8 . WH.toQueryParam
 
+toJsonQuery :: A.ToJSON a => (BC.ByteString, Maybe a) -> [NH.QueryItem]
+toJsonQuery = toQuery . (fmap . fmap) (TL.decodeUtf8 . A.encode)
+
 toPartialEscapeQuery :: B.ByteString -> NH.Query -> NH.PartialEscapeQuery
 toPartialEscapeQuery extraUnreserved query = fmap (\(k, v) -> (k, maybe [] go v)) query
   where go :: B.ByteString -> [NH.EscapeItem]
@@ -369,6 +375,9 @@ toFormColl c xs = WH.toForm $ fmap unpack $ _toColl c toHeader $ pack xs
 
 toQueryColl :: WH.ToHttpApiData a => CollectionFormat -> (BC.ByteString, Maybe [a]) -> NH.Query
 toQueryColl c xs = _toCollA c toQuery xs
+
+toJsonQueryColl :: A.ToJSON a => CollectionFormat -> (BC.ByteString, Maybe [a]) -> NH.Query
+toJsonQueryColl c xs = _toCollA c toJsonQuery xs
 
 _toColl :: P.Traversable f => CollectionFormat -> (f a -> [(b, BC.ByteString)]) -> f [a] -> [(b, BC.ByteString)]
 _toColl c encode xs = fmap (fmap P.fromJust) (_toCollA' c fencode BC.singleton (fmap Just xs))
@@ -428,7 +437,11 @@ _applyAuthMethods req config@(OpenAPIPetstoreConfig {configAuthMethods = as}) =
 -- * Utils
 
 -- | Removes Null fields.  (OpenAPI-Specification 2.0 does not allow Null in JSON)
+#if MIN_VERSION_aeson(2,0,0)
+_omitNulls :: [(A.Key, A.Value)] -> A.Value
+#else
 _omitNulls :: [(Text, A.Value)] -> A.Value
+#endif
 _omitNulls = A.object . P.filter notNull
   where
     notNull (_, A.Null) = False

@@ -4,8 +4,8 @@ import io.vertx.core.file.AsyncFile;
 import java.math.BigDecimal;
 import org.openapitools.client.model.Client;
 import org.openapitools.client.model.FileSchemaTestClass;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.OffsetDateTime;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import org.openapitools.client.model.OuterComposite;
 import org.openapitools.client.model.User;
 import org.openapitools.client.model.XmlItem;
@@ -17,7 +17,7 @@ import rx.Single;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
 public class FakeApi {
 
     private final org.openapitools.client.api.FakeApi delegate;

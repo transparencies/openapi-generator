@@ -4,9 +4,11 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +19,7 @@ import org.openapitools.model.Tag;
 
 
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaInflectorServerCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaInflectorServerCodegen", comments = "Generator version: 7.11.0-SNAPSHOT")
 public class Pet   {
   @JsonProperty("id")
   private Long id;
@@ -29,7 +31,7 @@ public class Pet   {
   private String name;
 
   @JsonProperty("photoUrls")
-  private Set<String> photoUrls = new LinkedHashSet<String>();
+  private Set<String> photoUrls = new LinkedHashSet<>();
 
   @JsonProperty("tags")
   private List<Tag> tags = null;
@@ -134,6 +136,7 @@ public class Pet   {
   public Set<String> getPhotoUrls() {
     return photoUrls;
   }
+  @JsonDeserialize(as = LinkedHashSet.class)
   public void setPhotoUrls(Set<String> photoUrls) {
     this.photoUrls = photoUrls;
   }

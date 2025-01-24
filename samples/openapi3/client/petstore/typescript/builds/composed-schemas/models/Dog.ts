@@ -10,7 +10,6 @@
  * Do not edit the class manually.
  */
 
-import { DogAllOf } from './DogAllOf';
 import { HttpFile } from '../http/http';
 
 export class Dog {
@@ -18,6 +17,8 @@ export class Dog {
     'breed'?: DogBreedEnum;
 
     static readonly discriminator: string | undefined = undefined;
+
+    static readonly mapping: {[index: string]: string} | undefined = undefined;
 
     static readonly attributeTypeMap: Array<{name: string, baseName: string, type: string, format: string}> = [
         {
@@ -41,6 +42,10 @@ export class Dog {
     }
 }
 
-
-export type DogBreedEnum = "Dingo" | "Husky" | "Retriever" | "Shepherd" ;
+export enum DogBreedEnum {
+    Dingo = 'Dingo',
+    Husky = 'Husky',
+    Retriever = 'Retriever',
+    Shepherd = 'Shepherd'
+}
 

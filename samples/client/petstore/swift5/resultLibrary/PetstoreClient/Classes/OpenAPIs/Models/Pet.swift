@@ -10,22 +10,23 @@ import Foundation
 import AnyCodable
 #endif
 
-public struct Pet: Codable, Hashable {
+internal struct Pet: Codable, JSONEncodable, Hashable {
 
-    public enum Status: String, Codable, CaseIterable {
+    internal enum Status: String, Codable, CaseIterable, CaseIterableDefaultsLast {
         case available = "available"
         case pending = "pending"
         case sold = "sold"
+        case unknownDefaultOpenApi = "unknown_default_open_api"
     }
-    public var id: Int64?
-    public var category: Category?
-    public var name: String
-    public var photoUrls: [String]
-    public var tags: [Tag]?
+    internal private(set) var id: Int64?
+    internal private(set) var category: Category?
+    internal private(set) var name: String
+    internal private(set) var photoUrls: [String]
+    internal private(set) var tags: [Tag]?
     /** pet status in the store */
-    public var status: Status?
+    internal private(set) var status: NullEncodable<Status>
 
-    public init(id: Int64? = nil, category: Category? = nil, name: String, photoUrls: [String], tags: [Tag]? = nil, status: Status? = nil) {
+    internal init(id: Int64? = nil, category: Category? = nil, name: String, photoUrls: [String], tags: [Tag]? = nil, status: NullEncodable<Status> = .encodeNull) {
         self.id = id
         self.category = category
         self.name = name
@@ -34,7 +35,7 @@ public struct Pet: Codable, Hashable {
         self.status = status
     }
 
-    public enum CodingKeys: String, CodingKey, CaseIterable {
+    internal enum CodingKeys: String, CodingKey, CaseIterable {
         case id
         case category
         case name
@@ -45,14 +46,20 @@ public struct Pet: Codable, Hashable {
 
     // Encodable protocol methods
 
-    public func encode(to encoder: Encoder) throws {
+    internal func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(id, forKey: .id)
         try container.encodeIfPresent(category, forKey: .category)
         try container.encode(name, forKey: .name)
         try container.encode(photoUrls, forKey: .photoUrls)
         try container.encodeIfPresent(tags, forKey: .tags)
-        try container.encodeIfPresent(status, forKey: .status)
+        switch status {
+        case .encodeNothing: break
+        case .encodeNull, .encodeValue: try container.encode(status, forKey: .status)
+        }
     }
 }
 
+
+@available(iOS 13, tvOS 13, watchOS 6, macOS 10.15, *)
+extension Pet: Identifiable {}

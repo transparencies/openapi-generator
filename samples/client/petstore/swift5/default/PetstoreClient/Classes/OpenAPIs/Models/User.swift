@@ -10,7 +10,7 @@ import Foundation
 import AnyCodable
 #endif
 
-public struct User: Codable, Hashable {
+public struct User: Codable, JSONEncodable, Hashable {
 
     public var id: Int64?
     public var username: String?
@@ -59,3 +59,6 @@ public struct User: Codable, Hashable {
     }
 }
 
+
+@available(iOS 13, tvOS 13, watchOS 6, macOS 10.15, *)
+extension User: Identifiable {}

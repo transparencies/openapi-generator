@@ -2,10 +2,10 @@ package org.openapitools.client.infrastructure
 
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRequestBuilder
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.TokenRequestBuilder
-import org.openapitools.client.auth.ApiKeyAuth
 import org.openapitools.client.auth.OAuth
 import org.openapitools.client.auth.OAuth.AccessTokenListener
 import org.openapitools.client.auth.OAuthFlow
+import org.openapitools.client.auth.ApiKeyAuth
 
 import okhttp3.Call
 import okhttp3.Interceptor
@@ -13,6 +13,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
+import retrofit2.CallAdapter
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import com.squareup.moshi.Moshi
@@ -23,8 +24,14 @@ class ApiClient(
     private var baseUrl: String = defaultBasePath,
     private val okHttpClientBuilder: OkHttpClient.Builder? = null,
     private val serializerBuilder: Moshi.Builder = Serializer.moshiBuilder,
-    private val callFactory : Call.Factory? = null,
-    private val converterFactory: Converter.Factory? = null,
+    private val callFactory: Call.Factory? = null,
+    private val callAdapterFactories: List<CallAdapter.Factory> = listOf(
+        RxJava3CallAdapterFactory.create(),
+    ),
+    private val converterFactories: List<Converter.Factory> = listOf(
+        ScalarsConverterFactory.create(),
+        MoshiConverterFactory.create(serializerBuilder.build()),
+    )
 ) {
     private val apiAuthorizations = mutableMapOf<String, Interceptor>()
     var logger: ((String) -> Unit)? = null
@@ -32,13 +39,14 @@ class ApiClient(
     private val retrofitBuilder: Retrofit.Builder by lazy {
         Retrofit.Builder()
             .baseUrl(baseUrl)
-            .addConverterFactory(ScalarsConverterFactory.create())
-
-            .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
-            .addConverterFactory(MoshiConverterFactory.create(serializerBuilder.build()))
             .apply {
-                if (converterFactory != null) {
-                    addConverterFactory(converterFactory)
+                callAdapterFactories.forEach {
+                    addCallAdapterFactory(it)
+                }
+            }
+            .apply {
+                converterFactories.forEach {
+                    addConverterFactory(it)
                 }
             }
     }
@@ -50,13 +58,9 @@ class ApiClient(
     private val defaultClientBuilder: OkHttpClient.Builder by lazy {
         OkHttpClient()
             .newBuilder()
-            .addInterceptor(HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
-                override fun log(message: String) {
-                    logger?.invoke(message)
-                }
-            }).apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
+            .addInterceptor(HttpLoggingInterceptor { message -> logger?.invoke(message) }
+                .apply { level = HttpLoggingInterceptor.Level.BODY }
+            )
     }
 
     init {
@@ -70,11 +74,16 @@ class ApiClient(
         authNames: Array<String>
     ) : this(baseUrl, okHttpClientBuilder, serializerBuilder) {
         authNames.forEach { authName ->
-            val auth = when (authName) {
-                "api_key" -> ApiKeyAuth("header", "api_key")"petstore_auth" -> OAuth(OAuthFlow.implicit, "http://petstore.swagger.io/api/oauth/dialog", "", "write:pets, read:pets")
+            val auth: Interceptor? = when (authName) { 
+                "petstore_auth" -> OAuth(OAuthFlow.implicit, "http://petstore.swagger.io/api/oauth/dialog", "", "write:pets, read:pets")
+                
+                "api_key" -> ApiKeyAuth("header", "api_key")
+                
                 else -> throw RuntimeException("auth name $authName not found in available auth names")
             }
-            addAuthorization(authName, auth);
+            if (auth != null) {
+                addAuthorization(authName, auth)
+            }
         }
     }
 
@@ -96,9 +105,9 @@ class ApiClient(
     }
 
     /**
-    * Helper method to configure the token endpoint of the first oauth found in the apiAuthorizations (there should be only one)
-    * @return Token request builder
-    */
+     * Helper method to configure the token endpoint of the first oauth found in the apiAuthorizations (there should be only one)
+     * @return Token request builder
+     */
     fun getTokenEndPoint(): TokenRequestBuilder? {
         var result: TokenRequestBuilder? = null
         apiAuthorizations.values.runOnFirst<Interceptor, OAuth> {
@@ -108,9 +117,9 @@ class ApiClient(
     }
 
     /**
-    * Helper method to configure authorization endpoint of the first oauth found in the apiAuthorizations (there should be only one)
-    * @return Authentication request builder
-    */
+     * Helper method to configure authorization endpoint of the first oauth found in the apiAuthorizations (there should be only one)
+     * @return Authentication request builder
+     */
     fun getAuthorizationEndPoint(): AuthenticationRequestBuilder? {
         var result: AuthenticationRequestBuilder? = null
         apiAuthorizations.values.runOnFirst<Interceptor, OAuth> {
@@ -120,10 +129,10 @@ class ApiClient(
     }
 
     /**
-    * Helper method to pre-set the oauth access token of the first oauth found in the apiAuthorizations (there should be only one)
-    * @param accessToken Access token
-    * @return ApiClient
-    */
+     * Helper method to pre-set the oauth access token of the first oauth found in the apiAuthorizations (there should be only one)
+     * @param accessToken Access token
+     * @return ApiClient
+     */
     fun setAccessToken(accessToken: String): ApiClient {
         apiAuthorizations.values.runOnFirst<Interceptor, OAuth> {
             setAccessToken(accessToken)
@@ -132,12 +141,12 @@ class ApiClient(
     }
 
     /**
-    * Helper method to configure the oauth accessCode/implicit flow parameters
-    * @param clientId Client ID
-    * @param clientSecret Client secret
-    * @param redirectURI Redirect URI
-    * @return ApiClient
-    */
+     * Helper method to configure the oauth accessCode/implicit flow parameters
+     * @param clientId Client ID
+     * @param clientSecret Client secret
+     * @param redirectURI Redirect URI
+     * @return ApiClient
+     */
     fun configureAuthorizationFlow(clientId: String, clientSecret: String, redirectURI: String): ApiClient {
         apiAuthorizations.values.runOnFirst<Interceptor, OAuth> {
             tokenRequestBuilder
@@ -148,19 +157,19 @@ class ApiClient(
                 ?.setClientId(clientId)
                 ?.setRedirectURI(redirectURI)
         }
-        return this;
+        return this
     }
 
     /**
-    * Configures a listener which is notified when a new access token is received.
-    * @param accessTokenListener Access token listener
-    * @return ApiClient
-    */
+     * Configures a listener which is notified when a new access token is received.
+     * @param accessTokenListener Access token listener
+     * @return ApiClient
+     */
     fun registerAccessTokenListener(accessTokenListener: AccessTokenListener): ApiClient {
         apiAuthorizations.values.runOnFirst<Interceptor, OAuth> {
             registerAccessTokenListener(accessTokenListener)
         }
-        return this;
+        return this
     }
 
     /**
@@ -196,7 +205,7 @@ class ApiClient(
 
     private inline fun <T, reified U> Iterable<T>.runOnFirst(callback: U.() -> Unit) {
         for (element in this) {
-            if (element is U)  {
+            if (element is U) {
                 callback.invoke(element)
                 break
             }
@@ -205,7 +214,7 @@ class ApiClient(
 
     companion object {
         @JvmStatic
-        protected val baseUrlKey = "org.openapitools.client.baseUrl"
+        protected val baseUrlKey: String = "org.openapitools.client.baseUrl"
 
         @JvmStatic
         val defaultBasePath: String by lazy {

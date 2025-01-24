@@ -16,6 +16,7 @@ package org.openapitools.model;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -35,7 +36,7 @@ import javax.validation.Valid;
   EnumTest.JSON_PROPERTY_ENUM_NUMBER,
   EnumTest.JSON_PROPERTY_OUTER_ENUM
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJerseyServerCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJerseyServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
 public class EnumTest  implements Serializable {
   /**
    * Gets or Sets enumString
@@ -276,7 +277,7 @@ public class EnumTest  implements Serializable {
    **/
   @JsonProperty(value = "outerEnum")
   @ApiModelProperty(value = "")
-  @Valid 
+  
   public OuterEnum getOuterEnum() {
     return outerEnum;
   }
@@ -306,7 +307,6 @@ public class EnumTest  implements Serializable {
   public int hashCode() {
     return Objects.hash(enumString, enumStringRequired, enumInteger, enumNumber, outerEnum);
   }
-
 
   @Override
   public String toString() {

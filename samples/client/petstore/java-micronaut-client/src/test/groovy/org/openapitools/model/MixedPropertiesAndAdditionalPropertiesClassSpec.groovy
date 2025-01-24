@@ -1,10 +1,7 @@
 package org.openapitools.model
 
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.HashMap
-import java.util.List
 import java.util.Map
 import java.util.UUID
 import org.openapitools.model.Animal
@@ -17,34 +14,34 @@ import jakarta.inject.Inject
  */
 @MicronautTest
 public class MixedPropertiesAndAdditionalPropertiesClassSpec extends Specification {
-    private final MixedPropertiesAndAdditionalPropertiesClass model = new MixedPropertiesAndAdditionalPropertiesClass()
+    private final MixedPropertiesAndAdditionalPropertiesClass model = null
 
     /**
      * Model tests for MixedPropertiesAndAdditionalPropertiesClass
      */
-    void "MixedPropertiesAndAdditionalPropertiesClass test"() {
+    void 'MixedPropertiesAndAdditionalPropertiesClass test'() {
         // TODO: test MixedPropertiesAndAdditionalPropertiesClass
     }
 
     /**
      * Test the property 'uuid'
      */
-    void "MixedPropertiesAndAdditionalPropertiesClass property uuid test"() {
-        // TODO: test uuid
+    void 'MixedPropertiesAndAdditionalPropertiesClass property uuid test'() {
+        // TODO: test uuid property of MixedPropertiesAndAdditionalPropertiesClass
     }
 
     /**
      * Test the property 'dateTime'
      */
-    void "MixedPropertiesAndAdditionalPropertiesClass property dateTime test"() {
-        // TODO: test dateTime
+    void 'MixedPropertiesAndAdditionalPropertiesClass property dateTime test'() {
+        // TODO: test dateTime property of MixedPropertiesAndAdditionalPropertiesClass
     }
 
     /**
      * Test the property 'map'
      */
-    void "MixedPropertiesAndAdditionalPropertiesClass property map test"() {
-        // TODO: test map
+    void 'MixedPropertiesAndAdditionalPropertiesClass property map test'() {
+        // TODO: test map property of MixedPropertiesAndAdditionalPropertiesClass
     }
 
 }

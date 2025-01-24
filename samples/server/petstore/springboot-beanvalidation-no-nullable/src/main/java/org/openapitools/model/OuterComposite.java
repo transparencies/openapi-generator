@@ -7,25 +7,27 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.math.BigDecimal;
+import org.springframework.lang.Nullable;
+import java.time.OffsetDateTime;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 
 import java.util.*;
+import javax.annotation.Generated;
 
 /**
  * OuterComposite
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
-public class OuterComposite   {
-  @JsonProperty("my_number")
-  private BigDecimal myNumber;
 
-  @JsonProperty("my_string")
-  private String myString;
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class OuterComposite {
 
-  @JsonProperty("my_boolean")
-  private Boolean myBoolean;
+  private @Nullable BigDecimal myNumber;
+
+  private @Nullable String myString;
+
+  private @Nullable Boolean myBoolean;
 
   public OuterComposite myNumber(BigDecimal myNumber) {
     this.myNumber = myNumber;
@@ -35,11 +37,10 @@ public class OuterComposite   {
   /**
    * Get myNumber
    * @return myNumber
-  */
+   */
+  @Valid 
   @ApiModelProperty(value = "")
-
-  @Valid
-
+  @JsonProperty("my_number")
   public BigDecimal getMyNumber() {
     return myNumber;
   }
@@ -56,10 +57,10 @@ public class OuterComposite   {
   /**
    * Get myString
    * @return myString
-  */
+   */
+  
   @ApiModelProperty(value = "")
-
-
+  @JsonProperty("my_string")
   public String getMyString() {
     return myString;
   }
@@ -76,10 +77,10 @@ public class OuterComposite   {
   /**
    * Get myBoolean
    * @return myBoolean
-  */
+   */
+  
   @ApiModelProperty(value = "")
-
-
+  @JsonProperty("my_boolean")
   public Boolean getMyBoolean() {
     return myBoolean;
   }
@@ -87,7 +88,6 @@ public class OuterComposite   {
   public void setMyBoolean(Boolean myBoolean) {
     this.myBoolean = myBoolean;
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -112,7 +112,6 @@ public class OuterComposite   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class OuterComposite {\n");
-    
     sb.append("    myNumber: ").append(toIndentedString(myNumber)).append("\n");
     sb.append("    myString: ").append(toIndentedString(myString)).append("\n");
     sb.append("    myBoolean: ").append(toIndentedString(myBoolean)).append("\n");

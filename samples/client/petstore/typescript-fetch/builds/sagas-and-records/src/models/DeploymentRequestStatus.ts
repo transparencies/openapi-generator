@@ -12,24 +12,37 @@
  * Do not edit the class manually.
  */
 
+
 /**
  * Status of the deployment request
  * @export
- * @enum {string}
  */
-export enum DeploymentRequestStatus {
-    New = 'New',
-    Prepared = 'Prepared',
-    Printed = 'Printed',
-    Tested = 'Tested',
-    Completed = 'Completed',
-    Cancelled = 'Cancelled',
-    Promoted = 'Promoted',
-    Assigned = 'Assigned',
-    Ready = 'Ready',
-    Packaged = 'Packaged',
-    Pairing = 'Pairing',
-    Paired = 'Paired'
+export const DeploymentRequestStatus = {
+    New: 'New',
+    Prepared: 'Prepared',
+    Printed: 'Printed',
+    Tested: 'Tested',
+    Completed: 'Completed',
+    Cancelled: 'Cancelled',
+    Promoted: 'Promoted',
+    Assigned: 'Assigned',
+    Ready: 'Ready',
+    Packaged: 'Packaged',
+    Pairing: 'Pairing',
+    Paired: 'Paired'
+} as const;
+export type DeploymentRequestStatus = typeof DeploymentRequestStatus[keyof typeof DeploymentRequestStatus];
+
+
+export function instanceOfDeploymentRequestStatus(value: any): boolean {
+    for (const key in DeploymentRequestStatus) {
+        if (Object.prototype.hasOwnProperty.call(DeploymentRequestStatus, key)) {
+            if (DeploymentRequestStatus[key as keyof typeof DeploymentRequestStatus] === value) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 export function DeploymentRequestStatusFromJSON(json: any): DeploymentRequestStatus {
@@ -42,5 +55,9 @@ export function DeploymentRequestStatusFromJSONTyped(json: any, ignoreDiscrimina
 
 export function DeploymentRequestStatusToJSON(value?: DeploymentRequestStatus | null): any {
     return value as any;
+}
+
+export function DeploymentRequestStatusToJSONTyped(value: any, ignoreDiscriminator: boolean): DeploymentRequestStatus {
+    return value as DeploymentRequestStatus;
 }
 

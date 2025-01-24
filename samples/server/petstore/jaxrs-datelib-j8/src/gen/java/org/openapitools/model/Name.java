@@ -33,7 +33,7 @@ import javax.validation.Valid;
   Name.JSON_PROPERTY_PROPERTY,
   Name.JSON_PROPERTY_123NUMBER
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJerseyServerCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJerseyServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
 public class Name  implements Serializable {
   public static final String JSON_PROPERTY_NAME = "name";
   @JsonProperty(JSON_PROPERTY_NAME)
@@ -151,7 +151,6 @@ public class Name  implements Serializable {
   public int hashCode() {
     return Objects.hash(name, snakeCase, property, _123number);
   }
-
 
   @Override
   public String toString() {

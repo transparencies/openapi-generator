@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.io.Serializable;
 import javax.validation.constraints.*;
@@ -19,9 +20,12 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 @JsonTypeName("ArrayOfArrayOfNumberOnly")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen")public class ArrayOfArrayOfNumberOnly  implements Serializable {
-  
-  private @Valid List<List<BigDecimal>> arrayArrayNumber = new ArrayList<List<BigDecimal>>();
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class ArrayOfArrayOfNumberOnly  implements Serializable {
+  private @Valid List<List<BigDecimal>> arrayArrayNumber = new ArrayList<>();
+
+  public ArrayOfArrayOfNumberOnly() {
+  }
 
   /**
    **/
@@ -31,11 +35,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(value = "")
   @JsonProperty("ArrayArrayNumber")
-  public List<List<BigDecimal>> getArrayArrayNumber() {
+  @Valid public List<@Valid List<@Valid BigDecimal>> getArrayArrayNumber() {
     return arrayArrayNumber;
   }
 
@@ -44,6 +46,22 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
     this.arrayArrayNumber = arrayArrayNumber;
   }
 
+  public ArrayOfArrayOfNumberOnly addArrayArrayNumberItem(List<BigDecimal> arrayArrayNumberItem) {
+    if (this.arrayArrayNumber == null) {
+      this.arrayArrayNumber = new ArrayList<>();
+    }
+
+    this.arrayArrayNumber.add(arrayArrayNumberItem);
+    return this;
+  }
+
+  public ArrayOfArrayOfNumberOnly removeArrayArrayNumberItem(List<BigDecimal> arrayArrayNumberItem) {
+    if (arrayArrayNumberItem != null && this.arrayArrayNumber != null) {
+      this.arrayArrayNumber.remove(arrayArrayNumberItem);
+    }
+
+    return this;
+  }
 
   @Override
   public boolean equals(Object o) {

@@ -20,12 +20,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.dataformat.xml.annotation.*;
 import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.*;
+import io.github.threetenjaxb.core.*;
 
 /**
  * HasOnlyReadOnly
@@ -35,28 +35,29 @@ import javax.xml.bind.annotation.*;
   HasOnlyReadOnly.JSON_PROPERTY_FOO
 })
 @JsonTypeName("hasOnlyReadOnly")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
 @XmlRootElement(name = "HasOnlyReadOnly")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JacksonXmlRootElement(localName = "HasOnlyReadOnly")
 public class HasOnlyReadOnly {
   public static final String JSON_PROPERTY_BAR = "bar";
   @XmlElement(name = "bar")
+  @javax.annotation.Nullable
   private String bar;
 
   public static final String JSON_PROPERTY_FOO = "foo";
   @XmlElement(name = "foo")
+  @javax.annotation.Nullable
   private String foo;
 
-  public HasOnlyReadOnly() { 
+  public HasOnlyReadOnly() {
   }
 
-   /**
+  /**
    * Get bar
    * @return bar
-  **/
+   */
   @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
   @JsonProperty(JSON_PROPERTY_BAR)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   @JacksonXmlProperty(localName = "bar")
@@ -67,13 +68,11 @@ public class HasOnlyReadOnly {
 
 
 
-
-   /**
+  /**
    * Get foo
    * @return foo
-  **/
+   */
   @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
   @JsonProperty(JSON_PROPERTY_FOO)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   @JacksonXmlProperty(localName = "foo")
@@ -81,7 +80,6 @@ public class HasOnlyReadOnly {
   public String getFoo() {
     return foo;
   }
-
 
 
 

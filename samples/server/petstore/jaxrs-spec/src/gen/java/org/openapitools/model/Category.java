@@ -16,10 +16,25 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 @JsonTypeName("Category")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen")public class Category  implements Serializable {
-  
-  private @Valid Long id;
-  private @Valid String name = "default-name";
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class Category  implements Serializable {
+  private Long id;
+  private String name = "default-name";
+
+  protected Category(CategoryBuilder<?, ?> b) {
+    this.id = b.id;
+    this.name = b.name;
+  }
+
+  public Category() {
+  }
+
+  @JsonCreator
+  public Category(
+    @JsonProperty(required = true, value = "name") String name
+  ) {
+    this.name = name;
+  }
 
   /**
    **/
@@ -27,8 +42,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
     this.id = id;
     return this;
   }
-
-  
 
   
   @ApiModelProperty(value = "")
@@ -42,7 +55,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
     this.id = id;
   }
 
-/**
+  /**
    **/
   public Category name(String name) {
     this.name = name;
@@ -50,16 +63,13 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(required = true, value = "")
-  @JsonProperty("name")
-  @NotNull
-  public String getName() {
+  @JsonProperty(required = true, value = "name")
+  @NotNull public String getName() {
     return name;
   }
 
-  @JsonProperty("name")
+  @JsonProperty(required = true, value = "name")
   public void setName(String name) {
     this.name = name;
   }
@@ -106,5 +116,38 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
 
+  public static CategoryBuilder<?, ?> builder() {
+    return new CategoryBuilderImpl();
+  }
+
+  private static final class CategoryBuilderImpl extends CategoryBuilder<Category, CategoryBuilderImpl> {
+
+    @Override
+    protected CategoryBuilderImpl self() {
+      return this;
+    }
+
+    @Override
+    public Category build() {
+      return new Category(this);
+    }
+  }
+
+  public static abstract class CategoryBuilder<C extends Category, B extends CategoryBuilder<C, B>>  {
+    private Long id;
+    private String name = "default-name";
+    protected abstract B self();
+
+    public abstract C build();
+
+    public B id(Long id) {
+      this.id = id;
+      return self();
+    }
+    public B name(String name) {
+      this.name = name;
+      return self();
+    }
+  }
 }
 
