@@ -68,7 +68,6 @@ open class PetAPI {
         }
     }
 
-
     /**
      Deletes a pet
      DELETE /pet/{petId}
@@ -129,7 +128,6 @@ open class PetAPI {
             }
         }
     }
-
 
     /**
      * enum for parameter status
@@ -203,7 +201,6 @@ open class PetAPI {
         }
     }
 
-
     /**
      Finds Pets by tags
      GET /pet/findByTags
@@ -269,13 +266,12 @@ open class PetAPI {
         }
     }
 
-
     /**
      Find pet by ID
      GET /pet/{petId}
      Returns a single pet
      - API Key:
-       - type: apiKey api_key 
+       - type: apiKey api_key (HEADER)
        - name: api_key
      - parameter petId: (path) ID of pet to return 
      - returns: `EventLoopFuture` of `ClientResponse` 
@@ -312,7 +308,7 @@ open class PetAPI {
      GET /pet/{petId}
      Returns a single pet
      - API Key:
-       - type: apiKey api_key 
+       - type: apiKey api_key (HEADER)
        - name: api_key
      - parameter petId: (path) ID of pet to return 
      - returns: `EventLoopFuture` of `GetPetById` 
@@ -331,7 +327,6 @@ open class PetAPI {
             }
         }
     }
-
 
     /**
      Update an existing pet
@@ -393,7 +388,6 @@ open class PetAPI {
             }
         }
     }
-
 
     /**
      Updates a pet in the store with form data
@@ -458,7 +452,6 @@ open class PetAPI {
         }
     }
 
-
     /**
      uploads an image
      POST /pet/{petId}/uploadImage
@@ -522,7 +515,6 @@ open class PetAPI {
         }
     }
 
-
     /**
      uploads an image (required)
      POST /fake/{petId}/uploadImageWithRequiredFile
@@ -585,5 +577,4 @@ open class PetAPI {
             }
         }
     }
-
 }

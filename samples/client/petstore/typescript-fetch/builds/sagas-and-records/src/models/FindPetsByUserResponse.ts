@@ -12,19 +12,21 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
+import type { User } from './User';
 import {
-    ResponseMeta,
-    ResponseMetaFromJSON,
-    ResponseMetaFromJSONTyped,
-    ResponseMetaToJSON,
-} from './ResponseMeta';
-import {
-    User,
     UserFromJSON,
     UserFromJSONTyped,
     UserToJSON,
+    UserToJSONTyped,
 } from './User';
+import type { ResponseMeta } from './ResponseMeta';
+import {
+    ResponseMetaFromJSON,
+    ResponseMetaFromJSONTyped,
+    ResponseMetaToJSON,
+    ResponseMetaToJSONTyped,
+} from './ResponseMeta';
 
 /**
  * 
@@ -46,32 +48,42 @@ export interface FindPetsByUserResponse {
     data?: Array<User>;
 }
 
+/**
+ * Check if a given object implements the FindPetsByUserResponse interface.
+ */
+export function instanceOfFindPetsByUserResponse(value: object): value is FindPetsByUserResponse {
+    if (!('meta' in value) || value['meta'] === undefined) return false;
+    return true;
+}
+
 export function FindPetsByUserResponseFromJSON(json: any): FindPetsByUserResponse {
     return FindPetsByUserResponseFromJSONTyped(json, false);
 }
 
 export function FindPetsByUserResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): FindPetsByUserResponse {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'meta': ResponseMetaFromJSON(json['meta']),
-        'data': !exists(json, 'data') ? undefined : ((json['data'] as Array<any>).map(UserFromJSON)),
+        'data': json['data'] == null ? undefined : ((json['data'] as Array<any>).map(UserFromJSON)),
     };
 }
 
-export function FindPetsByUserResponseToJSON(value?: FindPetsByUserResponse | null): any {
-    if (value === undefined) {
-        return undefined;
+export function FindPetsByUserResponseToJSON(json: any): FindPetsByUserResponse {
+    return FindPetsByUserResponseToJSONTyped(json, false);
+}
+
+export function FindPetsByUserResponseToJSONTyped(value?: FindPetsByUserResponse | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'meta': ResponseMetaToJSON(value.meta),
-        'data': value.data === undefined ? undefined : ((value.data as Array<any>).map(UserToJSON)),
+        'meta': ResponseMetaToJSON(value['meta']),
+        'data': value['data'] == null ? undefined : ((value['data'] as Array<any>).map(UserToJSON)),
     };
 }
 

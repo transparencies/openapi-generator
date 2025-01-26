@@ -12,15 +12,28 @@
  * Do not edit the class manually.
  */
 
+
 /**
  * Behavior type of a pet
  * @export
- * @enum {string}
  */
-export enum BehaviorType {
-    Voluntary = 'Voluntary',
-    Involuntary = 'Involuntary',
-    Overt = 'Overt'
+export const BehaviorType = {
+    Voluntary: 'Voluntary',
+    Involuntary: 'Involuntary',
+    Overt: 'Overt'
+} as const;
+export type BehaviorType = typeof BehaviorType[keyof typeof BehaviorType];
+
+
+export function instanceOfBehaviorType(value: any): boolean {
+    for (const key in BehaviorType) {
+        if (Object.prototype.hasOwnProperty.call(BehaviorType, key)) {
+            if (BehaviorType[key as keyof typeof BehaviorType] === value) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 export function BehaviorTypeFromJSON(json: any): BehaviorType {
@@ -33,5 +46,9 @@ export function BehaviorTypeFromJSONTyped(json: any, ignoreDiscriminator: boolea
 
 export function BehaviorTypeToJSON(value?: BehaviorType | null): any {
     return value as any;
+}
+
+export function BehaviorTypeToJSONTyped(value: any, ignoreDiscriminator: boolean): BehaviorType {
+    return value as BehaviorType;
 }
 

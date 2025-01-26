@@ -12,15 +12,28 @@
  * Do not edit the class manually.
  */
 
+
 /**
  * 
  * @export
- * @enum {string}
  */
-export enum NumberEnum {
-    NUMBER_1 = 1,
-    NUMBER_2 = 2,
-    NUMBER_3 = 3
+export const NumberEnum = {
+    NUMBER_1: 1,
+    NUMBER_2: 2,
+    NUMBER_3: 3
+} as const;
+export type NumberEnum = typeof NumberEnum[keyof typeof NumberEnum];
+
+
+export function instanceOfNumberEnum(value: any): boolean {
+    for (const key in NumberEnum) {
+        if (Object.prototype.hasOwnProperty.call(NumberEnum, key)) {
+            if (NumberEnum[key as keyof typeof NumberEnum] === value) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 export function NumberEnumFromJSON(json: any): NumberEnum {
@@ -33,5 +46,9 @@ export function NumberEnumFromJSONTyped(json: any, ignoreDiscriminator: boolean)
 
 export function NumberEnumToJSON(value?: NumberEnum | null): any {
     return value as any;
+}
+
+export function NumberEnumToJSONTyped(value: any, ignoreDiscriminator: boolean): NumberEnum {
+    return value as NumberEnum;
 }
 

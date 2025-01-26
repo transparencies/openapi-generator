@@ -13,8 +13,12 @@
  */
 
 
-import { Category } from './category';
-import { Tag } from './tag';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { Category } from './category';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { Tag } from './tag';
 
 /**
  * A pet for sale in the pet store
@@ -60,14 +64,12 @@ export interface Pet {
     'status'?: PetStatusEnum;
 }
 
-/**
-    * @export
-    * @enum {string}
-    */
-export enum PetStatusEnum {
-    Available = 'available',
-    Pending = 'pending',
-    Sold = 'sold'
-}
+export const PetStatusEnum = {
+    Available: 'available',
+    Pending: 'pending',
+    Sold: 'sold'
+} as const;
+
+export type PetStatusEnum = typeof PetStatusEnum[keyof typeof PetStatusEnum];
 
 

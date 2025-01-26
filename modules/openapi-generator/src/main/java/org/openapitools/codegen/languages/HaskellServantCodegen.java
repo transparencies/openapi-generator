@@ -19,7 +19,6 @@ package org.openapitools.codegen.languages;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.servers.Server;
 import org.apache.commons.io.FilenameUtils;
@@ -31,10 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 public class HaskellServantCodegen extends DefaultCodegen implements CodegenConfig {
@@ -49,11 +48,16 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
     public static final String PROP_SERVE_STATIC_DESC = "serve will serve files from the directory 'static'.";
     public static final Boolean PROP_SERVE_STATIC_DEFAULT = Boolean.TRUE;
 
+    public static final String USE_CUSTOM_MONAD = "useCustomMonad";
+    public static final String USE_CUSTOM_MONAD_DESC = "use a custom monad instead of the default Handler";
+    public static final Boolean USE_CUSTOM_MONAD_DEFAULT = Boolean.FALSE;
+
     /**
      * Configures the type of generator.
      *
      * @return the CodegenType for this generator
      */
+    @Override
     public CodegenType getTag() {
         return CodegenType.SERVER;
     }
@@ -64,6 +68,7 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
      *
      * @return the friendly name for the generator
      */
+    @Override
     public String getName() {
         return "haskell";
     }
@@ -74,6 +79,7 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
      *
      * @return A string value for the help message
      */
+    @Override
     public String getHelp() {
         return "Generates a Haskell server and client library.";
     }
@@ -86,6 +92,7 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
                 .wireFormatFeatures(EnumSet.of(WireFormatFeature.JSON, WireFormatFeature.XML))
                 .securityFeatures(EnumSet.of(
                         SecurityFeature.BasicAuth,
+                        SecurityFeature.BearerToken,
                         SecurityFeature.ApiKey,
                         SecurityFeature.OAuth2_Implicit
                 ))
@@ -107,12 +114,6 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
         specialCharReplacements.put("-", "Dash");
         specialCharReplacements.put(">", "GreaterThan");
         specialCharReplacements.put("<", "LessThan");
-
-        // backslash and double quote need double the escapement for both Java and Haskell
-        specialCharReplacements.remove("\\");
-        specialCharReplacements.remove("\"");
-        specialCharReplacements.put("\\\\", "Back_Slash");
-        specialCharReplacements.put("\\\"", "Double_Quote");
 
         // set the output folder here
         outputFolder = "generated-code/haskell-servant";
@@ -213,6 +214,7 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
         cliOptions.add(new CliOption(CodegenConstants.MODEL_PACKAGE, CodegenConstants.MODEL_PACKAGE_DESC));
         cliOptions.add(new CliOption(CodegenConstants.API_PACKAGE, CodegenConstants.API_PACKAGE_DESC));
         cliOptions.add(new CliOption(PROP_SERVE_STATIC, PROP_SERVE_STATIC_DESC).defaultValue(PROP_SERVE_STATIC_DEFAULT.toString()));
+        cliOptions.add(new CliOption(USE_CUSTOM_MONAD, USE_CUSTOM_MONAD_DESC).defaultValue(USE_CUSTOM_MONAD_DEFAULT.toString()));
     }
 
     public void setBooleanProperty(String property, Boolean defaultValue) {
@@ -229,9 +231,12 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
 
         if (StringUtils.isEmpty(System.getenv("HASKELL_POST_PROCESS_FILE"))) {
             LOGGER.info("Hint: Environment variable HASKELL_POST_PROCESS_FILE not defined so the Haskell code may not be properly formatted. To define it, try 'export HASKELL_POST_PROCESS_FILE=\"$HOME/.local/bin/hfmt -w\"' (Linux/Mac)");
+        } else if (!this.isEnablePostProcessFile()) {
+            LOGGER.info("Warning: Environment variable 'HASKELL_POST_PROCESS_FILE' is set but file post-processing is not enabled. To enable file post-processing, 'enablePostProcessFile' must be set to `true` (--enable-post-process-file for CLI).");
         }
 
         setBooleanProperty(PROP_SERVE_STATIC, PROP_SERVE_STATIC_DEFAULT);
+        setBooleanProperty(USE_CUSTOM_MONAD, USE_CUSTOM_MONAD_DEFAULT);
     }
 
     /**
@@ -318,7 +323,7 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
             String c = (String) replacementChar;
             Map<String, Object> o = new HashMap<>();
             o.put("char", c);
-            o.put("replacement", "'" + specialCharReplacements.get(c));
+            o.put("replacement", specialCharReplacements.get(c));
             replacements.add(o);
         }
         additionalProperties.put("specialCharReplacements", replacements);
@@ -331,13 +336,14 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
 
     /**
      * Internal method to set the generateToSchema parameter.
-     *
+     * <p>
      * Basically we're generating ToSchema instances (generically) for all schemas.
      * However, if any of the contained datatypes doesn't have the ToSchema instance,
      * we cannot generate it for its "ancestor" type.
      * This is the case with the "Data.Aeson.Value" type: it doesn't (and cannot) have
      * a Swagger-compatible ToSchema instance. So we have to detect its presence "downstream"
      * the current schema, and if we find it we just don't generate any ToSchema instance.
+     *
      * @param model
      */
     private void setGenerateToSchema(CodegenModel model) {
@@ -354,7 +360,7 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
 
         List<CodegenModel> children = model.getChildren();
         if (children != null) {
-            for(CodegenModel child : children) {
+            for (CodegenModel child : children) {
                 setGenerateToSchema(child);
             }
         }
@@ -370,11 +376,10 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema inner = ap.getItems();
+            Schema inner = ModelUtils.getSchemaItems(p);
             return "[" + getTypeDeclaration(inner) + "]";
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = getAdditionalProperties(p);
+            Schema inner = ModelUtils.getAdditionalProperties(p);
             return "(Map.Map String " + getTypeDeclaration(inner) + ")";
         }
         return fixModelChars(super.getTypeDeclaration(p));
@@ -409,7 +414,7 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
     @Override
     public String toInstantiationType(Schema p) {
         if (ModelUtils.isMapSchema(p)) {
-            Schema additionalProperties2 = getAdditionalProperties(p);
+            Schema additionalProperties2 = ModelUtils.getAdditionalProperties(p);
             String type = additionalProperties2.getType();
             if (null == type) {
                 LOGGER.error("No Type defined for Additional Property {}\n\tIn Property: {}", additionalProperties2, p);
@@ -417,8 +422,7 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
             String inner = getSchemaType(additionalProperties2);
             return "(Map.Map Text " + inner + ")";
         } else if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            String inner = getSchemaType(ap.getItems());
+            String inner = getSchemaType(ModelUtils.getSchemaItems(p));
             // Return only the inner type; the wrapping with QueryList is done
             // somewhere else, where we have access to the collection format.
             return inner;
@@ -512,6 +516,13 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
         // Query parameters appended to routes
         for (CodegenParameter param : op.queryParams) {
             String paramType = param.dataType;
+            if ("application/json".equals(param.contentType)) {
+                if (param.isArray) {
+                    paramType = "[JSONQueryParam " + paramType.substring(1, paramType.length() - 1) + "]";
+                } else {
+                    paramType = "(JSONQueryParam " + paramType + ")";
+                }
+            }
             if (param.isArray) {
                 if (StringUtils.isEmpty(param.collectionFormat)) {
                     param.collectionFormat = "csv";
@@ -547,6 +558,13 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
             path.add("Header \"" + param.baseName + "\" " + param.dataType);
 
             String paramType = param.dataType;
+            if ("application/json".equals(param.contentType)) {
+                if (param.isArray) {
+                    paramType = "(JSONQueryParam " + paramType.substring(1, paramType.length() - 1) + ")";
+                } else {
+                    paramType = "(JSONQueryParam " + paramType + ")";
+                }
+            }
             if (param.isArray) {
                 if (StringUtils.isEmpty(param.collectionFormat)) {
                     param.collectionFormat = "csv";
@@ -569,14 +587,42 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
         if (returnType.indexOf(" ") >= 0) {
             returnType = "(" + returnType + ")";
         }
-        path.add("Verb '" + op.httpMethod.toUpperCase(Locale.ROOT) + " 200 '[JSON] " + returnType);
+
+        List<CodegenProperty> headers = new ArrayList<>();
+        for (CodegenResponse r : op.responses) {
+            headers.addAll(r.headers);
+        }
+        if (!headers.isEmpty()) {
+            List<String> headerContents = new ArrayList<>();
+            for (CodegenProperty h : headers) {
+                // Because headers is a Map multiple Set-Cookie headers are currently not possible. If someone
+                // uses the workaround with null bytes, remove them and add add each header to the list:
+                // https://github.com/OAI/OpenAPI-Specification/issues/1237#issuecomment-906603675
+                String headerName = h.baseName.replaceAll("\0", "");
+                String headerType = h.dataType;
+                headerContents.add("Header \"" + headerName + "\" " + headerType);
+            }
+            String headerContent = String.join(", ", headerContents);
+
+            returnType = "(Headers '[" + headerContent + "] " + returnType + ")";
+        }
+
+        String code = "200";
+        for (CodegenResponse r : op.responses) {
+            if (r.code.matches("2[0-9][0-9]")) {
+                code = r.code;
+                break;
+            }
+        }
+
+        path.add("Verb '" + op.httpMethod.toUpperCase(Locale.ROOT) + " " + code + " '[JSON] " + returnType);
         type.add("m " + returnType);
 
         op.vendorExtensions.put("x-route-type", joinStrings(" :> ", path));
         op.vendorExtensions.put("x-client-type", joinStrings(" -> ", type));
         op.vendorExtensions.put("x-form-name", "Form" + camelize(op.operationId));
         for (CodegenParameter param : op.formParams) {
-            param.vendorExtensions.put("x-form-prefix", camelize(op.operationId, true));
+            param.vendorExtensions.put("x-form-prefix", camelize(op.operationId, LOWERCASE_FIRST_LETTER));
         }
         return op;
     }
@@ -600,29 +646,6 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
         }
     }
 
-    private String fixOperatorChars(String string) {
-        StringBuilder sb = new StringBuilder();
-        String name = string;
-        //Check if it is a reserved word, in which case the underscore is added when property name is generated.
-        if (string.startsWith("_")) {
-            if (reservedWords.contains(string.substring(1))) {
-                name = string.substring(1);
-            } else if (reservedWordsMappings.containsValue(string)) {
-                name = LEADING_UNDERSCORE.matcher(string).replaceFirst("");
-            }
-        }
-        for (char c : name.toCharArray()) {
-            String cString = String.valueOf(c);
-            if (specialCharReplacements.containsKey(cString)) {
-                sb.append("'");
-                sb.append(specialCharReplacements.get(cString));
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
-    }
-
     // Remove characters from a string that do not belong in a model classname
     private String fixModelChars(String string) {
         return string.replace(".", "").replace("-", "");
@@ -642,9 +665,10 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
         }
 
         // From the model name, compute the prefix for the fields.
-        String prefix = camelize(model.classname, true);
+        String prefix = camelize(model.classname, LOWERCASE_FIRST_LETTER);
         for (CodegenProperty prop : model.vars) {
-            prop.name = toVarName(prefix + camelize(fixOperatorChars(prop.name)));
+            prop.name = toVarName(prefix + camelize(prop.name));
+            prop.vendorExtensions.put("x-base-name-string-literal", "\"" + escapeText(prop.getBaseName()) + "\"");
         }
 
         // Create newtypes for things with non-object types
@@ -655,8 +679,6 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
             model.vendorExtensions.put("x-custom-newtype", newtype);
         }
 
-        // Provide the prefix as a vendor extension, so that it can be used in the ToJSON and FromJSON instances.
-        model.vendorExtensions.put("x-prefix", prefix);
         model.vendorExtensions.put("x-data", dataOrNewtype);
 
         return model;
@@ -675,6 +697,7 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
 
     @Override
     public void postProcessFile(File file, String fileType) {
+        super.postProcessFile(file, fileType);
         if (file == null) {
             return;
         }
@@ -685,20 +708,12 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
 
         // only process files with hs extension
         if ("hs".equals(FilenameUtils.getExtension(file.toString()))) {
-            String command = haskellPostProcessFile + " " + file;
-            try {
-                Process p = Runtime.getRuntime().exec(command);
-                int exitValue = p.waitFor();
-                if (exitValue != 0) {
-                    LOGGER.error("Error running the command ({}). Exit value: {}", command, exitValue);
-                } else {
-                    LOGGER.info("Successfully executed: {}", command);
-                }
-            } catch (InterruptedException | IOException e) {
-                LOGGER.error("Error running the command ({}). Exception: {}", command, e.getMessage());
-                // Restore interrupted state
-                Thread.currentThread().interrupt();
-            }
+            this.executePostProcessor(new String[] {haskellPostProcessFile, file.toString()});
         }
+    }
+
+    @Override
+    public GeneratorLanguage generatorLanguage() {
+        return GeneratorLanguage.HASKELL;
     }
 }

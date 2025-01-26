@@ -9,6 +9,7 @@ All URIs are relative to *http://petstore.swagger.io:80/v2*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**fakeBigDecimalMap**](FakeApi.md#fakebigdecimalmap) | **GET** /fake/BigDecimalMap | 
 [**fakeHealthGet**](FakeApi.md#fakehealthget) | **GET** /fake/health | Health check endpoint
 [**fakeHttpSignatureTest**](FakeApi.md#fakehttpsignaturetest) | **GET** /fake/http-signature-test | test http signature authentication
 [**fakeOuterBooleanSerialize**](FakeApi.md#fakeouterbooleanserialize) | **POST** /fake/outer/boolean | 
@@ -16,6 +17,7 @@ Method | HTTP request | Description
 [**fakeOuterNumberSerialize**](FakeApi.md#fakeouternumberserialize) | **POST** /fake/outer/number | 
 [**fakeOuterStringSerialize**](FakeApi.md#fakeouterstringserialize) | **POST** /fake/outer/string | 
 [**fakePropertyEnumIntegerSerialize**](FakeApi.md#fakepropertyenumintegerserialize) | **POST** /fake/property/enum-int | 
+[**testAdditionalPropertiesReference**](FakeApi.md#testadditionalpropertiesreference) | **POST** /fake/additionalProperties-reference | test referenced additionalProperties
 [**testBodyWithBinary**](FakeApi.md#testbodywithbinary) | **PUT** /fake/body-with-binary | 
 [**testBodyWithFileSchema**](FakeApi.md#testbodywithfileschema) | **PUT** /fake/body-with-file-schema | 
 [**testBodyWithQueryParams**](FakeApi.md#testbodywithqueryparams) | **PUT** /fake/body-with-query-params | 
@@ -24,9 +26,51 @@ Method | HTTP request | Description
 [**testEnumParameters**](FakeApi.md#testenumparameters) | **GET** /fake | To test enum parameters
 [**testGroupParameters**](FakeApi.md#testgroupparameters) | **DELETE** /fake | Fake endpoint to test group parameters (optional)
 [**testInlineAdditionalProperties**](FakeApi.md#testinlineadditionalproperties) | **POST** /fake/inline-additionalProperties | test inline additionalProperties
+[**testInlineFreeformAdditionalProperties**](FakeApi.md#testinlinefreeformadditionalproperties) | **POST** /fake/inline-freeform-additionalProperties | test inline free-form additionalProperties
 [**testJsonFormData**](FakeApi.md#testjsonformdata) | **GET** /fake/jsonFormData | test json serialization of form data
+[**testNullable**](FakeApi.md#testnullable) | **POST** /fake/nullable | test nullable parent property
 [**testQueryParameterCollectionFormat**](FakeApi.md#testqueryparametercollectionformat) | **PUT** /fake/test-query-parameters | 
+[**testStringMapReference**](FakeApi.md#teststringmapreference) | **POST** /fake/stringMap-reference | test referenced string map
 
+
+# **fakeBigDecimalMap**
+> FakeBigDecimalMap200Response fakeBigDecimalMap()
+
+
+
+for Java apache and Java native, test toUrlQueryString for maps with BegDecimal keys
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFakeApi();
+
+try {
+    final response = api.fakeBigDecimalMap();
+    print(response);
+} catch on DioException (e) {
+    print('Exception when calling FakeApi->fakeBigDecimalMap: $e\n');
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**FakeBigDecimalMap200Response**](FakeBigDecimalMap200Response.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **fakeHealthGet**
 > HealthCheckResult fakeHealthGet()
@@ -37,12 +81,12 @@ Health check endpoint
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
+final api = Openapi().getFakeApi();
 
 try {
-    var result = api_instance.fakeHealthGet();
-    print(result);
-} catch (e) {
+    final response = api.fakeHealthGet();
+    print(response);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->fakeHealthGet: $e\n');
 }
 ```
@@ -73,18 +117,15 @@ test http signature authentication
 ### Example
 ```dart
 import 'package:openapi/api.dart';
-// TODO Configure HTTP basic authorization: http_signature_test
-//defaultApiClient.getAuthentication<HttpBasicAuth>('http_signature_test').username = 'YOUR_USERNAME'
-//defaultApiClient.getAuthentication<HttpBasicAuth>('http_signature_test').password = 'YOUR_PASSWORD';
 
-var api_instance = new FakeApi();
-var pet = new Pet(); // Pet | Pet object that needs to be added to the store
-var query1 = query1_example; // String | query parameter
-var header1 = header1_example; // String | header parameter
+final api = Openapi().getFakeApi();
+final Pet pet = ; // Pet | Pet object that needs to be added to the store
+final String query1 = query1_example; // String | query parameter
+final String header1 = header1_example; // String | header parameter
 
 try {
-    api_instance.fakeHttpSignatureTest(pet, query1, header1);
-} catch (e) {
+    api.fakeHttpSignatureTest(pet, query1, header1);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->fakeHttpSignatureTest: $e\n');
 }
 ```
@@ -123,13 +164,13 @@ Test serialization of outer boolean types
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var body = new bool(); // bool | Input boolean as post body
+final api = Openapi().getFakeApi();
+final bool body = true; // bool | Input boolean as post body
 
 try {
-    var result = api_instance.fakeOuterBooleanSerialize(body);
-    print(result);
-} catch (e) {
+    final response = api.fakeOuterBooleanSerialize(body);
+    print(response);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->fakeOuterBooleanSerialize: $e\n');
 }
 ```
@@ -166,13 +207,13 @@ Test serialization of object with outer number type
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var outerComposite = new OuterComposite(); // OuterComposite | Input composite as post body
+final api = Openapi().getFakeApi();
+final OuterComposite outerComposite = ; // OuterComposite | Input composite as post body
 
 try {
-    var result = api_instance.fakeOuterCompositeSerialize(outerComposite);
-    print(result);
-} catch (e) {
+    final response = api.fakeOuterCompositeSerialize(outerComposite);
+    print(response);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->fakeOuterCompositeSerialize: $e\n');
 }
 ```
@@ -209,13 +250,13 @@ Test serialization of outer number types
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var body = new num(); // num | Input number as post body
+final api = Openapi().getFakeApi();
+final num body = 8.14; // num | Input number as post body
 
 try {
-    var result = api_instance.fakeOuterNumberSerialize(body);
-    print(result);
-} catch (e) {
+    final response = api.fakeOuterNumberSerialize(body);
+    print(response);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->fakeOuterNumberSerialize: $e\n');
 }
 ```
@@ -252,13 +293,13 @@ Test serialization of outer string types
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var body = new String(); // String | Input string as post body
+final api = Openapi().getFakeApi();
+final String body = body_example; // String | Input string as post body
 
 try {
-    var result = api_instance.fakeOuterStringSerialize(body);
-    print(result);
-} catch (e) {
+    final response = api.fakeOuterStringSerialize(body);
+    print(response);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->fakeOuterStringSerialize: $e\n');
 }
 ```
@@ -295,13 +336,13 @@ Test serialization of enum (int) properties with examples
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var outerObjectWithEnumProperty = new OuterObjectWithEnumProperty(); // OuterObjectWithEnumProperty | Input enum (int) as post body
+final api = Openapi().getFakeApi();
+final OuterObjectWithEnumProperty outerObjectWithEnumProperty = ; // OuterObjectWithEnumProperty | Input enum (int) as post body
 
 try {
-    var result = api_instance.fakePropertyEnumIntegerSerialize(outerObjectWithEnumProperty);
-    print(result);
-} catch (e) {
+    final response = api.fakePropertyEnumIntegerSerialize(outerObjectWithEnumProperty);
+    print(response);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->fakePropertyEnumIntegerSerialize: $e\n');
 }
 ```
@@ -327,6 +368,48 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **testAdditionalPropertiesReference**
+> testAdditionalPropertiesReference(requestBody)
+
+test referenced additionalProperties
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFakeApi();
+final BuiltMap<String, JsonObject> requestBody = Object; // BuiltMap<String, JsonObject> | request body
+
+try {
+    api.testAdditionalPropertiesReference(requestBody);
+} catch on DioException (e) {
+    print('Exception when calling FakeApi->testAdditionalPropertiesReference: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **requestBody** | [**BuiltMap&lt;String, JsonObject&gt;**](JsonObject.md)| request body | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: Not defined
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **testBodyWithBinary**
 > testBodyWithBinary(body)
 
@@ -338,12 +421,12 @@ For this test, the body has to be a binary file.
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var body = new Uint8List(); // Uint8List | image to upload
+final api = Openapi().getFakeApi();
+final MultipartFile body = BINARY_DATA_HERE; // MultipartFile | image to upload
 
 try {
-    api_instance.testBodyWithBinary(body);
-} catch (e) {
+    api.testBodyWithBinary(body);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->testBodyWithBinary: $e\n');
 }
 ```
@@ -352,7 +435,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | **Uint8List**| image to upload | 
+ **body** | **MultipartFile**| image to upload | 
 
 ### Return type
 
@@ -380,12 +463,12 @@ For this test, the body for this request must reference a schema named `File`.
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var fileSchemaTestClass = new FileSchemaTestClass(); // FileSchemaTestClass | 
+final api = Openapi().getFakeApi();
+final FileSchemaTestClass fileSchemaTestClass = ; // FileSchemaTestClass | 
 
 try {
-    api_instance.testBodyWithFileSchema(fileSchemaTestClass);
-} catch (e) {
+    api.testBodyWithFileSchema(fileSchemaTestClass);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->testBodyWithFileSchema: $e\n');
 }
 ```
@@ -420,13 +503,13 @@ No authorization required
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var query = query_example; // String | 
-var user = new User(); // User | 
+final api = Openapi().getFakeApi();
+final String query = query_example; // String | 
+final User user = ; // User | 
 
 try {
-    api_instance.testBodyWithQueryParams(query, user);
-} catch (e) {
+    api.testBodyWithQueryParams(query, user);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->testBodyWithQueryParams: $e\n');
 }
 ```
@@ -464,13 +547,13 @@ To test \"client\" model
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var modelClient = new ModelClient(); // ModelClient | client model
+final api = Openapi().getFakeApi();
+final ModelClient modelClient = ; // ModelClient | client model
 
 try {
-    var result = api_instance.testClientModel(modelClient);
-    print(result);
-} catch (e) {
+    final response = api.testClientModel(modelClient);
+    print(response);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->testClientModel: $e\n');
 }
 ```
@@ -510,25 +593,25 @@ import 'package:openapi/api.dart';
 //defaultApiClient.getAuthentication<HttpBasicAuth>('http_basic_test').username = 'YOUR_USERNAME'
 //defaultApiClient.getAuthentication<HttpBasicAuth>('http_basic_test').password = 'YOUR_PASSWORD';
 
-var api_instance = new FakeApi();
-var number = 8.14; // num | None
-var double_ = 1.2; // double | None
-var patternWithoutDelimiter = patternWithoutDelimiter_example; // String | None
-var byte = BYTE_ARRAY_DATA_HERE; // String | None
-var integer = 56; // int | None
-var int32 = 56; // int | None
-var int64 = 789; // int | None
-var float = 3.4; // double | None
-var string = string_example; // String | None
-var binary = BINARY_DATA_HERE; // Uint8List | None
-var date = 2013-10-20; // DateTime | None
-var dateTime = 2013-10-20T19:20:30+01:00; // DateTime | None
-var password = password_example; // String | None
-var callback = callback_example; // String | None
+final api = Openapi().getFakeApi();
+final num number = 8.14; // num | None
+final double double_ = 1.2; // double | None
+final String patternWithoutDelimiter = patternWithoutDelimiter_example; // String | None
+final String byte = BYTE_ARRAY_DATA_HERE; // String | None
+final int integer = 56; // int | None
+final int int32 = 56; // int | None
+final int int64 = 789; // int | None
+final double float = 3.4; // double | None
+final String string = string_example; // String | None
+final Uint8List binary = BINARY_DATA_HERE; // Uint8List | None
+final Date date = 2013-10-20; // Date | None
+final DateTime dateTime = 2013-10-20T19:20:30+01:00; // DateTime | None
+final String password = password_example; // String | None
+final String callback = callback_example; // String | None
 
 try {
-    api_instance.testEndpointParameters(number, double_, patternWithoutDelimiter, byte, integer, int32, int64, float, string, binary, date, dateTime, password, callback);
-} catch (e) {
+    api.testEndpointParameters(number, double_, patternWithoutDelimiter, byte, integer, int32, int64, float, string, binary, date, dateTime, password, callback);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->testEndpointParameters: $e\n');
 }
 ```
@@ -547,7 +630,7 @@ Name | Type | Description  | Notes
  **float** | **double**| None | [optional] 
  **string** | **String**| None | [optional] 
  **binary** | **Uint8List**| None | [optional] 
- **date** | **DateTime**| None | [optional] 
+ **date** | **Date**| None | [optional] 
  **dateTime** | **DateTime**| None | [optional] 
  **password** | **String**| None | [optional] 
  **callback** | **String**| None | [optional] 
@@ -568,7 +651,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **testEnumParameters**
-> testEnumParameters(enumHeaderStringArray, enumHeaderString, enumQueryStringArray, enumQueryString, enumQueryInteger, enumQueryDouble, enumFormStringArray, enumFormString)
+> testEnumParameters(enumHeaderStringArray, enumHeaderString, enumQueryStringArray, enumQueryString, enumQueryInteger, enumQueryDouble, enumQueryModelArray, enumFormStringArray, enumFormString)
 
 To test enum parameters
 
@@ -578,19 +661,20 @@ To test enum parameters
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var enumHeaderStringArray = []; // BuiltList<String> | Header parameter enum test (string array)
-var enumHeaderString = enumHeaderString_example; // String | Header parameter enum test (string)
-var enumQueryStringArray = []; // BuiltList<String> | Query parameter enum test (string array)
-var enumQueryString = enumQueryString_example; // String | Query parameter enum test (string)
-var enumQueryInteger = 56; // int | Query parameter enum test (double)
-var enumQueryDouble = 1.2; // double | Query parameter enum test (double)
-var enumFormStringArray = []; // BuiltList<String> | Form parameter enum test (string array)
-var enumFormString = enumFormString_example; // String | Form parameter enum test (string)
+final api = Openapi().getFakeApi();
+final BuiltList<String> enumHeaderStringArray = ; // BuiltList<String> | Header parameter enum test (string array)
+final String enumHeaderString = enumHeaderString_example; // String | Header parameter enum test (string)
+final BuiltList<String> enumQueryStringArray = ; // BuiltList<String> | Query parameter enum test (string array)
+final String enumQueryString = enumQueryString_example; // String | Query parameter enum test (string)
+final int enumQueryInteger = 56; // int | Query parameter enum test (double)
+final double enumQueryDouble = 1.2; // double | Query parameter enum test (double)
+final BuiltList<ModelEnumClass> enumQueryModelArray = ; // BuiltList<ModelEnumClass> | 
+final BuiltList<String> enumFormStringArray = ; // BuiltList<String> | Form parameter enum test (string array)
+final String enumFormString = enumFormString_example; // String | Form parameter enum test (string)
 
 try {
-    api_instance.testEnumParameters(enumHeaderStringArray, enumHeaderString, enumQueryStringArray, enumQueryString, enumQueryInteger, enumQueryDouble, enumFormStringArray, enumFormString);
-} catch (e) {
+    api.testEnumParameters(enumHeaderStringArray, enumHeaderString, enumQueryStringArray, enumQueryString, enumQueryInteger, enumQueryDouble, enumQueryModelArray, enumFormStringArray, enumFormString);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->testEnumParameters: $e\n');
 }
 ```
@@ -599,13 +683,14 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **enumHeaderStringArray** | [**BuiltList<String>**](String.md)| Header parameter enum test (string array) | [optional] 
+ **enumHeaderStringArray** | [**BuiltList&lt;String&gt;**](String.md)| Header parameter enum test (string array) | [optional] 
  **enumHeaderString** | **String**| Header parameter enum test (string) | [optional] [default to '-efg']
- **enumQueryStringArray** | [**BuiltList<String>**](String.md)| Query parameter enum test (string array) | [optional] 
+ **enumQueryStringArray** | [**BuiltList&lt;String&gt;**](String.md)| Query parameter enum test (string array) | [optional] 
  **enumQueryString** | **String**| Query parameter enum test (string) | [optional] [default to '-efg']
  **enumQueryInteger** | **int**| Query parameter enum test (double) | [optional] 
  **enumQueryDouble** | **double**| Query parameter enum test (double) | [optional] 
- **enumFormStringArray** | [**BuiltList<String>**](String.md)| Form parameter enum test (string array) | [optional] [default to '$']
+ **enumQueryModelArray** | [**BuiltList&lt;ModelEnumClass&gt;**](ModelEnumClass.md)|  | [optional] 
+ **enumFormStringArray** | [**BuiltList&lt;String&gt;**](String.md)| Form parameter enum test (string array) | [optional] [default to '$']
  **enumFormString** | **String**| Form parameter enum test (string) | [optional] [default to '-efg']
 
 ### Return type
@@ -633,21 +718,18 @@ Fake endpoint to test group parameters (optional)
 ### Example
 ```dart
 import 'package:openapi/api.dart';
-// TODO Configure HTTP basic authorization: bearer_test
-//defaultApiClient.getAuthentication<HttpBasicAuth>('bearer_test').username = 'YOUR_USERNAME'
-//defaultApiClient.getAuthentication<HttpBasicAuth>('bearer_test').password = 'YOUR_PASSWORD';
 
-var api_instance = new FakeApi();
-var requiredStringGroup = 56; // int | Required String in group parameters
-var requiredBooleanGroup = true; // bool | Required Boolean in group parameters
-var requiredInt64Group = 789; // int | Required Integer in group parameters
-var stringGroup = 56; // int | String in group parameters
-var booleanGroup = true; // bool | Boolean in group parameters
-var int64Group = 789; // int | Integer in group parameters
+final api = Openapi().getFakeApi();
+final int requiredStringGroup = 56; // int | Required String in group parameters
+final bool requiredBooleanGroup = true; // bool | Required Boolean in group parameters
+final int requiredInt64Group = 789; // int | Required Integer in group parameters
+final int stringGroup = 56; // int | String in group parameters
+final bool booleanGroup = true; // bool | Boolean in group parameters
+final int int64Group = 789; // int | Integer in group parameters
 
 try {
-    api_instance.testGroupParameters(requiredStringGroup, requiredBooleanGroup, requiredInt64Group, stringGroup, booleanGroup, int64Group);
-} catch (e) {
+    api.testGroupParameters(requiredStringGroup, requiredBooleanGroup, requiredInt64Group, stringGroup, booleanGroup, int64Group);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->testGroupParameters: $e\n');
 }
 ```
@@ -683,16 +765,18 @@ void (empty response body)
 
 test inline additionalProperties
 
+
+
 ### Example
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var requestBody = new BuiltMap<String, String>(); // BuiltMap<String, String> | request body
+final api = Openapi().getFakeApi();
+final BuiltMap<String, String> requestBody = ; // BuiltMap<String, String> | request body
 
 try {
-    api_instance.testInlineAdditionalProperties(requestBody);
-} catch (e) {
+    api.testInlineAdditionalProperties(requestBody);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->testInlineAdditionalProperties: $e\n');
 }
 ```
@@ -701,7 +785,49 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **requestBody** | [**BuiltMap<String, String>**](String.md)| request body | 
+ **requestBody** | [**BuiltMap&lt;String, String&gt;**](String.md)| request body | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: Not defined
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **testInlineFreeformAdditionalProperties**
+> testInlineFreeformAdditionalProperties(testInlineFreeformAdditionalPropertiesRequest)
+
+test inline free-form additionalProperties
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFakeApi();
+final TestInlineFreeformAdditionalPropertiesRequest testInlineFreeformAdditionalPropertiesRequest = ; // TestInlineFreeformAdditionalPropertiesRequest | request body
+
+try {
+    api.testInlineFreeformAdditionalProperties(testInlineFreeformAdditionalPropertiesRequest);
+} catch on DioException (e) {
+    print('Exception when calling FakeApi->testInlineFreeformAdditionalProperties: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **testInlineFreeformAdditionalPropertiesRequest** | [**TestInlineFreeformAdditionalPropertiesRequest**](TestInlineFreeformAdditionalPropertiesRequest.md)| request body | 
 
 ### Return type
 
@@ -723,17 +849,19 @@ No authorization required
 
 test json serialization of form data
 
+
+
 ### Example
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var param = param_example; // String | field1
-var param2 = param2_example; // String | field2
+final api = Openapi().getFakeApi();
+final String param = param_example; // String | field1
+final String param2 = param2_example; // String | field2
 
 try {
-    api_instance.testJsonFormData(param, param2);
-} catch (e) {
+    api.testJsonFormData(param, param2);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->testJsonFormData: $e\n');
 }
 ```
@@ -760,6 +888,48 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **testNullable**
+> testNullable(childWithNullable)
+
+test nullable parent property
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFakeApi();
+final ChildWithNullable childWithNullable = ; // ChildWithNullable | request body
+
+try {
+    api.testNullable(childWithNullable);
+} catch on DioException (e) {
+    print('Exception when calling FakeApi->testNullable: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **childWithNullable** | [**ChildWithNullable**](ChildWithNullable.md)| request body | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: Not defined
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **testQueryParameterCollectionFormat**
 > testQueryParameterCollectionFormat(pipe, ioutil, http, url, context, allowEmpty, language)
 
@@ -771,18 +941,18 @@ To test the collection format in query parameters
 ```dart
 import 'package:openapi/api.dart';
 
-var api_instance = new FakeApi();
-var pipe = []; // BuiltList<String> | 
-var ioutil = []; // BuiltList<String> | 
-var http = []; // BuiltList<String> | 
-var url = []; // BuiltList<String> | 
-var context = []; // BuiltList<String> | 
-var allowEmpty = allowEmpty_example; // String | 
-var language = ; // BuiltMap<String, String> | 
+final api = Openapi().getFakeApi();
+final BuiltList<String> pipe = ; // BuiltList<String> | 
+final BuiltList<String> ioutil = ; // BuiltList<String> | 
+final BuiltList<String> http = ; // BuiltList<String> | 
+final BuiltList<String> url = ; // BuiltList<String> | 
+final BuiltList<String> context = ; // BuiltList<String> | 
+final String allowEmpty = allowEmpty_example; // String | 
+final BuiltMap<String, String> language = ; // BuiltMap<String, String> | 
 
 try {
-    api_instance.testQueryParameterCollectionFormat(pipe, ioutil, http, url, context, allowEmpty, language);
-} catch (e) {
+    api.testQueryParameterCollectionFormat(pipe, ioutil, http, url, context, allowEmpty, language);
+} catch on DioException (e) {
     print('Exception when calling FakeApi->testQueryParameterCollectionFormat: $e\n');
 }
 ```
@@ -791,13 +961,13 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **pipe** | [**BuiltList<String>**](String.md)|  | 
- **ioutil** | [**BuiltList<String>**](String.md)|  | 
- **http** | [**BuiltList<String>**](String.md)|  | 
- **url** | [**BuiltList<String>**](String.md)|  | 
- **context** | [**BuiltList<String>**](String.md)|  | 
+ **pipe** | [**BuiltList&lt;String&gt;**](String.md)|  | 
+ **ioutil** | [**BuiltList&lt;String&gt;**](String.md)|  | 
+ **http** | [**BuiltList&lt;String&gt;**](String.md)|  | 
+ **url** | [**BuiltList&lt;String&gt;**](String.md)|  | 
+ **context** | [**BuiltList&lt;String&gt;**](String.md)|  | 
  **allowEmpty** | **String**|  | 
- **language** | [**BuiltMap<String, String>**](String.md)|  | [optional] 
+ **language** | [**BuiltMap&lt;String, String&gt;**](String.md)|  | [optional] 
 
 ### Return type
 
@@ -810,6 +980,48 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **testStringMapReference**
+> testStringMapReference(requestBody)
+
+test referenced string map
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getFakeApi();
+final BuiltMap<String, String> requestBody = ; // BuiltMap<String, String> | request body
+
+try {
+    api.testStringMapReference(requestBody);
+} catch on DioException (e) {
+    print('Exception when calling FakeApi->testStringMapReference: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **requestBody** | [**BuiltMap&lt;String, String&gt;**](String.md)| request body | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
  - **Accept**: Not defined
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

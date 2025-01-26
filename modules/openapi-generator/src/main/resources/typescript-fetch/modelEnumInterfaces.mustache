@@ -1,3 +1,4 @@
+{{#stringEnums}}
 /**
  * {{#lambda.indented_star_1}}{{{unescapedDescription}}}{{/lambda.indented_star_1}}
  * @export
@@ -6,7 +7,31 @@
 export enum {{classname}} {
 {{#allowableValues}}
 {{#enumVars}}
+    {{#enumDescription}}
+    /**
+    * {{enumDescription}}
+    */
+    {{/enumDescription}}
     {{{name}}} = {{{value}}}{{^-last}},{{/-last}}
 {{/enumVars}}
 {{/allowableValues}}
 }
+{{/stringEnums}}{{^stringEnums}}
+/**
+ * {{#lambda.indented_star_1}}{{{unescapedDescription}}}{{/lambda.indented_star_1}}
+ * @export
+ */
+export const {{classname}} = {
+{{#allowableValues}}
+{{#enumVars}}
+    {{#enumDescription}}
+    /**
+    * {{enumDescription}}
+    */
+    {{/enumDescription}}
+    {{{name}}}: {{{value}}}{{^-last}},{{/-last}}
+{{/enumVars}}
+{{/allowableValues}}
+} as const;
+export type {{classname}} = typeof {{classname}}[keyof typeof {{classname}}];
+{{/stringEnums}}

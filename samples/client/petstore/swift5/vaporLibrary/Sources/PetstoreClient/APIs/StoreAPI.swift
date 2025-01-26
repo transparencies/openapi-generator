@@ -66,13 +66,12 @@ open class StoreAPI {
         }
     }
 
-
     /**
      Returns pet inventories by status
      GET /store/inventory
      Returns a map of status codes to quantities
      - API Key:
-       - type: apiKey api_key 
+       - type: apiKey api_key (HEADER)
        - name: api_key
      - returns: `EventLoopFuture` of `ClientResponse` 
      */
@@ -103,7 +102,7 @@ open class StoreAPI {
      GET /store/inventory
      Returns a map of status codes to quantities
      - API Key:
-       - type: apiKey api_key 
+       - type: apiKey api_key (HEADER)
        - name: api_key
      - returns: `EventLoopFuture` of `GetInventory` 
      */
@@ -118,11 +117,10 @@ open class StoreAPI {
         }
     }
 
-
     /**
      Find purchase order by ID
      GET /store/order/{order_id}
-     For valid response try integer IDs with value <= 5 or > 10. Other values will generated exceptions
+     For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions
      - parameter orderId: (path) ID of pet that needs to be fetched 
      - returns: `EventLoopFuture` of `ClientResponse` 
      */
@@ -156,7 +154,7 @@ open class StoreAPI {
     /**
      Find purchase order by ID
      GET /store/order/{order_id}
-     For valid response try integer IDs with value <= 5 or > 10. Other values will generated exceptions
+     For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions
      - parameter orderId: (path) ID of pet that needs to be fetched 
      - returns: `EventLoopFuture` of `GetOrderById` 
      */
@@ -174,7 +172,6 @@ open class StoreAPI {
             }
         }
     }
-
 
     /**
      Place an order for a pet
@@ -224,5 +221,4 @@ open class StoreAPI {
             }
         }
     }
-
 }

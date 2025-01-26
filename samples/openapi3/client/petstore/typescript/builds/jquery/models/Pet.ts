@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { Category } from './Category';
-import { Tag } from './Tag';
+import { Category } from '../models/Category';
+import { Tag } from '../models/Tag';
 import { HttpFile } from '../http/http';
 
 /**
@@ -29,6 +29,8 @@ export class Pet {
     'status'?: PetStatusEnum;
 
     static readonly discriminator: string | undefined = undefined;
+
+    static readonly mapping: {[index: string]: string} | undefined = undefined;
 
     static readonly attributeTypeMap: Array<{name: string, baseName: string, type: string, format: string}> = [
         {
@@ -76,6 +78,9 @@ export class Pet {
     }
 }
 
-
-export type PetStatusEnum = "available" | "pending" | "sold" ;
+export enum PetStatusEnum {
+    Available = 'available',
+    Pending = 'pending',
+    Sold = 'sold'
+}
 

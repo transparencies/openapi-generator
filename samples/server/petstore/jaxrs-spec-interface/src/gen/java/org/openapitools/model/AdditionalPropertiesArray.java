@@ -19,9 +19,12 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 @JsonTypeName("AdditionalPropertiesArray")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen")public class AdditionalPropertiesArray extends HashMap<String, List> implements Serializable {
-  
-  private @Valid String name;
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class AdditionalPropertiesArray extends HashMap<String, List> implements Serializable {
+  private String name;
+
+  public AdditionalPropertiesArray() {
+  }
 
   /**
    **/
@@ -29,8 +32,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
     this.name = name;
     return this;
   }
-
-  
 
   
   @ApiModelProperty(value = "")

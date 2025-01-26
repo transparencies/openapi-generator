@@ -16,10 +16,13 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 @JsonTypeName("Tag")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen")public class Tag  implements Serializable {
-  
-  private @Valid Long id;
-  private @Valid String name;
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class Tag  implements Serializable {
+  private Long id;
+  private String name;
+
+  public Tag() {
+  }
 
   /**
    **/
@@ -27,8 +30,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
     this.id = id;
     return this;
   }
-
-  
 
   
   @ApiModelProperty(value = "")
@@ -42,14 +43,12 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
     this.id = id;
   }
 
-/**
+  /**
    **/
   public Tag name(String name) {
     this.name = name;
     return this;
   }
-
-  
 
   
   @ApiModelProperty(value = "")

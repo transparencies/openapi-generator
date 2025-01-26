@@ -1,9 +1,8 @@
 package org.openapitools.model
 
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
 import java.math.BigDecimal
 import java.util.ArrayList
+import java.util.Arrays
 import java.util.List
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import spock.lang.Specification
@@ -14,48 +13,48 @@ import jakarta.inject.Inject
  */
 @MicronautTest
 public class TypeHolderDefaultSpec extends Specification {
-    private final TypeHolderDefault model = new TypeHolderDefault()
+    private final TypeHolderDefault model = null
 
     /**
      * Model tests for TypeHolderDefault
      */
-    void "TypeHolderDefault test"() {
+    void 'TypeHolderDefault test'() {
         // TODO: test TypeHolderDefault
     }
 
     /**
      * Test the property 'stringItem'
      */
-    void "TypeHolderDefault property stringItem test"() {
-        // TODO: test stringItem
+    void 'TypeHolderDefault property stringItem test'() {
+        // TODO: test stringItem property of TypeHolderDefault
     }
 
     /**
      * Test the property 'numberItem'
      */
-    void "TypeHolderDefault property numberItem test"() {
-        // TODO: test numberItem
+    void 'TypeHolderDefault property numberItem test'() {
+        // TODO: test numberItem property of TypeHolderDefault
     }
 
     /**
      * Test the property 'integerItem'
      */
-    void "TypeHolderDefault property integerItem test"() {
-        // TODO: test integerItem
+    void 'TypeHolderDefault property integerItem test'() {
+        // TODO: test integerItem property of TypeHolderDefault
     }
 
     /**
      * Test the property 'boolItem'
      */
-    void "TypeHolderDefault property boolItem test"() {
-        // TODO: test boolItem
+    void 'TypeHolderDefault property boolItem test'() {
+        // TODO: test boolItem property of TypeHolderDefault
     }
 
     /**
      * Test the property 'arrayItem'
      */
-    void "TypeHolderDefault property arrayItem test"() {
-        // TODO: test arrayItem
+    void 'TypeHolderDefault property arrayItem test'() {
+        // TODO: test arrayItem property of TypeHolderDefault
     }
 
 }

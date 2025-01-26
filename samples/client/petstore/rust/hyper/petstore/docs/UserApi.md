@@ -50,12 +50,14 @@ Name | Type | Description  | Required | Notes
 > create_users_with_array_input(user)
 Creates list of users with given input array
 
+
+
 ### Parameters
 
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**user** | [**Vec<crate::models::User>**](User.md) | List of user object | [required] |
+**user** | [**Vec<models::User>**](User.md) | List of user object | [required] |
 
 ### Return type
 
@@ -78,12 +80,14 @@ Name | Type | Description  | Required | Notes
 > create_users_with_list_input(user)
 Creates list of users with given input array
 
+
+
 ### Parameters
 
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**user** | [**Vec<crate::models::User>**](User.md) | List of user object | [required] |
+**user** | [**Vec<models::User>**](User.md) | List of user object | [required] |
 
 ### Return type
 
@@ -133,8 +137,10 @@ Name | Type | Description  | Required | Notes
 
 ## get_user_by_name
 
-> crate::models::User get_user_by_name(username)
+> models::User get_user_by_name(username)
 Get user by user name
+
+
 
 ### Parameters
 
@@ -145,7 +151,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::User**](User.md)
+[**models::User**](User.md)
 
 ### Authorization
 
@@ -163,6 +169,8 @@ No authorization required
 
 > String login_user(username, password)
 Logs user into the system
+
+
 
 ### Parameters
 
@@ -192,6 +200,8 @@ No authorization required
 
 > logout_user()
 Logs out current logged in user session
+
+
 
 ### Parameters
 

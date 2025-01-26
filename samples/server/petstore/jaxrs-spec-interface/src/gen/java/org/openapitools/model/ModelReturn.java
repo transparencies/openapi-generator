@@ -1,5 +1,6 @@
 package org.openapitools.model;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
@@ -18,9 +19,12 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  **/
 @ApiModel(description = "Model for testing reserved words")
 @JsonTypeName("Return")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen")public class ModelReturn  implements Serializable {
-  
-  private @Valid Integer _return;
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class ModelReturn  implements Serializable {
+  private Integer _return;
+
+  public ModelReturn() {
+  }
 
   /**
    **/
@@ -28,8 +32,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
     this._return = _return;
     return this;
   }
-
-  
 
   
   @ApiModelProperty(value = "")

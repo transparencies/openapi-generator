@@ -1,5 +1,5 @@
 import type { HttpFile } from '../http/http';
-import type { Configuration } from '../configuration'
+import type { Configuration } from '../configuration';
 import type * as req from "../types/ObjectParamAPI";
 {{#useRxJS}}
 import type { Observable } from 'rxjs';
@@ -7,7 +7,7 @@ import type { Observable } from 'rxjs';
 
 {{#models}}
 {{#model}}
-import type { {{{ classname }}} } from '../models/{{{ classFilename }}}';
+import type { {{{ classname }}} } from '{{{ importPath }}}';
 {{/model}}
 {{/models}}
 {{#apiInfo}}

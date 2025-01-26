@@ -17,11 +17,16 @@
 
 package org.openapitools.codegen.languages;
 
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.meta.features.*;
+import org.openapitools.codegen.model.ModelMap;
+import org.openapitools.codegen.model.ModelsMap;
+import org.openapitools.codegen.model.OperationMap;
+import org.openapitools.codegen.model.OperationsMap;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,10 +49,10 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
     protected String testsPackage;
     protected String apiTestsPackage;
     protected String modelTestsPackage;
-    protected String composerVendorName = "openapi";
-    protected String composerProjectName = "server-bundle";
+    @Setter protected String composerVendorName = "openapi";
+    @Setter protected String composerProjectName = "server-bundle";
     protected String testsDirName = "Tests";
-    protected String bundleName;
+    @Getter protected String bundleName;
     protected String bundleClassName;
     protected String bundleExtensionName;
     protected String bundleAlias;
@@ -56,7 +61,7 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
     protected String controllerPackage;
     protected String controllerTestsPackage;
     protected String servicePackage;
-    protected Boolean phpLegacySupport = Boolean.TRUE;
+    @Setter protected Boolean phpLegacySupport = Boolean.TRUE;
 
     protected HashSet<String> typeHintable;
 
@@ -85,7 +90,10 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
         modifyFeatureSet(features -> features
                 .includeDocumentationFeatures(DocumentationFeature.Readme)
                 .wireFormatFeatures(EnumSet.of(WireFormatFeature.JSON, WireFormatFeature.XML))
-                .securityFeatures(EnumSet.noneOf(SecurityFeature.class))
+                .securityFeatures(EnumSet.of(
+                        SecurityFeature.BasicAuth,
+                        SecurityFeature.ApiKey,
+                        SecurityFeature.OAuth2_Implicit))
                 .excludeGlobalFeatures(
                         GlobalFeature.XMLStructureDefinitions,
                         GlobalFeature.Callbacks,
@@ -102,12 +110,12 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
         importMapping.clear();
 
         supportsInheritance = true;
-        srcBasePath = ".";
+        srcBasePath = "";
         setInvokerPackage("OpenAPI\\Server");
         setBundleName("OpenAPIServer");
         setBundleAlias("open_api_server");
         modelDirName = "Model";
-        docsBasePath = "Resources" + "/" + "docs";
+        docsBasePath = "docs";
         apiDocPath = docsBasePath + "/" + apiDirName;
         modelDocPath = docsBasePath + "/" + modelDirName;
         outputFolder = "generated-code" + File.separator + "php";
@@ -143,7 +151,6 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
                 Arrays.asList(
                         "bool",
                         "int",
-                        "double",
                         "float",
                         "string",
                         "object",
@@ -179,7 +186,7 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
         typeMapping.put("decimal", "float");
         typeMapping.put("number", "float");
         typeMapping.put("float", "float");
-        typeMapping.put("double", "double");
+        typeMapping.put("double", "float");
         typeMapping.put("string", "string");
         typeMapping.put("byte", "int");
         typeMapping.put("boolean", "bool");
@@ -206,10 +213,6 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
         cliOptions.add(new CliOption(PHP_LEGACY_SUPPORT, "Should the generated code be compatible with PHP 5.x?").defaultValue(Boolean.TRUE.toString()));
     }
 
-    public String getBundleName() {
-        return bundleName;
-    }
-
     public void setBundleName(String bundleName) {
         this.bundleName = bundleName;
         this.bundleClassName = bundleName + "Bundle";
@@ -224,21 +227,8 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
         }
     }
 
-    public void setPhpLegacySupport(Boolean support) {
-        this.phpLegacySupport = support;
-    }
-
     public String controllerFileFolder() {
         return (outputFolder + File.separator + toSrcPath(controllerPackage, srcBasePath));
-    }
-
-    @Override
-    public String escapeText(String input) {
-        if (input != null) {
-            // Trim the string to avoid leading and trailing spaces.
-            return super.escapeText(input).trim();
-        }
-        return input;
     }
 
     @Override
@@ -313,6 +303,9 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
         additionalProperties.put("bundleExtensionName", bundleExtensionName);
         additionalProperties.put("bundleAlias", bundleAlias);
 
+        // add trailing slash for mustache templates
+        additionalProperties.put("relativeSrcBasePath", srcBasePath.isEmpty() ? "" : srcBasePath + "/");
+
         // make api and model src path available in mustache template
         additionalProperties.put("apiSrcPath", "." + "/" + toSrcPath(apiPackage, srcBasePath));
         additionalProperties.put("modelSrcPath", "." + "/" + toSrcPath(modelPackage, srcBasePath));
@@ -333,17 +326,19 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
 
         final String configDir = "Resources" + File.separator + "config";
         final String dependencyInjectionDir = "DependencyInjection";
+        final String compilerDir = dependencyInjectionDir + File.separator + "Compiler";
 
         supportingFiles.add(new SupportingFile("Controller.mustache", toSrcPath(controllerPackage, srcBasePath), "Controller.php"));
-        supportingFiles.add(new SupportingFile("Bundle.mustache", "", bundleClassName + ".php"));
-        supportingFiles.add(new SupportingFile("Extension.mustache", dependencyInjectionDir, bundleExtensionName + ".php"));
-        supportingFiles.add(new SupportingFile("ApiPass.mustache", dependencyInjectionDir + File.separator + "Compiler", bundleName + "ApiPass.php"));
+        supportingFiles.add(new SupportingFile("Bundle.mustache", toSrcPath("", srcBasePath), bundleClassName + ".php"));
+        supportingFiles.add(new SupportingFile("Extension.mustache", toSrcPath(dependencyInjectionDir, srcBasePath), bundleExtensionName + ".php"));
+        supportingFiles.add(new SupportingFile("ApiPass.mustache", toSrcPath(compilerDir, srcBasePath), bundleName + "ApiPass.php"));
         supportingFiles.add(new SupportingFile("ApiServer.mustache", toSrcPath(apiPackage, srcBasePath), "ApiServer.php"));
 
         // Serialization components
         supportingFiles.add(new SupportingFile("serialization/SerializerInterface.mustache", toSrcPath(servicePackage, srcBasePath), "SerializerInterface.php"));
         supportingFiles.add(new SupportingFile("serialization/JmsSerializer.mustache", toSrcPath(servicePackage, srcBasePath), "JmsSerializer.php"));
         supportingFiles.add(new SupportingFile("serialization/StrictJsonDeserializationVisitor.mustache", toSrcPath(servicePackage, srcBasePath), "StrictJsonDeserializationVisitor.php"));
+        supportingFiles.add(new SupportingFile("serialization/StrictJsonDeserializationVisitorFactory.mustache", toSrcPath(servicePackage, srcBasePath), "StrictJsonDeserializationVisitorFactory.php"));
         supportingFiles.add(new SupportingFile("serialization/TypeMismatchException.mustache", toSrcPath(servicePackage, srcBasePath), "TypeMismatchException.php"));
         // Validation components
         supportingFiles.add(new SupportingFile("validation/ValidatorInterface.mustache", toSrcPath(servicePackage, srcBasePath), "ValidatorInterface.php"));
@@ -351,13 +346,12 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
 
         // Testing components
         supportingFiles.add(new SupportingFile("testing/phpunit.xml.mustache", "", "phpunit.xml.dist"));
-        supportingFiles.add(new SupportingFile("testing/pom.xml", "", "pom.xml"));
         supportingFiles.add(new SupportingFile("testing/AppKernel.mustache", toSrcPath(testsPackage, srcBasePath), "AppKernel.php"));
         supportingFiles.add(new SupportingFile("testing/ControllerTest.mustache", toSrcPath(controllerTestsPackage, srcBasePath), "ControllerTest.php"));
-        supportingFiles.add(new SupportingFile("testing/test_config.yml", toSrcPath(testsPackage, srcBasePath), "test_config.yml"));
+        supportingFiles.add(new SupportingFile("testing/test_config.yml", toSrcPath(testsPackage, srcBasePath), "test_config.yaml"));
 
-        supportingFiles.add(new SupportingFile("routing.mustache", configDir, "routing.yml"));
-        supportingFiles.add(new SupportingFile("services.mustache", configDir, "services.yml"));
+        supportingFiles.add(new SupportingFile("routing.mustache", toSrcPath(configDir, srcBasePath), "routing.yaml"));
+        supportingFiles.add(new SupportingFile("services.mustache", toSrcPath(configDir, srcBasePath), "services.yaml"));
         supportingFiles.add(new SupportingFile("composer.mustache", "", "composer.json"));
         supportingFiles.add(new SupportingFile("autoload.mustache", "", "autoload.php"));
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
@@ -369,35 +363,27 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
 
         // Type-hintable primitive types
         // ref: http://php.net/manual/en/functions.arguments.php#functions.arguments.type-declaration
-        if (phpLegacySupport) {
-            typeHintable = new HashSet<>(
-                    Arrays.asList(
-                            "array"
-                    )
-            );
-        } else {
-            typeHintable = new HashSet<>(
-                    Arrays.asList(
-                            "array",
-                            "bool",
-                            "float",
-                            "int",
-                            "string"
-                    )
-            );
-        }
+        typeHintable = new HashSet<>(
+                Arrays.asList(
+                        "array",
+                        "bool",
+                        "float",
+                        "int",
+                        "string"
+                )
+        );
     }
 
     @Override
-    public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
+    public OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels) {
         objs = super.postProcessOperationsWithModels(objs, allModels);
 
-        Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
-        operations.put("controllerName", toControllerName((String) operations.get("pathPrefix")));
-        operations.put("symfonyService", toSymfonyService((String) operations.get("pathPrefix")));
+        OperationMap operations = objs.getOperations();
+        operations.put("controllerName", toControllerName(operations.getPathPrefix()));
+        operations.put("symfonyService", toSymfonyService(operations.getPathPrefix()));
 
         List<CodegenSecurity> authMethods = new ArrayList<>();
-        List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
+        List<CodegenOperation> operationList = operations.getOperation();
 
         for (CodegenOperation op : operationList) {
             // Loop through all input parameters to determine, whether we have to import something to
@@ -405,36 +391,42 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
             for (CodegenParameter param : op.allParams) {
                 // Determine if the parameter type is supported as a type hint and make it available
                 // to the templating engine
-                String typeHint = getTypeHint(param.dataType);
+                String typeHint = getTypeHint(param.dataType, false);
                 if (!typeHint.isEmpty()) {
                     param.vendorExtensions.put("x-parameter-type", typeHint);
                 }
 
                 if (param.isContainer) {
-                    param.vendorExtensions.put("x-parameter-type", getTypeHint(param.dataType + "[]"));
+                    param.vendorExtensions.put("x-parameter-type", getTypeHint(param.dataType + "[]", false));
                 }
 
                 // Create a variable to display the correct data type in comments for interfaces
-                param.vendorExtensions.put("x-comment-type", "\\" + param.dataType);
+                param.vendorExtensions.put("x-comment-type", prependSlashToDataTypeOnlyIfNecessary(param.dataType));
                 if (param.isContainer) {
-                    param.vendorExtensions.put("x-comment-type", "\\" + param.dataType + "[]");
+                    param.vendorExtensions.put("x-comment-type", prependSlashToDataTypeOnlyIfNecessary(param.dataType) + "[]");
                 }
             }
 
             // Create a variable to display the correct return type in comments for interfaces
             if (op.returnType != null) {
-                op.vendorExtensions.put("x-comment-type", "\\" + op.returnType);
+                op.vendorExtensions.put("x-comment-type", prependSlashToDataTypeOnlyIfNecessary(op.returnType));
                 if ("array".equals(op.returnContainer)) {
-                    op.vendorExtensions.put("x-comment-type", "\\" + op.returnType + "[]");
+                    op.vendorExtensions.put("x-comment-type", prependSlashToDataTypeOnlyIfNecessary(op.returnType) + "[]");
                 }
             } else {
                 op.vendorExtensions.put("x-comment-type", "void");
+            }
+            // Create a variable to add typing for return value of interface
+            if (op.returnType != null) {
+                op.vendorExtensions.put("x-return-type", "array|object|null");
+            } else {
+                op.vendorExtensions.put("x-return-type", "void");
             }
 
             // Add operation's authentication methods to whole interface
             if (op.authMethods != null) {
                 for (CodegenSecurity am : op.authMethods) {
-                    if (!authMethods.contains(am)) {
+                    if (authMethods.stream().noneMatch(m -> Objects.equals(m.name, am.name))) {
                         authMethods.add(am);
                     }
                 }
@@ -447,36 +439,35 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
     }
 
     @Override
-    public Map<String, Object> postProcessModels(Map<String, Object> objs) {
+    public ModelsMap postProcessModels(ModelsMap objs) {
         objs = super.postProcessModels(objs);
 
-        ArrayList<Object> modelsArray = (ArrayList<Object>) objs.get("models");
-        Map<String, Object> models = (Map<String, Object>) modelsArray.get(0);
-        CodegenModel model = (CodegenModel) models.get("model");
+        ModelMap models = objs.getModels().get(0);
+        CodegenModel model = models.getModel();
 
         // Simplify model var type
         for (CodegenProperty var : model.vars) {
             if (var.dataType != null) {
                 // Determine if the parameter type is supported as a type hint and make it available
                 // to the templating engine
-                String typeHint = getTypeHint(var.dataType);
-                if (!typeHint.isEmpty()) {
-                    var.vendorExtensions.put("x-parameter-type", typeHint);
-                }
-
+                var.vendorExtensions.put("x-parameter-type", getTypeHintNullable(var.dataType));
+                var.vendorExtensions.put("x-comment-type", getTypeHintNullableForComments(var.dataType));
                 if (var.isContainer) {
-                    var.vendorExtensions.put("x-parameter-type", getTypeHint(var.dataType + "[]"));
-                }
-
-                // Create a variable to display the correct data type in comments for models
-                var.vendorExtensions.put("x-comment-type", var.dataType);
-                if (var.isContainer) {
-                    var.vendorExtensions.put("x-comment-type", var.dataType + "[]");
+                    var.vendorExtensions.put("x-parameter-type", getTypeHintNullable(var.dataType + "[]"));
+                    var.vendorExtensions.put("x-comment-type", getTypeHintNullableForComments(var.dataType + "[]"));
                 }
             }
         }
 
         return objs;
+    }
+
+    public String prependSlashToDataTypeOnlyIfNecessary(String dataType) {
+        if (dataType.equals("array") || dataType.equals("bool") || dataType.equals("float") || dataType.equals("int") || dataType.equals("string") || dataType.equals("object") || dataType.equals("iterable") || dataType.equals("mixed")) {
+            return dataType;
+        }
+
+        return "\\" + dataType;
     }
 
     /**
@@ -485,6 +476,7 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
      * @param name the name of the property
      * @return getter name based on naming convention
      */
+    @Override
     public String toBooleanGetter(String name) {
         return "is" + getterAndSetterCapitalize(name);
     }
@@ -507,14 +499,6 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
         return (outputFolder + File.separator + toSrcPath(modelTestsPackage, srcBasePath));
     }
 
-    public void setComposerVendorName(String composerVendorName) {
-        this.composerVendorName = composerVendorName;
-    }
-
-    public void setComposerProjectName(String composerProjectName) {
-        this.composerProjectName = composerProjectName;
-    }
-
     @Override
     public void setInvokerPackage(String invokerPackage) {
         super.setInvokerPackage(invokerPackage);
@@ -531,13 +515,12 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema inner = ap.getItems();
+            Schema inner = ModelUtils.getSchemaItems(p);
             return getTypeDeclaration(inner);
         }
 
         if (ModelUtils.isMapSchema(p)) {
-            Schema inner = getAdditionalProperties(p);
+            Schema inner = ModelUtils.getAdditionalProperties(p);
             return getTypeDeclaration(inner);
         }
 
@@ -585,15 +568,6 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
         }
     }
 
-    @Override
-    public String toEnumValue(String value, String datatype) {
-        if ("int".equals(datatype) || "double".equals(datatype) || "float".equals(datatype)) {
-            return value;
-        } else {
-            return "\"" + escapeText(value) + "\"";
-        }
-    }
-
     /**
      * Return the regular expression/JSON schema pattern (http://json-schema.org/latest/json-schema-validation.html#anchor33)
      *
@@ -605,18 +579,19 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
         return escapeText(pattern);
     }
 
+    @Override
     public String toApiName(String name) {
         if (name.isEmpty()) {
             return "DefaultApiInterface";
         }
-        return camelize(name, false) + "ApiInterface";
+        return camelize(name) + "ApiInterface";
     }
 
     protected String toControllerName(String name) {
         if (name.isEmpty()) {
             return "DefaultController";
         }
-        return camelize(name, false) + "Controller";
+        return camelize(name) + "Controller";
     }
 
     protected String toSymfonyService(String name) {
@@ -628,10 +603,34 @@ public class PhpSymfonyServerCodegen extends AbstractPhpCodegen implements Codeg
         return prefix + name;
     }
 
-    protected String getTypeHint(String type) {
+    protected String getTypeHintNullable(String type) {
+        String typeHint = getTypeHint(type, false);
+        if (!typeHint.equals("")) {
+            return "?" + typeHint;
+        }
+
+        return typeHint;
+    }
+
+    protected String getTypeHintNullableForComments(String type) {
+        String typeHint = getTypeHint(type, true);
+        if (!typeHint.equals("")) {
+            return typeHint + "|null";
+        }
+
+        return typeHint;
+    }
+
+    protected String getTypeHint(String type, Boolean forComments) {
         // Type hint array types
         if (type.endsWith("[]")) {
-            return "array";
+            if (forComments) {
+                //Make type hints for array in comments. Call getTypeHint recursive for extractSimpleName for models
+                String typeWithoutArray = type.substring(0, type.length() - 2);
+                return this.getTypeHint(typeWithoutArray, true) + "[]";
+            } else {
+                return "array";
+            }
         }
 
         // Check if the type is a native type that is type hintable in PHP

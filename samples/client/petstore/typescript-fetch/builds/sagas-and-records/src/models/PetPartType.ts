@@ -12,15 +12,28 @@
  * Do not edit the class manually.
  */
 
+
 /**
  * Type of pet part
  * @export
- * @enum {string}
  */
-export enum PetPartType {
-    Curved = 'Curved',
-    Smooth = 'Smooth',
-    Long = 'Long'
+export const PetPartType = {
+    Curved: 'Curved',
+    Smooth: 'Smooth',
+    Long: 'Long'
+} as const;
+export type PetPartType = typeof PetPartType[keyof typeof PetPartType];
+
+
+export function instanceOfPetPartType(value: any): boolean {
+    for (const key in PetPartType) {
+        if (Object.prototype.hasOwnProperty.call(PetPartType, key)) {
+            if (PetPartType[key as keyof typeof PetPartType] === value) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 export function PetPartTypeFromJSON(json: any): PetPartType {
@@ -33,5 +46,9 @@ export function PetPartTypeFromJSONTyped(json: any, ignoreDiscriminator: boolean
 
 export function PetPartTypeToJSON(value?: PetPartType | null): any {
     return value as any;
+}
+
+export function PetPartTypeToJSONTyped(value: any, ignoreDiscriminator: boolean): PetPartType {
+    return value as PetPartType;
 }
 

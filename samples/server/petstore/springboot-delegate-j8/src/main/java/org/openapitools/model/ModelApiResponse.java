@@ -4,8 +4,10 @@ import java.net.URI;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.lang.Nullable;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import javax.validation.Valid;
@@ -13,20 +15,21 @@ import javax.validation.constraints.*;
 
 
 import java.util.*;
+import javax.annotation.Generated;
 
 /**
  * ModelApiResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
-public class ModelApiResponse   {
-  @JsonProperty("code")
-  private Integer code;
 
-  @JsonProperty("type")
-  private String type;
+@JsonTypeName("ApiResponse")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class ModelApiResponse {
 
-  @JsonProperty("message")
-  private String message;
+  private @Nullable Integer code;
+
+  private @Nullable String type;
+
+  private @Nullable String message;
 
   public ModelApiResponse code(Integer code) {
     this.code = code;
@@ -36,10 +39,10 @@ public class ModelApiResponse   {
   /**
    * Get code
    * @return code
-  */
+   */
+  
   @ApiModelProperty(value = "")
-
-
+  @JsonProperty("code")
   public Integer getCode() {
     return code;
   }
@@ -56,10 +59,10 @@ public class ModelApiResponse   {
   /**
    * Get type
    * @return type
-  */
+   */
+  
   @ApiModelProperty(value = "")
-
-
+  @JsonProperty("type")
   public String getType() {
     return type;
   }
@@ -76,10 +79,10 @@ public class ModelApiResponse   {
   /**
    * Get message
    * @return message
-  */
+   */
+  
   @ApiModelProperty(value = "")
-
-
+  @JsonProperty("message")
   public String getMessage() {
     return message;
   }
@@ -87,7 +90,6 @@ public class ModelApiResponse   {
   public void setMessage(String message) {
     this.message = message;
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -112,7 +114,6 @@ public class ModelApiResponse   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ModelApiResponse {\n");
-    
     sb.append("    code: ").append(toIndentedString(code)).append("\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
     sb.append("    message: ").append(toIndentedString(message)).append("\n");

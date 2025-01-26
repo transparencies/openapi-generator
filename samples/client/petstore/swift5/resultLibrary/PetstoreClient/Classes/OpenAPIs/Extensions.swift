@@ -5,19 +5,52 @@
 //
 
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 #if canImport(AnyCodable)
 import AnyCodable
 #endif
 
-extension Bool: JSONEncodable {}
-extension Float: JSONEncodable {}
-extension Int: JSONEncodable {}
-extension Int32: JSONEncodable {}
-extension Int64: JSONEncodable {}
-extension Double: JSONEncodable {}
-extension String: JSONEncodable {}
-extension URL: JSONEncodable {}
-extension UUID: JSONEncodable {}
+extension Bool: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Float: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Int: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Int32: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Int64: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Double: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Decimal: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension String: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension URL: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension UUID: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
 
 extension RawRepresentable where RawValue: JSONEncodable {
     func encodeToJSON() -> Any { return self.rawValue }
@@ -65,6 +98,15 @@ extension Date: JSONEncodable {
     }
 }
 
+extension JSONEncodable where Self: Encodable {
+    func encodeToJSON() -> Any {
+        guard let data = try? CodableHelper.jsonEncoder.encode(self) else {
+            fatalError("Could not encode to json: \(self)")
+        }
+        return data.encodeToJSON()
+    }
+}
+
 extension String: CodingKey {
 
     public var stringValue: String {
@@ -87,34 +129,48 @@ extension String: CodingKey {
 
 extension KeyedEncodingContainerProtocol {
 
-    public mutating func encodeArray<T>(_ values: [T], forKey key: Self.Key) throws where T: Encodable {
+    internal mutating func encodeArray<T>(_ values: [T], forKey key: Self.Key) throws where T: Encodable {
         var arrayContainer = nestedUnkeyedContainer(forKey: key)
         try arrayContainer.encode(contentsOf: values)
     }
 
-    public mutating func encodeArrayIfPresent<T>(_ values: [T]?, forKey key: Self.Key) throws where T: Encodable {
+    internal mutating func encodeArrayIfPresent<T>(_ values: [T]?, forKey key: Self.Key) throws where T: Encodable {
         if let values = values {
             try encodeArray(values, forKey: key)
         }
     }
 
-    public mutating func encodeMap<T>(_ pairs: [Self.Key: T]) throws where T: Encodable {
+    internal mutating func encodeMap<T>(_ pairs: [Self.Key: T]) throws where T: Encodable {
         for (key, value) in pairs {
             try encode(value, forKey: key)
         }
     }
 
-    public mutating func encodeMapIfPresent<T>(_ pairs: [Self.Key: T]?) throws where T: Encodable {
+    internal mutating func encodeMapIfPresent<T>(_ pairs: [Self.Key: T]?) throws where T: Encodable {
         if let pairs = pairs {
             try encodeMap(pairs)
         }
     }
 
+    internal mutating func encode(_ value: Decimal, forKey key: Self.Key) throws {
+        let decimalNumber = NSDecimalNumber(decimal: value)
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.locale = Locale(identifier: "en_US")
+        let formattedString = numberFormatter.string(from: decimalNumber) ?? "\(value)"
+        try encode(formattedString, forKey: key)
+    }
+
+    internal mutating func encodeIfPresent(_ value: Decimal?, forKey key: Self.Key) throws {
+        if let value = value {
+            try encode(value, forKey: key)
+        }
+    }
 }
 
 extension KeyedDecodingContainerProtocol {
 
-    public func decodeArray<T>(_ type: T.Type, forKey key: Self.Key) throws -> [T] where T: Decodable {
+    internal func decodeArray<T>(_ type: T.Type, forKey key: Self.Key) throws -> [T] where T: Decodable {
         var tmpArray = [T]()
 
         var nestedContainer = try nestedUnkeyedContainer(forKey: key)
@@ -126,7 +182,7 @@ extension KeyedDecodingContainerProtocol {
         return tmpArray
     }
 
-    public func decodeArrayIfPresent<T>(_ type: T.Type, forKey key: Self.Key) throws -> [T]? where T: Decodable {
+    internal func decodeArrayIfPresent<T>(_ type: T.Type, forKey key: Self.Key) throws -> [T]? where T: Decodable {
         var tmpArray: [T]?
 
         if contains(key) {
@@ -136,7 +192,7 @@ extension KeyedDecodingContainerProtocol {
         return tmpArray
     }
 
-    public func decodeMap<T>(_ type: T.Type, excludedKeys: Set<Self.Key>) throws -> [Self.Key: T] where T: Decodable {
+    internal func decodeMap<T>(_ type: T.Type, excludedKeys: Set<Self.Key>) throws -> [Self.Key: T] where T: Decodable {
         var map: [Self.Key: T] = [:]
 
         for key in allKeys {
@@ -149,10 +205,32 @@ extension KeyedDecodingContainerProtocol {
         return map
     }
 
+    internal func decode(_ type: Decimal.Type, forKey key: Self.Key) throws -> Decimal {
+        let stringValue = try decode(String.self, forKey: key)
+        guard let decimalValue = Decimal(string: stringValue) else {
+            let context = DecodingError.Context(codingPath: [key], debugDescription: "The key \(key) couldn't be converted to a Decimal value")
+            throw DecodingError.typeMismatch(type, context)
+        }
+
+        return decimalValue
+    }
+
+    internal func decodeIfPresent(_ type: Decimal.Type, forKey key: Self.Key) throws -> Decimal? {
+        guard let stringValue = try decodeIfPresent(String.self, forKey: key) else {
+            return nil
+        }
+        guard let decimalValue = Decimal(string: stringValue) else {
+            let context = DecodingError.Context(codingPath: [key], debugDescription: "The key \(key) couldn't be converted to a Decimal value")
+            throw DecodingError.typeMismatch(type, context)
+        }
+
+        return decimalValue
+    }
+
 }
 
 extension HTTPURLResponse {
     var isStatusCodeSuccessful: Bool {
-        return (200 ..< 300).contains(statusCode)
+        return Configuration.successfulStatusCodeRange.contains(statusCode)
     }
 }

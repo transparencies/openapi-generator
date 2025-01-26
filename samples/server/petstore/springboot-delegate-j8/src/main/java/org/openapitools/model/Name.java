@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.lang.Nullable;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import javax.validation.Valid;
@@ -13,24 +14,34 @@ import javax.validation.constraints.*;
 
 
 import java.util.*;
+import javax.annotation.Generated;
 
 /**
  * Model for testing model name same as property name
  */
+
 @ApiModel(description = "Model for testing model name same as property name")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
-public class Name   {
-  @JsonProperty("name")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class Name {
+
   private Integer name;
 
-  @JsonProperty("snake_case")
-  private Integer snakeCase;
+  private @Nullable Integer snakeCase;
 
-  @JsonProperty("property")
-  private String property;
+  private @Nullable String property;
 
-  @JsonProperty("123Number")
-  private Integer _123number;
+  private @Nullable Integer _123number;
+
+  public Name() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public Name(Integer name) {
+    this.name = name;
+  }
 
   public Name name(Integer name) {
     this.name = name;
@@ -40,11 +51,10 @@ public class Name   {
   /**
    * Get name
    * @return name
-  */
+   */
+  @NotNull 
   @ApiModelProperty(required = true, value = "")
-  @NotNull
-
-
+  @JsonProperty("name")
   public Integer getName() {
     return name;
   }
@@ -61,10 +71,10 @@ public class Name   {
   /**
    * Get snakeCase
    * @return snakeCase
-  */
+   */
+  
   @ApiModelProperty(readOnly = true, value = "")
-
-
+  @JsonProperty("snake_case")
   public Integer getSnakeCase() {
     return snakeCase;
   }
@@ -81,10 +91,10 @@ public class Name   {
   /**
    * Get property
    * @return property
-  */
+   */
+  
   @ApiModelProperty(value = "")
-
-
+  @JsonProperty("property")
   public String getProperty() {
     return property;
   }
@@ -101,10 +111,10 @@ public class Name   {
   /**
    * Get _123number
    * @return _123number
-  */
+   */
+  
   @ApiModelProperty(readOnly = true, value = "")
-
-
+  @JsonProperty("123Number")
   public Integer get123number() {
     return _123number;
   }
@@ -112,7 +122,6 @@ public class Name   {
   public void set123number(Integer _123number) {
     this._123number = _123number;
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -138,7 +147,6 @@ public class Name   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Name {\n");
-    
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    snakeCase: ").append(toIndentedString(snakeCase)).append("\n");
     sb.append("    property: ").append(toIndentedString(property)).append("\n");

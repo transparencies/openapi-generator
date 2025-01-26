@@ -1,26 +1,41 @@
+# coding: utf-8
+
 {{>partial_header}}
 
 import unittest
 
-import {{packageName}}
-from {{apiPackage}}.{{classVarName}} import {{classname}}  # noqa: E501
+from {{apiPackage}}.{{classFilename}} import {{classname}}
 
 
-class {{#operations}}Test{{classname}}(unittest.TestCase):
+class {{#operations}}Test{{classname}}(unittest.{{#asyncio}}IsolatedAsyncio{{/asyncio}}TestCase):
     """{{classname}} unit test stubs"""
 
-    def setUp(self):
-        self.api = {{classname}}()  # noqa: E501
+    {{#asyncio}}
+    async def asyncSetUp(self) -> None:
+        self.api = {{classname}}()
 
-    def tearDown(self):
+    async def asyncTearDown(self) -> None:
+        await self.api.api_client.close()
+    {{/asyncio}}
+    {{^asyncio}}
+    def setUp(self) -> None:
+        self.api = {{classname}}()
+
+    def tearDown(self) -> None:
         pass
+    {{/asyncio}}
 
-   {{#operation}}
-    def test_{{operationId}}(self):
+    {{#operation}}
+    {{#asyncio}}
+    async def test_{{operationId}}(self) -> None:
+    {{/asyncio}}
+    {{^asyncio}}
+    def test_{{operationId}}(self) -> None:
+    {{/asyncio}}
         """Test case for {{{operationId}}}
 
 {{#summary}}
-        {{{.}}}  # noqa: E501
+        {{{.}}}
 {{/summary}}
         """
         pass

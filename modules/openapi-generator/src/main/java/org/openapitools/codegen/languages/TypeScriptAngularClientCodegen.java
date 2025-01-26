@@ -18,10 +18,21 @@
 package org.openapitools.codegen.languages;
 
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.meta.features.DocumentationFeature;
+import org.openapitools.codegen.meta.features.GlobalFeature;
+import org.openapitools.codegen.meta.features.SecurityFeature;
+import org.openapitools.codegen.model.ModelMap;
+import org.openapitools.codegen.model.ModelsMap;
+import org.openapitools.codegen.model.OperationMap;
+import org.openapitools.codegen.model.OperationsMap;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.openapitools.codegen.utils.SemVer;
+import org.openapitools.codegen.utils.YamlConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +42,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
 import static org.openapitools.codegen.utils.StringUtils.*;
 
 public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCodegen {
@@ -51,11 +63,10 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     public static final String USE_SINGLE_REQUEST_PARAMETER = "useSingleRequestParameter";
     public static final String TAGGED_UNIONS = "taggedUnions";
     public static final String NG_VERSION = "ngVersion";
-    public static final String PROVIDED_IN_ROOT = "providedInRoot";
     public static final String PROVIDED_IN = "providedIn";
     public static final String ENFORCE_GENERIC_MODULE_WITH_PROVIDERS = "enforceGenericModuleWithProviders";
     public static final String HTTP_CONTEXT_IN_OPTIONS = "httpContextInOptions";
-    public static final String DELETE_ACCEPTS_BODY = "deleteAcceptsBody";
+    public static final String HTTP_TRANSFER_CACHE_IN_OPTIONS = "httpTransferCacheInOptions";
     public static final String API_MODULE_PREFIX = "apiModulePrefix";
     public static final String CONFIGURATION_PREFIX = "configurationPrefix";
     public static final String SERVICE_SUFFIX = "serviceSuffix";
@@ -66,16 +77,22 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     public static final String STRING_ENUMS = "stringEnums";
     public static final String STRING_ENUMS_DESC = "Generate string enums instead of objects for enum values.";
     public static final String QUERY_PARAM_OBJECT_FORMAT = "queryParamObjectFormat";
+    public static final String USE_SQUARE_BRACKETS_IN_ARRAY_NAMES = "useSquareBracketsInArrayNames";
+    public static final String TS_VERSION = "tsVersion";
+    public static final String RXJS_VERSION = "rxjsVersion";
+    public static final String NGPACKAGR_VERSION = "ngPackagrVersion";
+    public static final String ZONEJS_VERSION = "zonejsVersion";
 
-    protected String ngVersion = "13.0.1";
+    protected String ngVersion = "19.0.0";
+    @Getter @Setter
     protected String npmRepository = null;
-    private boolean useSingleRequestParameter = false;
+    @Setter(AccessLevel.PRIVATE) private boolean useSingleRequestParameter = false;
     protected String serviceSuffix = "Service";
     protected String serviceFileSuffix = ".service";
     protected String modelSuffix = "";
     protected String modelFileSuffix = "";
     protected String fileNaming = "camelCase";
-    protected Boolean stringEnums = false;
+    @Getter protected Boolean stringEnums = false;
     protected QUERY_PARAM_OBJECT_FORMAT_TYPE queryParamObjectFormat = QUERY_PARAM_OBJECT_FORMAT_TYPE.dot;
     protected PROVIDED_IN_LEVEL providedIn = PROVIDED_IN_LEVEL.root;
 
@@ -84,7 +101,11 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     public TypeScriptAngularClientCodegen() {
         super();
 
-        modifyFeatureSet(features -> features.includeDocumentationFeatures(DocumentationFeature.Readme));
+        modifyFeatureSet(features -> features
+                .includeDocumentationFeatures(DocumentationFeature.Readme)
+                .includeSecurityFeatures(SecurityFeature.BearerToken)
+                .includeGlobalFeatures(GlobalFeature.ParameterStyling)
+        );
 
         this.outputFolder = "generated-code/typescript-angular";
 
@@ -109,19 +130,16 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         this.cliOptions.add(CliOption.newBoolean(TAGGED_UNIONS,
                 "Use discriminators to create tagged unions instead of extending interfaces.",
                 this.taggedUnions));
-        this.cliOptions.add(CliOption.newBoolean(PROVIDED_IN_ROOT,
-                "Use this property to provide Injectables in root (it is only valid in angular version greater or equal to 6.0.0). IMPORTANT: Deprecated for angular version greater or equal to 9.0.0, use **providedIn** instead.",
-                false));
         CliOption providedInCliOpt = new CliOption(PROVIDED_IN,
-                "Use this property to provide Injectables in wanted level (it is only valid in angular version greater or equal to 9.0.0).").defaultValue("root");
+                "Use this property to provide Injectables in wanted level.").defaultValue("root");
         Map<String, String> providedInOptions = new HashMap<>();
-        providedInOptions.put(PROVIDED_IN_LEVEL.none.toString(), "No providedIn (same as providedInRoot=false)");
+        providedInOptions.put(PROVIDED_IN_LEVEL.none.toString(), "No providedIn)");
         providedInOptions.put(PROVIDED_IN_LEVEL.root.toString(), "The application-level injector in most apps.");
         providedInOptions.put(PROVIDED_IN_LEVEL.platform.toString(), "A special singleton platform injector shared by all applications on the page.");
         providedInOptions.put(PROVIDED_IN_LEVEL.any.toString(), "Provides a unique instance in each lazy loaded module while all eagerly loaded modules share one instance.");
         providedInCliOpt.setEnum(providedInOptions);
         this.cliOptions.add(providedInCliOpt);
-        this.cliOptions.add(new CliOption(NG_VERSION, "The version of Angular. (At least 6.0.0)").defaultValue(this.ngVersion));
+        this.cliOptions.add(new CliOption(NG_VERSION, "The version of Angular. (At least 9.0.0)").defaultValue(this.ngVersion));
         this.cliOptions.add(new CliOption(API_MODULE_PREFIX, "The prefix of the generated ApiModule."));
         this.cliOptions.add(new CliOption(CONFIGURATION_PREFIX, "The prefix of the generated Configuration."));
         this.cliOptions.add(new CliOption(SERVICE_SUFFIX, "The suffix of the generated service.").defaultValue(this.serviceSuffix));
@@ -131,11 +149,16 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         this.cliOptions.add(new CliOption(FILE_NAMING, "Naming convention for the output files: 'camelCase', 'kebab-case'.").defaultValue(this.fileNaming));
         this.cliOptions.add(new CliOption(STRING_ENUMS, STRING_ENUMS_DESC).defaultValue(String.valueOf(this.stringEnums)));
         this.cliOptions.add(new CliOption(QUERY_PARAM_OBJECT_FORMAT, "The format for query param objects: 'dot', 'json', 'key'.").defaultValue(this.queryParamObjectFormat.name()));
+        this.cliOptions.add(CliOption.newBoolean(USE_SQUARE_BRACKETS_IN_ARRAY_NAMES, "Setting this property to true will add brackets to array attribute names, e.g. my_values[].", false));
+        this.cliOptions.add(new CliOption(TS_VERSION, "The version of typescript compatible with Angular (see ngVersion option)."));
+        this.cliOptions.add(new CliOption(RXJS_VERSION, "The version of RxJS compatible with Angular (see ngVersion option)."));
+        this.cliOptions.add(new CliOption(NGPACKAGR_VERSION, "The version of ng-packagr compatible with Angular (see ngVersion option)."));
+        this.cliOptions.add(new CliOption(ZONEJS_VERSION, "The version of zone.js compatible with Angular (see ngVersion option)."));
     }
 
     @Override
     protected void addAdditionPropertiesToCodeGenModel(CodegenModel codegenModel, Schema schema) {
-        codegenModel.additionalPropertiesType = getTypeDeclaration(getAdditionalProperties(schema));
+        codegenModel.additionalPropertiesType = getTypeDeclaration(ModelUtils.getAdditionalProperties(schema));
         addImport(codegenModel, codegenModel.additionalPropertiesType);
     }
 
@@ -146,7 +169,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     @Override
     public String getHelp() {
-        return "Generates a TypeScript Angular (6.x - 13.x) client library.";
+        return "Generates a TypeScript Angular (9.x - 19.x) client library.";
     }
 
     @Override
@@ -161,6 +184,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         supportingFiles.add(new SupportingFile("configuration.mustache", getIndexDirectory(), "configuration.ts"));
         supportingFiles.add(new SupportingFile("variables.mustache", getIndexDirectory(), "variables.ts"));
         supportingFiles.add(new SupportingFile("encoder.mustache", getIndexDirectory(), "encoder.ts"));
+        supportingFiles.add(new SupportingFile("param.mustache", getIndexDirectory(), "param.ts"));
         supportingFiles.add(new SupportingFile("gitignore", "", ".gitignore"));
         supportingFiles.add(new SupportingFile("git_push.sh.mustache", "", "git_push.sh"));
         supportingFiles.add(new SupportingFile("README.mustache", getIndexDirectory(), "README.md"));
@@ -172,7 +196,11 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         } else {
             ngVersion = new SemVer(this.ngVersion);
             LOGGER.info("generating code for Angular {} ...", ngVersion);
-            LOGGER.info("  (you can select the angular version by setting the additionalProperty ngVersion)");
+            LOGGER.info("  (you can select the angular version by setting the additionalProperties (--additional-properties in CLI) ngVersion)");
+        }
+
+        if (!ngVersion.atLeast("9.0.0")) {
+            throw new IllegalArgumentException("Invalid ngVersion: " + ngVersion + ". Only Angular v9+ is supported.");
         }
 
         if (additionalProperties.containsKey(NPM_NAME)) {
@@ -203,45 +231,20 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
             taggedUnions = Boolean.parseBoolean(additionalProperties.get(TAGGED_UNIONS).toString());
         }
 
-        if (ngVersion.atLeast("9.0.0") && additionalProperties.containsKey(PROVIDED_IN)) {
+        if (additionalProperties.containsKey(PROVIDED_IN)) {
             setProvidedIn(additionalProperties.get(PROVIDED_IN).toString());
-        } else {
-            // Keep for backward compatibility
-            if (!additionalProperties.containsKey(PROVIDED_IN_ROOT)) {
-                additionalProperties.put(PROVIDED_IN_ROOT, true);
-            } else {
-                if (ngVersion.atLeast("9.0.0")) {
-                    LOGGER.warn("{} will be deprecated, use {} {} instead", PROVIDED_IN_ROOT, PROVIDED_IN, PROVIDED_IN_LEVEL.values());
-                }
-                additionalProperties.put(PROVIDED_IN_ROOT, Boolean.parseBoolean(
-                        additionalProperties.get(PROVIDED_IN_ROOT).toString()
-                        ));
-            }
-            if ((Boolean) additionalProperties.get(PROVIDED_IN_ROOT)) {
-                providedIn = PROVIDED_IN_LEVEL.root;
-            } else {
-                providedIn = PROVIDED_IN_LEVEL.none;
-            }
         }
         additionalProperties.put("providedIn", providedIn);
         additionalProperties.put("isProvidedInNone", getIsProvidedInNone());
 
-        if (ngVersion.atLeast("9.0.0")) {
-            additionalProperties.put(ENFORCE_GENERIC_MODULE_WITH_PROVIDERS, true);
-        } else {
-            additionalProperties.put(ENFORCE_GENERIC_MODULE_WITH_PROVIDERS, false);
-        }
+        additionalProperties.put(ENFORCE_GENERIC_MODULE_WITH_PROVIDERS, true);
 
         if (ngVersion.atLeast("12.0.0")) {
             additionalProperties.put(HTTP_CONTEXT_IN_OPTIONS, true);
-        } else {
-            additionalProperties.put(HTTP_CONTEXT_IN_OPTIONS, false);
         }
 
-        if (ngVersion.atLeast("12.1.0")) {
-            additionalProperties.put(DELETE_ACCEPTS_BODY, true);
-        } else {
-            additionalProperties.put(DELETE_ACCEPTS_BODY, false);
+        if (ngVersion.atLeast("17.0.0")) {
+            additionalProperties.put(HTTP_TRANSFER_CACHE_IN_OPTIONS, true);
         }
 
         additionalProperties.put(NG_VERSION, ngVersion);
@@ -293,95 +296,53 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     }
 
+    @Data
+    static class AngularDependencies {
+        String tsVersion;
+        String rxjsVersion;
+        String ngPackagrVersion;
+        String zonejsVersion;
+        String tsickleVersion;
+    }
+
     private void addNpmPackageGeneration(SemVer ngVersion) {
 
         if (additionalProperties.containsKey(NPM_REPOSITORY)) {
             this.setNpmRepository(additionalProperties.get(NPM_REPOSITORY).toString());
         }
 
-        // Set the typescript version compatible to the Angular version
-        if (ngVersion.atLeast("13.0.0")) {
-            additionalProperties.put("tsVersion", ">=4.4.2 <4.5.0");
-        } else if (ngVersion.atLeast("12.0.0")) {
-            additionalProperties.put("tsVersion", ">=4.3.0 <4.4.0");
-        } else if (ngVersion.atLeast("11.0.0")) {
-            additionalProperties.put("tsVersion", ">=4.0.0 <4.1.0");
-        } else if (ngVersion.atLeast("10.0.0")) {
-            additionalProperties.put("tsVersion", ">=3.9.2 <4.0.0");
-        } else if (ngVersion.atLeast("9.0.0")) {
-            additionalProperties.put("tsVersion", ">=3.6.0 <3.8.0");
-        } else if (ngVersion.atLeast("8.0.0")) {
-            additionalProperties.put("tsVersion", ">=3.4.0 <3.6.0");
-        } else if (ngVersion.atLeast("7.0.0")) {
-            additionalProperties.put("tsVersion", ">=3.1.1 <3.2.0");
-        } else {
-            // Angular v6 requires typescript ">=2.7.2 and <2.10.0"
-            additionalProperties.put("tsVersion", ">=2.7.2 and <2.10.0");
+        Map<String, AngularDependencies> angularDependenciesByVersion = YamlConfigUtils.loadAsMap("typescript-angular/angularDependenciesByVersion.yaml", AngularDependencies.class);
+
+        AngularDependencies angularDependencies = angularDependenciesByVersion.entrySet().stream()
+                // we filter only config version above or equal the current one
+                .filter(versionMatrix -> ngVersion.atLeast(versionMatrix.getKey()))
+                // get can the latest version configured that match the current one
+                .max(Comparator.comparing(s -> new SemVer(s.getKey())))
+                .map(Map.Entry::getValue)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid ngVersion. Only Angular v9+ is supported."));
+
+        if (!additionalProperties.containsKey(TS_VERSION)) {
+            additionalProperties.put(TS_VERSION, angularDependencies.getTsVersion());
         }
 
-        // Set the rxJS version compatible to the Angular version
-        if (ngVersion.atLeast("13.0.0")) {
-            additionalProperties.put("rxjsVersion", "7.4.0");
-        } else if (ngVersion.atLeast("10.0.0")) {
-            additionalProperties.put("rxjsVersion", "6.6.0");
-        } else if (ngVersion.atLeast("9.0.0")) {
-            additionalProperties.put("rxjsVersion", "6.5.3");
-        } else if (ngVersion.atLeast("8.0.0")) {
-            additionalProperties.put("rxjsVersion", "6.5.0");
-        } else if (ngVersion.atLeast("7.0.0")) {
-            additionalProperties.put("rxjsVersion", "6.3.0");
-        } else {
-            // Angular v6
-            additionalProperties.put("rxjsVersion", "6.1.0");
+        if (!additionalProperties.containsKey(RXJS_VERSION)) {
+            additionalProperties.put(RXJS_VERSION, angularDependencies.getRxjsVersion());
         }
 
-        supportingFiles.add(new SupportingFile("ng-package.mustache", getIndexDirectory(), "ng-package.json"));
-
-        // Specific ng-packagr configuration
-        if (ngVersion.atLeast("13.0.0")) {
-            additionalProperties.put("ngPackagrVersion", "13.0.3");
-            additionalProperties.put("tsickleVersion", "0.43.0");
-        } else if (ngVersion.atLeast("12.0.0")) {
-            additionalProperties.put("ngPackagrVersion", "12.2.1");
-            additionalProperties.put("tsickleVersion", "0.43.0");
-        } else if (ngVersion.atLeast("11.0.0")) {
-            additionalProperties.put("ngPackagrVersion", "11.0.2");
-            additionalProperties.put("tsickleVersion", "0.39.1");
-        } else if (ngVersion.atLeast("10.0.0")) {
-            additionalProperties.put("ngPackagrVersion", "10.0.3");
-            additionalProperties.put("tsickleVersion", "0.39.1");
-        } else if (ngVersion.atLeast("9.0.0")) {
-            additionalProperties.put("ngPackagrVersion", "9.0.1");
-            additionalProperties.put("tsickleVersion", "0.38.0");
-        } else if (ngVersion.atLeast("8.0.0")) {
-            additionalProperties.put("ngPackagrVersion", "5.4.0");
-            additionalProperties.put("tsickleVersion", "0.35.0");
-        } else if (ngVersion.atLeast("7.0.0")) {
-            // compatible versions with typescript version
-            additionalProperties.put("ngPackagrVersion", "5.1.0");
-            additionalProperties.put("tsickleVersion", "0.34.0");
-        } else {
-            // angular v6
-            // compatible versions with typescript version
-            additionalProperties.put("ngPackagrVersion", "3.0.6");
-            additionalProperties.put("tsickleVersion", "0.32.1");
+        if (!additionalProperties.containsKey(NGPACKAGR_VERSION)) {
+            additionalProperties.put(NGPACKAGR_VERSION, angularDependencies.getNgPackagrVersion());
         }
 
-        // set zone.js version
-        if (ngVersion.atLeast("12.0.0")) {
-            additionalProperties.put("zonejsVersion", "0.11.4");
-        } else if (ngVersion.atLeast("11.0.0")) {
-            additionalProperties.put("zonejsVersion", "0.11.3");
-        } else if (ngVersion.atLeast("9.0.0")) {
-            additionalProperties.put("zonejsVersion", "0.10.2");
-        } else if (ngVersion.atLeast("8.0.0")) {
-            additionalProperties.put("zonejsVersion", "0.9.1");
-        } else {
-            // compatible versions to Angular 6+
-            additionalProperties.put("zonejsVersion", "0.8.26");
+        if (!additionalProperties.containsKey(ZONEJS_VERSION)) {
+            additionalProperties.put(ZONEJS_VERSION, angularDependencies.getZonejsVersion());
+        }
+
+        if (angularDependencies.getTsickleVersion() != null) {
+            additionalProperties.put("tsickleVersion", angularDependencies.getTsickleVersion());
         }
 
         //Files for building our lib
+        supportingFiles.add(new SupportingFile("ng-package.mustache", getIndexDirectory(), "ng-package.json"));
         supportingFiles.add(new SupportingFile("package.mustache", getIndexDirectory(), "package.json"));
         supportingFiles.add(new SupportingFile("tsconfig.mustache", getIndexDirectory(), "tsconfig.json"));
     }
@@ -393,10 +354,6 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
     public void setStringEnums(boolean value) {
         stringEnums = value;
-    }
-
-    public Boolean getStringEnums() {
-        return stringEnums;
     }
 
     public boolean getQueryParamObjectFormatDot() {
@@ -440,14 +397,15 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
     }
 
     @Override
-    public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> operations, List<Object> allModels) {
-        Map<String, Object> objs = (Map<String, Object>) operations.get("operations");
+    public OperationsMap postProcessOperationsWithModels(OperationsMap operations, List<ModelMap> allModels) {
+        OperationMap objs = operations.getOperations();
 
         // Add filename information for api imports
-        objs.put("apiFilename", getApiFilenameFromClassname(objs.get("classname").toString()));
+        objs.put("apiFilename", getApiFilenameFromClassname(objs.getClassname()));
 
-        List<CodegenOperation> ops = (List<CodegenOperation>) objs.get("operation");
+        List<CodegenOperation> ops = objs.getOperation();
         boolean hasSomeFormParams = false;
+        boolean hasSomeEncodableParams = false;
         for (CodegenOperation op : ops) {
             if (op.getHasFormParams()) {
                 hasSomeFormParams = true;
@@ -457,7 +415,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
 
             // Prep a string buffer where we're going to set up our new version of the string.
             StringBuilder pathBuffer = new StringBuilder();
-            StringBuilder parameterName = new StringBuilder();
+            ParameterExpander paramExpander = new ParameterExpander(op, this::toParamName);
             int insideCurly = 0;
 
             // Iterate through existing string, one character at a time.
@@ -466,27 +424,18 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
                     case '{':
                         // We entered curly braces, so track that.
                         insideCurly++;
-
-                        // Add the more complicated component instead of just the brace.
-                        pathBuffer.append("${encodeURIComponent(String(");
                         break;
                     case '}':
                         // We exited curly braces, so track that.
                         insideCurly--;
 
-                        // Add the more complicated component instead of just the brace.
-                        CodegenParameter parameter = findPathParameterByName(op, parameterName.toString());
-                        pathBuffer.append(toParamName(parameterName.toString()));
-                        if (parameter != null && parameter.isDateTime) {
-                            pathBuffer.append(".toISOString()");
-                        }
-                        pathBuffer.append("))}");
-                        parameterName.setLength(0);
+                        pathBuffer.append(paramExpander.buildPathEntry());
+                        hasSomeEncodableParams = true;
                         break;
                     default:
                         char nextChar = op.path.charAt(i);
                         if (insideCurly > 0) {
-                            parameterName.append(nextChar);
+                            paramExpander.appendToParameterName(nextChar);
                         } else {
                             pathBuffer.append(nextChar);
                         }
@@ -499,10 +448,11 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         }
 
         operations.put("hasSomeFormParams", hasSomeFormParams);
+        operations.put("hasSomeEncodableParams", hasSomeEncodableParams);
 
         // Add additional filename information for model imports in the services
-        List<Map<String, Object>> imports = (List<Map<String, Object>>) operations.get("imports");
-        for (Map<String, Object> im : imports) {
+        List<Map<String, String>> imports = operations.getImports();
+        for (Map<String, String> im : imports) {
             // This property is not used in the templates any more, subject for removal
             im.put("filename", im.get("import"));
             im.put("classname", im.get("classname"));
@@ -511,36 +461,18 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         return operations;
     }
 
-    /**
-     * Finds and returns a path parameter of an operation by its name
-     *
-     * @param operation the operation
-     * @param parameterName the name of the parameter
-     * @return param
-     */
-    private CodegenParameter findPathParameterByName(CodegenOperation operation, String parameterName) {
-        for (CodegenParameter param : operation.pathParams) {
-            if (param.baseName.equals(parameterName)) {
-                return param;
-            }
-        }
-        return null;
-    }
-
     @Override
-    public Map<String, Object> postProcessModels(Map<String, Object> objs) {
-        Map<String, Object> result = super.postProcessModels(objs);
+    public ModelsMap postProcessModels(ModelsMap objs) {
+        ModelsMap result = super.postProcessModels(objs);
         return postProcessModelsEnum(result);
     }
 
     @Override
-    public Map<String, Object> postProcessAllModels(Map<String, Object> objs) {
-        Map<String, Object> result = super.postProcessAllModels(objs);
-        for (Map.Entry<String, Object> entry : result.entrySet()) {
-            Map<String, Object> inner = (Map<String, Object>) entry.getValue();
-            List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
-            for (Map<String, Object> mo : models) {
-                CodegenModel cm = (CodegenModel) mo.get("model");
+    public Map<String, ModelsMap> postProcessAllModels(Map<String, ModelsMap> objs) {
+        Map<String, ModelsMap> result = super.postProcessAllModels(objs);
+        for (ModelsMap entry : result.values()) {
+            for (ModelMap mo : entry.getModels()) {
+                CodegenModel cm = mo.getModel();
                 if (taggedUnions) {
                     mo.put(TAGGED_UNIONS, true);
                     if (cm.discriminator != null && cm.children != null) {
@@ -652,7 +584,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         if (importMapping.containsKey(name)) {
             return importMapping.get(name);
         }
-        return DEFAULT_IMPORT_PREFIX + this.convertUsingFileNamingConvention(this.sanitizeName(name)) + modelFileSuffix;
+        return DEFAULT_IMPORT_PREFIX + this.convertUsingFileNamingConvention(super.toModelFilename(name)) + modelFileSuffix;
     }
 
     @Override
@@ -660,23 +592,11 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         if (importMapping.containsKey(name)) {
             return importMapping.get(name);
         }
-        return DEFAULT_MODEL_IMPORT_DIRECTORY_PREFIX + modelPackage() + "/" + toModelFilename(name).substring(DEFAULT_IMPORT_PREFIX.length());
-    }
-
-    public String getNpmRepository() {
-        return npmRepository;
-    }
-
-    public void setNpmRepository(String npmRepository) {
-        this.npmRepository = npmRepository;
+        return DEFAULT_MODEL_IMPORT_DIRECTORY_PREFIX + modelPackage() + "/" + toModelFilename(removeModelPrefixSuffix(name)).substring(DEFAULT_IMPORT_PREFIX.length());
     }
 
     private boolean getUseSingleRequestParameter() {
         return useSingleRequestParameter;
-    }
-
-    private void setUseSingleRequestParameter(boolean useSingleRequestParameter) {
-        this.useSingleRequestParameter = useSingleRequestParameter;
     }
 
     private String getApiFilenameFromClassname(String classname) {
@@ -795,7 +715,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         if ("kebab-case".equals(fileNaming)) {
             name = dashize(underscore(name));
         } else {
-            name = camelize(name, true);
+            name = camelize(name, LOWERCASE_FIRST_LETTER);
         }
         return name;
     }

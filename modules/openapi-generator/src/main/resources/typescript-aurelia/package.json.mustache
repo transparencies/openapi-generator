@@ -1,7 +1,11 @@
 {
   "name": "{{{npmName}}}{{^npmName}}typescript-aurelia-api{{/npmName}}",
   "version": "{{{npmVersion}}}{{^npmVersion}}0.0.0{{/npmVersion}}",
-  "license": "Unlicense",
+  "repository": {
+    "type": "git",
+    "url": "https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}.git"
+  },
+  "license": "{{licenseName}}",
   "main": "./dist/Api.js",
   "browser": "./dist/Api.js",
   "typings": "./dist/Api.d.ts",
@@ -18,6 +22,6 @@
   },
   "devDependencies": {
     "tslint": "^3.15.1",
-    "typescript": "^2.4 || ^3.0"
+    "typescript": "^4.0 || ^5.0"
   }
 }

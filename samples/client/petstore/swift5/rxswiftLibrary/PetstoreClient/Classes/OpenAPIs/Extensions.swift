@@ -5,19 +5,52 @@
 //
 
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 #if canImport(AnyCodable)
 import AnyCodable
 #endif
 
-extension Bool: JSONEncodable {}
-extension Float: JSONEncodable {}
-extension Int: JSONEncodable {}
-extension Int32: JSONEncodable {}
-extension Int64: JSONEncodable {}
-extension Double: JSONEncodable {}
-extension String: JSONEncodable {}
-extension URL: JSONEncodable {}
-extension UUID: JSONEncodable {}
+extension Bool: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Float: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Int: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Int32: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Int64: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Double: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension Decimal: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension String: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension URL: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
+
+extension UUID: JSONEncodable {
+    func encodeToJSON() -> Any { self }
+}
 
 extension RawRepresentable where RawValue: JSONEncodable {
     func encodeToJSON() -> Any { return self.rawValue }
@@ -65,8 +98,17 @@ extension Date: JSONEncodable {
     }
 }
 
+extension JSONEncodable where Self: Encodable {
+    func encodeToJSON() -> Any {
+        guard let data = try? CodableHelper.jsonEncoder.encode(self) else {
+            fatalError("Could not encode to json: \(self)")
+        }
+        return data.encodeToJSON()
+    }
+}
+
 extension HTTPURLResponse {
     var isStatusCodeSuccessful: Bool {
-        return (200 ..< 300).contains(statusCode)
+        return Configuration.successfulStatusCodeRange.contains(statusCode)
     }
 }

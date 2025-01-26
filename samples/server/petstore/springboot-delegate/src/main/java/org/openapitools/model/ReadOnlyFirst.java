@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.lang.Nullable;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import javax.validation.Valid;
@@ -13,17 +14,30 @@ import javax.validation.constraints.*;
 
 
 import java.util.*;
+import javax.annotation.Generated;
 
 /**
  * ReadOnlyFirst
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
-public class ReadOnlyFirst   {
-  @JsonProperty("bar")
-  private String bar;
 
-  @JsonProperty("baz")
-  private String baz;
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class ReadOnlyFirst {
+
+  private @Nullable String bar;
+
+  private @Nullable String baz;
+
+  public ReadOnlyFirst() {
+    super();
+  }
+
+  /**
+   * Constructor with all args parameters
+   */
+  public ReadOnlyFirst(@Nullable String bar, @Nullable String baz) {
+      this.bar = bar;
+      this.baz = baz;
+  }
 
   public ReadOnlyFirst bar(String bar) {
     this.bar = bar;
@@ -33,10 +47,10 @@ public class ReadOnlyFirst   {
   /**
    * Get bar
    * @return bar
-  */
+   */
+  
   @ApiModelProperty(readOnly = true, value = "")
-
-
+  @JsonProperty("bar")
   public String getBar() {
     return bar;
   }
@@ -53,10 +67,10 @@ public class ReadOnlyFirst   {
   /**
    * Get baz
    * @return baz
-  */
+   */
+  
   @ApiModelProperty(value = "")
-
-
+  @JsonProperty("baz")
   public String getBaz() {
     return baz;
   }
@@ -64,7 +78,6 @@ public class ReadOnlyFirst   {
   public void setBaz(String baz) {
     this.baz = baz;
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -88,7 +101,6 @@ public class ReadOnlyFirst   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ReadOnlyFirst {\n");
-    
     sb.append("    bar: ").append(toIndentedString(bar)).append("\n");
     sb.append("    baz: ").append(toIndentedString(baz)).append("\n");
     sb.append("}");

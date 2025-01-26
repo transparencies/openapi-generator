@@ -16,29 +16,23 @@
 
 package org.openapitools.codegen;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.*;
 
+@Getter @Setter
 public class CodegenComposedSchemas {
     private List<CodegenProperty> allOf;
     private List<CodegenProperty> oneOf;
     private List<CodegenProperty> anyOf;
+    private CodegenProperty not = null;
 
-    public CodegenComposedSchemas(List<CodegenProperty> allOf, List<CodegenProperty> oneOf, List<CodegenProperty> anyOf) {
+    public CodegenComposedSchemas(List<CodegenProperty> allOf, List<CodegenProperty> oneOf, List<CodegenProperty> anyOf, CodegenProperty not) {
         this.allOf = allOf;
         this.oneOf = oneOf;
         this.anyOf = anyOf;
-    }
-
-    public List<CodegenProperty> getAllOf() {
-        return allOf;
-    }
-
-    public List<CodegenProperty> getOneOf() {
-        return oneOf;
-    }
-
-    public List<CodegenProperty> getAnyOf() {
-        return anyOf;
+        this.not = not;
     }
 
     public String toString() {
@@ -46,6 +40,7 @@ public class CodegenComposedSchemas {
         sb.append("oneOf=").append(oneOf);
         sb.append(", anyOf=").append(anyOf);
         sb.append(", allOf=").append(allOf);
+        sb.append(", not=").append(not);
         sb.append('}');
         return sb.toString();
     }
@@ -56,11 +51,12 @@ public class CodegenComposedSchemas {
         CodegenComposedSchemas that = (CodegenComposedSchemas) o;
         return Objects.equals(oneOf, that.oneOf) &&
                 Objects.equals(anyOf, that.anyOf) &&
-                Objects.equals(allOf, that.allOf);
+                Objects.equals(allOf, that.allOf) &&
+                Objects.equals(not, that.not);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(oneOf, anyOf, allOf);
+        return Objects.hash(oneOf, anyOf, allOf, not);
     }
 }

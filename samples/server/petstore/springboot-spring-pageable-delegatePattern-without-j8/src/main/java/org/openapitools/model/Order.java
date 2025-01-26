@@ -7,31 +7,33 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.threeten.bp.OffsetDateTime;
+import java.time.OffsetDateTime;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.lang.Nullable;
 import org.openapitools.jackson.nullable.JsonNullable;
+import java.time.OffsetDateTime;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 
 import java.util.*;
+import javax.annotation.Generated;
 
 /**
  * Order
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
-public class Order   {
-  @JsonProperty("id")
-  private Long id;
 
-  @JsonProperty("petId")
-  private Long petId;
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class Order {
 
-  @JsonProperty("quantity")
-  private Integer quantity;
+  private @Nullable Long id;
 
-  @JsonProperty("shipDate")
-  @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME)
-  private OffsetDateTime shipDate;
+  private @Nullable Long petId;
+
+  private @Nullable Integer quantity;
+
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private @Nullable OffsetDateTime shipDate;
 
   /**
    * Order Status
@@ -70,10 +72,8 @@ public class Order   {
     }
   }
 
-  @JsonProperty("status")
-  private StatusEnum status;
+  private @Nullable StatusEnum status;
 
-  @JsonProperty("complete")
   private Boolean complete = false;
 
   public Order id(Long id) {
@@ -84,10 +84,10 @@ public class Order   {
   /**
    * Get id
    * @return id
-  */
+   */
+  
   @ApiModelProperty(value = "")
-
-
+  @JsonProperty("id")
   public Long getId() {
     return id;
   }
@@ -104,10 +104,10 @@ public class Order   {
   /**
    * Get petId
    * @return petId
-  */
+   */
+  
   @ApiModelProperty(value = "")
-
-
+  @JsonProperty("petId")
   public Long getPetId() {
     return petId;
   }
@@ -124,10 +124,10 @@ public class Order   {
   /**
    * Get quantity
    * @return quantity
-  */
+   */
+  
   @ApiModelProperty(value = "")
-
-
+  @JsonProperty("quantity")
   public Integer getQuantity() {
     return quantity;
   }
@@ -144,11 +144,10 @@ public class Order   {
   /**
    * Get shipDate
    * @return shipDate
-  */
+   */
+  @Valid 
   @ApiModelProperty(value = "")
-
-  @Valid
-
+  @JsonProperty("shipDate")
   public OffsetDateTime getShipDate() {
     return shipDate;
   }
@@ -165,10 +164,10 @@ public class Order   {
   /**
    * Order Status
    * @return status
-  */
+   */
+  
   @ApiModelProperty(value = "Order Status")
-
-
+  @JsonProperty("status")
   public StatusEnum getStatus() {
     return status;
   }
@@ -185,10 +184,10 @@ public class Order   {
   /**
    * Get complete
    * @return complete
-  */
+   */
+  
   @ApiModelProperty(value = "")
-
-
+  @JsonProperty("complete")
   public Boolean getComplete() {
     return complete;
   }
@@ -196,7 +195,6 @@ public class Order   {
   public void setComplete(Boolean complete) {
     this.complete = complete;
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -224,7 +222,6 @@ public class Order   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Order {\n");
-    
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    petId: ").append(toIndentedString(petId)).append("\n");
     sb.append("    quantity: ").append(toIndentedString(quantity)).append("\n");

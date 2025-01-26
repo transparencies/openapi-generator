@@ -17,8 +17,12 @@
 
 package org.openapitools.codegen.languages;
 
+import lombok.Setter;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.meta.features.*;
+import org.openapitools.codegen.model.ModelMap;
+import org.openapitools.codegen.model.OperationMap;
+import org.openapitools.codegen.model.OperationsMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +41,8 @@ public class ErlangServerCodegen extends DefaultCodegen implements CodegenConfig
 
     protected String apiVersion = "1.0.0";
     protected String apiPath = "src";
-    protected String packageName = "openapi";
-    protected String openApiSpecName = "openapi";
+    @Setter protected String packageName = "openapi";
+    @Setter protected String openApiSpecName = "openapi";
 
     public ErlangServerCodegen() {
         super();
@@ -95,9 +99,9 @@ public class ErlangServerCodegen extends DefaultCodegen implements CodegenConfig
          */
         setReservedWordsLowerCase(
                 Arrays.asList(
-                        "after", "and", "andalso", "band", "begin", "bnot", "bor", "bsl", "bsr", "bxor", "case",
-                        "catch", "cond", "div", "end", "fun", "if", "let", "not", "of", "or", "orelse", "receive",
-                        "rem", "try", "when", "xor"
+                        "after", "and", "andalso", "band", "begin", "bnot", "bor", "bsl", "bsr", "bxor",
+                        "case", "catch", "cond", "div", "end", "fun", "if", "let", "maybe", "not",
+                        "of", "or", "orelse", "receive", "rem", "try", "when", "xor"
                 )
         );
 
@@ -168,10 +172,8 @@ public class ErlangServerCodegen extends DefaultCodegen implements CodegenConfig
         supportingFiles.add(new SupportingFile("router.mustache", "", toSourceFilePath("router", "erl")));
         supportingFiles.add(new SupportingFile("api.mustache", "", toSourceFilePath("api", "erl")));
         supportingFiles.add(new SupportingFile("server.mustache", "", toSourceFilePath("server", "erl")));
-        supportingFiles.add(new SupportingFile("utils.mustache", "", toSourceFilePath("utils", "erl")));
         supportingFiles.add(new SupportingFile("auth.mustache", "", toSourceFilePath("auth", "erl")));
         supportingFiles.add(new SupportingFile("openapi.mustache", "", toPrivFilePath(this.openApiSpecName, "json")));
-        supportingFiles.add(new SupportingFile("default_logic_handler.mustache", "", toSourceFilePath("default_logic_handler", "erl")));
         supportingFiles.add(new SupportingFile("logic_handler.mustache", "", toSourceFilePath("logic_handler", "erl")));
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md")
             .doNotOverwrite());
@@ -219,7 +221,7 @@ public class ErlangServerCodegen extends DefaultCodegen implements CodegenConfig
     @Override
     public String toApiName(String name) {
         if (name.length() == 0) {
-            return this.packageName + "_default_handler";
+            return this.packageName + "_handler";
         }
         return this.packageName + "_" + underscore(name) + "_handler";
     }
@@ -269,9 +271,9 @@ public class ErlangServerCodegen extends DefaultCodegen implements CodegenConfig
     }
 
     @Override
-    public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
-        Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
-        List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
+    public OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels) {
+        OperationMap operations = objs.getOperations();
+        List<CodegenOperation> operationList = operations.getOperation();
         for (CodegenOperation op : operationList) {
             if (op.path != null) {
                 op.path = op.path.replaceAll("\\{(.*?)\\}", ":$1");
@@ -284,14 +286,6 @@ public class ErlangServerCodegen extends DefaultCodegen implements CodegenConfig
     public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
         generateJSONSpecFile(objs);
         return super.postProcessSupportingFileData(objs);
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    public void setOpenApiSpecName(String openApiSpecName) {
-        this.openApiSpecName = openApiSpecName;
     }
 
     protected String toHandlerName(String name) {
@@ -330,4 +324,7 @@ public class ErlangServerCodegen extends DefaultCodegen implements CodegenConfig
     public String addRegularExpressionDelimiter(String pattern) {
         return pattern;
     }
+
+    @Override
+    public GeneratorLanguage generatorLanguage() { return GeneratorLanguage.ERLANG; }
 }

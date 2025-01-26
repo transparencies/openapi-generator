@@ -12,15 +12,28 @@
  * Do not edit the class manually.
  */
 
+
 /**
  * 
  * @export
- * @enum {string}
  */
-export enum StringEnum {
-    One = 'one',
-    Two = 'two',
-    Three = 'three'
+export const StringEnum = {
+    One: 'one',
+    Two: 'two',
+    Three: 'three'
+} as const;
+export type StringEnum = typeof StringEnum[keyof typeof StringEnum];
+
+
+export function instanceOfStringEnum(value: any): boolean {
+    for (const key in StringEnum) {
+        if (Object.prototype.hasOwnProperty.call(StringEnum, key)) {
+            if (StringEnum[key as keyof typeof StringEnum] === value) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 export function StringEnumFromJSON(json: any): StringEnum {
@@ -33,5 +46,9 @@ export function StringEnumFromJSONTyped(json: any, ignoreDiscriminator: boolean)
 
 export function StringEnumToJSON(value?: StringEnum | null): any {
     return value as any;
+}
+
+export function StringEnumToJSONTyped(value: any, ignoreDiscriminator: boolean): StringEnum {
+    return value as StringEnum;
 }
 

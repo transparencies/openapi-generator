@@ -2,12 +2,12 @@ package org.openapitools.api
 
 import org.openapitools.model.ModelApiResponse
 import org.openapitools.model.Pet
-import kotlinx.coroutines.flow.Flow;
+import kotlinx.coroutines.flow.Flow
 import org.springframework.stereotype.Service
 @Service
 class PetApiServiceImpl : PetApiService {
 
-    override suspend fun addPet(body: Pet): Unit {
+    override suspend fun addPet(pet: Pet): Pet {
         TODO("Implement me")
     }
 
@@ -27,7 +27,7 @@ class PetApiServiceImpl : PetApiService {
         TODO("Implement me")
     }
 
-    override suspend fun updatePet(body: Pet): Unit {
+    override suspend fun updatePet(pet: Pet): Pet {
         TODO("Implement me")
     }
 
@@ -35,7 +35,7 @@ class PetApiServiceImpl : PetApiService {
         TODO("Implement me")
     }
 
-    override suspend fun uploadFile(petId: kotlin.Long, additionalMetadata: kotlin.String?, file: org.springframework.core.io.Resource?): ModelApiResponse {
+    override suspend fun uploadFile(petId: kotlin.Long, additionalMetadata: kotlin.String?, file: org.springframework.web.multipart.MultipartFile?): ModelApiResponse {
         TODO("Implement me")
     }
 }

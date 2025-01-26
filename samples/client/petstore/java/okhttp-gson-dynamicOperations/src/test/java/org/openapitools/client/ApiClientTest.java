@@ -10,16 +10,14 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.TimeZone;
 
-import org.junit.*;
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ApiClientTest {
     ApiClient apiClient;
     JSON json;
 
-    @Before
+    @BeforeEach
     public void setup() {
         apiClient = new ApiClient();
         json = apiClient.getJSON();
@@ -84,7 +82,7 @@ public class ApiClientTest {
         assertEquals("text/plain", apiClient.selectHeaderContentType(contentTypes));
 
         contentTypes = new String[]{};
-        assertEquals("application/json", apiClient.selectHeaderContentType(contentTypes));
+        assertNull(apiClient.selectHeaderContentType(contentTypes));
     }
 
     @Test
@@ -338,14 +336,16 @@ public class ApiClientTest {
     public void testNewHttpClient() {
         OkHttpClient oldClient = apiClient.getHttpClient();
         apiClient.setHttpClient(oldClient.newBuilder().build());
-        assertThat(apiClient.getHttpClient(), is(not(oldClient)));
+        assertNotSame(apiClient.getHttpClient(), oldClient);
     }
 
     /**
      * Tests the invariant that the HttpClient for the ApiClient must never be null
      */
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullHttpClient() {
-        apiClient.setHttpClient(null);
+        assertThrows(NullPointerException.class, () -> {
+            apiClient.setHttpClient(null);
+        });
     }
 }

@@ -15,8 +15,8 @@ package org.openapitools.client.api;
 
 import org.openapitools.client.ApiException;
 import org.openapitools.client.model.SomeObj;
-import org.junit.Test;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,25 +27,34 @@ import java.io.InputStream;
 /**
  * API tests for PingApi
  */
-@Ignore
+@Disabled
 public class PingApiTest {
 
     private final PingApi api = new PingApi();
 
-    
     /**
-     * 
-     *
-     * 
-     *
-     * @throws ApiException
-     *          if the Api call fails
+     * @throws ApiException if the Api call fails
+     */
+    @Test
+    public void getPingTest() throws ApiException {
+        Long petId = null;
+        String name = null;
+        String status = null;
+        InputStream response = api.getPing(petId)
+                .name(name)
+                .status(status)
+                .execute();
+        // TODO: test validations
+    }
+
+    /**
+     * @throws ApiException if the Api call fails
      */
     @Test
     public void postPingTest() throws ApiException {
         SomeObj someObj = null;
-                InputStream response = api.postPing(someObj);
+        InputStream response = api.postPing(someObj);
         // TODO: test validations
     }
-    
+
 }

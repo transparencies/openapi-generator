@@ -1,5 +1,6 @@
 package org.openapitools.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
@@ -17,17 +18,31 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "className", visible = true)
 @JsonSubTypes({
-  @JsonSubTypes.Type(value = BigCat.class, name = "BigCat"),
-  @JsonSubTypes.Type(value = Cat.class, name = "Cat"),
-  @JsonSubTypes.Type(value = Dog.class, name = "Dog"),
+  @JsonSubTypes.Type(value = Cat.class, name = "CAT"),
+  @JsonSubTypes.Type(value = Dog.class, name = "DOG"),
 })
 
 
 @JsonTypeName("Animal")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen")public class Animal  implements Serializable {
-  
-  private @Valid String className;
-  private @Valid String color = "red";
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class Animal  implements Serializable {
+  private String className;
+  private String color = "red";
+
+  protected Animal(AnimalBuilder<?, ?> b) {
+    this.className = b.className;
+    this.color = b.color;
+  }
+
+  public Animal() {
+  }
+
+  @JsonCreator
+  public Animal(
+    @JsonProperty(required = true, value = "className") String className
+  ) {
+    this.className = className;
+  }
 
   /**
    **/
@@ -37,28 +52,23 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
   
-
-  
   @ApiModelProperty(required = true, value = "")
-  @JsonProperty("className")
-  @NotNull
-  public String getClassName() {
+  @JsonProperty(required = true, value = "className")
+  @NotNull public String getClassName() {
     return className;
   }
 
-  @JsonProperty("className")
+  @JsonProperty(required = true, value = "className")
   public void setClassName(String className) {
     this.className = className;
   }
 
-/**
+  /**
    **/
   public Animal color(String color) {
     this.color = color;
     return this;
   }
-
-  
 
   
   @ApiModelProperty(value = "")
@@ -114,5 +124,38 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   }
 
 
+  public static AnimalBuilder<?, ?> builder() {
+    return new AnimalBuilderImpl();
+  }
+
+  private static final class AnimalBuilderImpl extends AnimalBuilder<Animal, AnimalBuilderImpl> {
+
+    @Override
+    protected AnimalBuilderImpl self() {
+      return this;
+    }
+
+    @Override
+    public Animal build() {
+      return new Animal(this);
+    }
+  }
+
+  public static abstract class AnimalBuilder<C extends Animal, B extends AnimalBuilder<C, B>>  {
+    private String className;
+    private String color = "red";
+    protected abstract B self();
+
+    public abstract C build();
+
+    public B className(String className) {
+      this.className = className;
+      return self();
+    }
+    public B color(String color) {
+      this.color = color;
+      return self();
+    }
+  }
 }
 

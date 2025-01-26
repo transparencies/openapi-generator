@@ -1,17 +1,16 @@
 // TODO: better import syntax?
-import { BaseAPIRequestFactory, RequiredError } from './baseapi';
+import {BaseAPIRequestFactory, RequiredError, COLLECTION_FORMATS} from './baseapi';
 import {Configuration} from '../configuration';
-import { RequestContext, HttpMethod, ResponseContext, HttpFile} from '../http/http';
+import {RequestContext, HttpMethod, ResponseContext, HttpFile, HttpInfo} from '../http/http';
 import {ObjectSerializer} from '../models/ObjectSerializer';
 import {ApiException} from './exception';
 import {canConsumeForm, isCodeInRange} from '../util';
+import {SecurityAuthentication} from '../auth/auth';
 
 
-import { Cat } from '../models/Cat';
-import { Dog } from '../models/Dog';
-import { InlineObject } from '../models/InlineObject';
-import { PetByAge } from '../models/PetByAge';
-import { PetByType } from '../models/PetByType';
+import { FilePostRequest } from '../models/FilePostRequest';
+import { PetsFilteredPatchRequest } from '../models/PetsFilteredPatchRequest';
+import { PetsPatchRequest } from '../models/PetsPatchRequest';
 
 /**
  * no description
@@ -19,9 +18,9 @@ import { PetByType } from '../models/PetByType';
 export class DefaultApiRequestFactory extends BaseAPIRequestFactory {
 
     /**
-     * @param inlineObject 
+     * @param filePostRequest 
      */
-    public async filePost(inlineObject?: InlineObject, _options?: Configuration): Promise<RequestContext> {
+    public async filePost(filePostRequest?: FilePostRequest, _options?: Configuration): Promise<RequestContext> {
         let _config = _options || this.configuration;
 
 
@@ -39,19 +38,24 @@ export class DefaultApiRequestFactory extends BaseAPIRequestFactory {
         ]);
         requestContext.setHeaderParam("Content-Type", contentType);
         const serializedBody = ObjectSerializer.stringify(
-            ObjectSerializer.serialize(inlineObject, "InlineObject", ""),
+            ObjectSerializer.serialize(filePostRequest, "FilePostRequest", ""),
             contentType
         );
         requestContext.setBody(serializedBody);
 
+        
+        const defaultAuth: SecurityAuthentication | undefined = _options?.authMethods?.default || this.configuration?.authMethods?.default
+        if (defaultAuth?.applySecurityAuthentication) {
+            await defaultAuth?.applySecurityAuthentication(requestContext);
+        }
 
         return requestContext;
     }
 
     /**
-     * @param petByAgePetByType 
+     * @param petsFilteredPatchRequest 
      */
-    public async petsFilteredPatch(petByAgePetByType?: PetByAge | PetByType, _options?: Configuration): Promise<RequestContext> {
+    public async petsFilteredPatch(petsFilteredPatchRequest?: PetsFilteredPatchRequest, _options?: Configuration): Promise<RequestContext> {
         let _config = _options || this.configuration;
 
 
@@ -69,19 +73,24 @@ export class DefaultApiRequestFactory extends BaseAPIRequestFactory {
         ]);
         requestContext.setHeaderParam("Content-Type", contentType);
         const serializedBody = ObjectSerializer.stringify(
-            ObjectSerializer.serialize(petByAgePetByType, "PetByAge | PetByType", ""),
+            ObjectSerializer.serialize(petsFilteredPatchRequest, "PetsFilteredPatchRequest", ""),
             contentType
         );
         requestContext.setBody(serializedBody);
 
+        
+        const defaultAuth: SecurityAuthentication | undefined = _options?.authMethods?.default || this.configuration?.authMethods?.default
+        if (defaultAuth?.applySecurityAuthentication) {
+            await defaultAuth?.applySecurityAuthentication(requestContext);
+        }
 
         return requestContext;
     }
 
     /**
-     * @param catDog 
+     * @param petsPatchRequest 
      */
-    public async petsPatch(catDog?: Cat | Dog, _options?: Configuration): Promise<RequestContext> {
+    public async petsPatch(petsPatchRequest?: PetsPatchRequest, _options?: Configuration): Promise<RequestContext> {
         let _config = _options || this.configuration;
 
 
@@ -99,11 +108,16 @@ export class DefaultApiRequestFactory extends BaseAPIRequestFactory {
         ]);
         requestContext.setHeaderParam("Content-Type", contentType);
         const serializedBody = ObjectSerializer.stringify(
-            ObjectSerializer.serialize(catDog, "Cat | Dog", ""),
+            ObjectSerializer.serialize(petsPatchRequest, "PetsPatchRequest", ""),
             contentType
         );
         requestContext.setBody(serializedBody);
 
+        
+        const defaultAuth: SecurityAuthentication | undefined = _options?.authMethods?.default || this.configuration?.authMethods?.default
+        if (defaultAuth?.applySecurityAuthentication) {
+            await defaultAuth?.applySecurityAuthentication(requestContext);
+        }
 
         return requestContext;
     }
@@ -119,10 +133,10 @@ export class DefaultApiResponseProcessor {
      * @params response Response returned by the server for a request to filePost
      * @throws ApiException if the response code was not in [200, 299]
      */
-     public async filePost(response: ResponseContext): Promise<void > {
+     public async filePostWithHttpInfo(response: ResponseContext): Promise<HttpInfo<void >> {
         const contentType = ObjectSerializer.normalizeMediaType(response.headers["content-type"]);
         if (isCodeInRange("200", response.httpStatusCode)) {
-            return;
+            return new HttpInfo(response.httpStatusCode, response.headers, response.body, undefined);
         }
 
         // Work around for missing responses in specification, e.g. for petstore.yaml
@@ -131,7 +145,7 @@ export class DefaultApiResponseProcessor {
                 ObjectSerializer.parse(await response.body.text(), contentType),
                 "void", ""
             ) as void;
-            return body;
+            return new HttpInfo(response.httpStatusCode, response.headers, response.body, body);
         }
 
         throw new ApiException<string | Blob | undefined>(response.httpStatusCode, "Unknown API Status Code!", await response.getBodyAsAny(), response.headers);
@@ -144,10 +158,10 @@ export class DefaultApiResponseProcessor {
      * @params response Response returned by the server for a request to petsFilteredPatch
      * @throws ApiException if the response code was not in [200, 299]
      */
-     public async petsFilteredPatch(response: ResponseContext): Promise<void > {
+     public async petsFilteredPatchWithHttpInfo(response: ResponseContext): Promise<HttpInfo<void >> {
         const contentType = ObjectSerializer.normalizeMediaType(response.headers["content-type"]);
         if (isCodeInRange("200", response.httpStatusCode)) {
-            return;
+            return new HttpInfo(response.httpStatusCode, response.headers, response.body, undefined);
         }
 
         // Work around for missing responses in specification, e.g. for petstore.yaml
@@ -156,7 +170,7 @@ export class DefaultApiResponseProcessor {
                 ObjectSerializer.parse(await response.body.text(), contentType),
                 "void", ""
             ) as void;
-            return body;
+            return new HttpInfo(response.httpStatusCode, response.headers, response.body, body);
         }
 
         throw new ApiException<string | Blob | undefined>(response.httpStatusCode, "Unknown API Status Code!", await response.getBodyAsAny(), response.headers);
@@ -169,10 +183,10 @@ export class DefaultApiResponseProcessor {
      * @params response Response returned by the server for a request to petsPatch
      * @throws ApiException if the response code was not in [200, 299]
      */
-     public async petsPatch(response: ResponseContext): Promise<void > {
+     public async petsPatchWithHttpInfo(response: ResponseContext): Promise<HttpInfo<void >> {
         const contentType = ObjectSerializer.normalizeMediaType(response.headers["content-type"]);
         if (isCodeInRange("200", response.httpStatusCode)) {
-            return;
+            return new HttpInfo(response.httpStatusCode, response.headers, response.body, undefined);
         }
 
         // Work around for missing responses in specification, e.g. for petstore.yaml
@@ -181,7 +195,7 @@ export class DefaultApiResponseProcessor {
                 ObjectSerializer.parse(await response.body.text(), contentType),
                 "void", ""
             ) as void;
-            return body;
+            return new HttpInfo(response.httpStatusCode, response.headers, response.body, body);
         }
 
         throw new ApiException<string | Blob | undefined>(response.httpStatusCode, "Unknown API Status Code!", await response.getBodyAsAny(), response.headers);

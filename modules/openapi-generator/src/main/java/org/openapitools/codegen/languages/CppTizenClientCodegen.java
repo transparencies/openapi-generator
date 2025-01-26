@@ -32,6 +32,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 public class CppTizenClientCodegen extends AbstractCppCodegen implements CodegenConfig {
@@ -175,7 +176,7 @@ public class CppTizenClientCodegen extends AbstractCppCodegen implements Codegen
         if (languageSpecificPrimitives.contains(name)) {
             return name;
         } else {
-            return name;
+            return super.getTypeDeclaration(name);
         }
     }
 
@@ -311,7 +312,7 @@ public class CppTizenClientCodegen extends AbstractCppCodegen implements Codegen
         }
 
         // add_pet_by_id => addPetById
-        return camelize(operationId, true);
+        return camelize(operationId, LOWERCASE_FIRST_LETTER);
     }
     /**
      * Output the Getter name for boolean property, e.g. getActive

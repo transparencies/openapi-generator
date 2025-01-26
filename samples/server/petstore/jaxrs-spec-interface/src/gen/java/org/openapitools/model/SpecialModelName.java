@@ -1,5 +1,6 @@
 package org.openapitools.model;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
@@ -16,9 +17,12 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 @JsonTypeName("$special[model.name]")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen")public class SpecialModelName  implements Serializable {
-  
-  private @Valid Long $specialPropertyName;
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.12.0-SNAPSHOT")
+public class SpecialModelName  implements Serializable {
+  private Long $specialPropertyName;
+
+  public SpecialModelName() {
+  }
 
   /**
    **/
@@ -26,8 +30,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
     this.$specialPropertyName = $specialPropertyName;
     return this;
   }
-
-  
 
   
   @ApiModelProperty(value = "")

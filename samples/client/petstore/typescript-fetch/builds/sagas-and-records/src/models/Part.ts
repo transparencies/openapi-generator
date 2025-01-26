@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * Contains all the info about a pet part
  * @export
@@ -33,12 +33,21 @@ export interface Part {
     name: string;
 }
 
+/**
+ * Check if a given object implements the Part interface.
+ */
+export function instanceOfPart(value: object): value is Part {
+    if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    return true;
+}
+
 export function PartFromJSON(json: any): Part {
     return PartFromJSONTyped(json, false);
 }
 
 export function PartFromJSONTyped(json: any, ignoreDiscriminator: boolean): Part {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -48,17 +57,19 @@ export function PartFromJSONTyped(json: any, ignoreDiscriminator: boolean): Part
     };
 }
 
-export function PartToJSON(value?: Part | null): any {
-    if (value === undefined) {
-        return undefined;
+export function PartToJSON(json: any): Part {
+    return PartToJSONTyped(json, false);
+}
+
+export function PartToJSONTyped(value?: Part | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'id': value.id,
-        'name': value.name,
+        'id': value['id'],
+        'name': value['name'],
     };
 }
 
